@@ -75,7 +75,7 @@ namespace test_app
         }
 
         //Вывод в textBox всей информации
-        public static string textBoxPrint(string text, string cause, bool showTimeFlag)
+        public static string TextBoxPrint(string text, string cause, bool showTimeFlag)
         {
             string print = "";
             if (showTimeFlag)

@@ -188,7 +188,7 @@ namespace test_app
         }
 
         //----------Кнопка "Отправка" для данных------------
-        async private void send_button_Click(object sender, EventArgs e)
+        private async void send_button_Click(object sender, EventArgs e)
         {
             if (textBox2.Text == null || textBox2.Text == "") return;
             if (baseBlockStream == null)
@@ -209,28 +209,12 @@ namespace test_app
             {
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
             }
-
             String[] str = BitConverter.ToString(dataResponse, 0, dataResponse.Length).Split('-');
-
             Int32 sizeStr = Convert.ToInt32(str[1], 16);
-
             Array.Resize(ref dataResponse, sizeStr + 2);
 
-
-            if (showTime)
-            {
-                connection_log.AppendText(String.Format("[{0}] {1}\r\n[{0}] {2}\r\n", DateTime.Now, textBox2.Text, string.Join("", BitConverter.ToString(dataResponse).Replace("-", " "))));
-            }
-            else
-            {
-                connection_log.AppendText(String.Format("{0}\r\n{1}\r\n", textBox2.Text, string.Join("", BitConverter.ToString(dataResponse).Replace("-", " "))));
-            }
+            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "", showTime));
         }
-
-
-        //------Периодическая проверка на dataResponse-----------
-
-
 
         //-----------Кнопка "Установка соединения"---------------
         async private void TCP_CONNECTION_Click(object sender, EventArgs e)
@@ -456,7 +440,7 @@ namespace test_app
 
             if (sizeStr < 20)
             {
-                connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", showTime));
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", showTime));
                 enableButtons();
                 return;
             }
@@ -480,7 +464,7 @@ namespace test_app
 
             if (dataResponse[1] > 0x66)
             {
-                connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", showTime));
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", showTime));
                 enableButtons();
                 return;
             }
@@ -531,7 +515,7 @@ namespace test_app
 
                     Array.Resize(ref dataResponse, sizeStr + 2);
 
-                    connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
                 }
             }
             //---------------------------------------------------------
@@ -560,7 +544,7 @@ namespace test_app
 
             if (sizeStr < 20)
             {
-                connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", showTime));
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", showTime));
                 enableButtons();
                 return;
             }
@@ -574,7 +558,7 @@ namespace test_app
 
             if (dataResponse[1] > 0x66)
             {
-                connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", showTime));
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", showTime));
                 enableButtons();
                 return;
             }
@@ -626,7 +610,7 @@ namespace test_app
 
                     Array.Resize(ref dataResponse, sizeStr + 2);
 
-                    connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
                 }
             }
             //---------------------------------------------------------
@@ -654,14 +638,14 @@ namespace test_app
 
             if (sizeStr < 20)
             {
-                connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", showTime));
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", showTime));
                 enableButtons();
                 return;
             }
 
             if (dataResponse[1] > 0x66)
             {
-                connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", showTime));
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", showTime));
                 enableButtons();
                 return;
             }
@@ -711,7 +695,7 @@ namespace test_app
 
                     Array.Resize(ref dataResponse, sizeStr + 2);
 
-                    connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
                 }
             }
             enableButtons();
@@ -779,49 +763,54 @@ namespace test_app
                 0x01, 0x31, 0x00, 0x02, 0x00, 0x00,
                 0x02, 0x31, 0x00, 0x02, 0x00, 0x00 };
 
+            byte[] defaultGroundPackage =
+              { 0x68, 0x1C, 0x02, 0x00, 0x00, 0x00, 0x7D, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2C, 0x00, 0x04, 0x0B,
+                0x00, 0x32, 0x00, 0x01, 0x1E,
+                0x01, 0x32, 0x00, 0x02, 0x0A, 0x00 };
 
-            defaultRunPackage[17] += (byte)phase;
+            defaultGeneralPackage[17] += (byte)phase;
             defaultCurrentPackage[17] += (byte)phase;
+            defaultGroundPackage[17] += (byte)phase;
             //--------------------RunPackage--------------------------
-            for (int i = 19; i < defaultRunPackage.Length; i++)
+            for (int i = 19; i < defaultGeneralPackage.Length; i++)
             {
-                if (defaultRunPackage[i] == 0x30 && defaultRunPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
+                if (defaultGeneralPackage[i] == 0x30 && defaultGeneralPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
                                                                                      //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
                                                                                      //в первой половине 0x30
                 {
-                    if (defaultRunPackage[i + 2] == 0x01)
+                    if (defaultGeneralPackage[i + 2] == 0x01)
                     {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultRunPackage[i - 1] + 1].Cells[phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultRunPackage[i - 1] + 1].Cells[phase].Value.ToString() == "")
+                        if (baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Value.ToString() == "")
                         {
                             return;
                         }
-                        baseBlockTelemetryDataGrid.Rows[defaultRunPackage[i - 1] + 1].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        defaultRunPackage[i + 3] = Convert.ToByte(baseBlockTelemetryDataGrid.Rows[defaultRunPackage[i - 1] + 1].Cells[phase].Value);
+                        baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        defaultGeneralPackage[i + 3] = Convert.ToByte(baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Value);
                     }
-                    if (defaultRunPackage[i + 2] == 0x02)
+                    if (defaultGeneralPackage[i + 2] == 0x02)
                     {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultRunPackage[i - 1] + 1].Cells[phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultRunPackage[i - 1] + 1].Cells[phase].Value.ToString() == "")
+                        if (baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Value.ToString() == "")
                         {
                             return;
                         }
-                        baseBlockTelemetryDataGrid.Rows[defaultRunPackage[i - 1] + 1].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultRunPackage[i - 1] + 1].Cells[phase].Value);
-                        defaultRunPackage[i + 3] = (byte)(storage & 0x00FF);
-                        defaultRunPackage[i + 4] = (byte)(storage >> 8);
+                        baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Value);
+                        defaultGeneralPackage[i + 3] = (byte)(storage & 0x00FF);
+                        defaultGeneralPackage[i + 4] = (byte)(storage >> 8);
                     }
-                    if (defaultRunPackage[i + 2] == 0x04)
+                    if (defaultGeneralPackage[i + 2] == 0x04)
                     {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultRunPackage[i - 1] + 1].Cells[phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultRunPackage[i - 1] + 1].Cells[phase].Value.ToString() == "")
+                        if (baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Value.ToString() == "")
                         {
                             return;
                         }
-                        baseBlockTelemetryDataGrid.Rows[defaultRunPackage[i - 1] + 1].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultRunPackage[i - 1] + 1].Cells[phase].Value);
-                        defaultRunPackage[i + 3] = (byte)(storage & 0x00FF);
-                        defaultRunPackage[i + 4] = (byte)(storage >> 8);
+                        baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Value);
+                        defaultGeneralPackage[i + 3] = (byte)(storage & 0x00FF);
+                        defaultGeneralPackage[i + 4] = (byte)(storage >> 8);
                         //defaultRunPackage[i + 5] = 0xFF; UNUSED
                         //defaultRunPackage[i + 6] = 0xFF; UNSUED
                         //@TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535
@@ -832,7 +821,7 @@ namespace test_app
 
             //@TODO Вывести в отдельную ассинхронную задачу
             //ЗАПИСЬ---------------------------------------------------
-            await baseBlockStream.WriteAsync(defaultRunPackage, 0, defaultRunPackage.Length);
+            await baseBlockStream.WriteAsync(defaultGeneralPackage, 0, defaultGeneralPackage.Length);
             //CONFIRM--------------------------------------------------
             dataResponse = new Byte[256];
             await baseBlockStream.ReadAsync(dataResponse, 0, dataResponse.Length);
@@ -846,13 +835,10 @@ namespace test_app
 
                     Array.Resize(ref dataResponse, sizeStr + 2);
 
-                    connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
                 }
             }
             //---------------------------------------------------------
-
-
-
 
             //----------------CurrentPackage--------------------------
             for (int i = 19; i < defaultCurrentPackage.Length; i++)
@@ -885,7 +871,7 @@ namespace test_app
                         //substorage = (byte)(storage >> 8);
                         defaultCurrentPackage[i + 4] = (byte)(storage >> 8);
                     }
-                    if (defaultRunPackage[i + 2] == 0x04)
+                    if (defaultCurrentPackage[i + 2] == 0x04)
                     {
                         if (baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase] == null ||
                             baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase].Value.ToString() == "")
@@ -903,8 +889,6 @@ namespace test_app
                     }
                 }
             }
-
-            //@TODO Вывести в отдельную ассинхронную задачу
             //ЗАПИСЬ---------------------------------------------------
             await baseBlockStream.WriteAsync(defaultCurrentPackage, 0, defaultCurrentPackage.Length);
 
@@ -921,7 +905,7 @@ namespace test_app
 
                     Array.Resize(ref dataResponse, sizeStr + 2);
 
-                    connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
                 }
             }
             //---------------------------------------------------------
