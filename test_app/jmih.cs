@@ -457,6 +457,7 @@ namespace test_app
             if (sizeStr < 20)
             {
                 connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", showTime));
+                enableButtons();
                 return;
             }
 
@@ -480,6 +481,7 @@ namespace test_app
             if (dataResponse[1] > 0x66)
             {
                 connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", showTime));
+                enableButtons();
                 return;
             }
 
@@ -559,6 +561,7 @@ namespace test_app
             if (sizeStr < 20)
             {
                 connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", showTime));
+                enableButtons();
                 return;
             }
 
@@ -572,6 +575,7 @@ namespace test_app
             if (dataResponse[1] > 0x66)
             {
                 connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", showTime));
+                enableButtons();
                 return;
             }
 
@@ -651,17 +655,19 @@ namespace test_app
             if (sizeStr < 20)
             {
                 connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", showTime));
+                enableButtons();
                 return;
             }
 
             if (dataResponse[1] > 0x66)
             {
                 connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", showTime));
+                enableButtons();
                 return;
             }
             for (int i = 19; i < dataResponse[18]; i++)
             {
-                if (dataResponse[i] == 0x31 && dataResponse[i - 1] < 0x03) //&& dataResponse[i + 2] > 0x00)
+                if (dataResponse[i] == 0x32 && dataResponse[i - 1] < 0x02) //&& dataResponse[i + 2] > 0x00)
                                                                            //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
                                                                            //в первой половине 0x31
                 {
@@ -708,6 +714,7 @@ namespace test_app
                     connection_log.AppendText(AdditionalFunctions.textBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
                 }
             }
+            enableButtons();
         }
 
         //---------------Проверка на изменение ячейки в таблице телеизмерений------------
@@ -755,7 +762,7 @@ namespace test_app
             //06 30 00 01 0A | 07 30 00 02 0A 00
             Int16 storage;
 
-            byte[] defaultRunPackage =
+            byte[] defaultGeneralPackage =
               { 0x68, 0x40, 0x1C, 0x00, 0x4E, 0x00, 0x7D, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2A, 0x00, 0x04, 0x2F,
                 0x00, 0x30, 0x00, 0x02, 0x00, 0x00,
                 0x01, 0x30, 0x00, 0x01, 0x00,
