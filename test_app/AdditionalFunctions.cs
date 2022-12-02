@@ -80,14 +80,14 @@ namespace test_app
             string print = "";
             if (showTimeFlag)
             {
-                print += (String.Format("\r\n[{0}] {1}\r\n", DateTime.Now, "", text));
-                print += (String.Format("[{0}] {1}\r\n", DateTime.Now, cause));
+                print += (String.Format("[{0}] {1}: {2}\r\n", DateTime.Now, cause, text));
+                //print += (String.Format("[{0}] {1}: {2}\r\n", DateTime.Now, cause));
                 return print;
             }
             else
             {
-                print += (String.Format("\r\n{0}\r\n", "", text));
-                print += (String.Format("{0}\r\n", cause));
+                print += (String.Format("{0}: {1}\r\n", cause, text));
+                //print += (String.Format("{0}\r\n", cause));
                 return print;
             }
         }

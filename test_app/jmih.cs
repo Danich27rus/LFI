@@ -213,7 +213,7 @@ namespace test_app
             Int32 sizeStr = Convert.ToInt32(str[1], 16);
             Array.Resize(ref dataResponse, sizeStr + 2);
 
-            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "", showTime));
+            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(str.ToString(), "", showTime));
         }
 
         //-----------Кнопка "Установка соединения"---------------
@@ -225,7 +225,7 @@ namespace test_app
                 MessageBox.Show("Какое-то из полей IP/Порт пустое, его необходимо заполнить", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                 return;
             }
-            if (showTime)
+            /*if (showTime)
             {
                 connection_log.AppendText(String.Format("[{0}]IP: {1}\r\n", DateTime.Now, baseBlockServerConstants.Rows[0].Cells[1].Value.ToString()));
                 connection_log.AppendText(String.Format("[{0}]Порт: {1}\r\n", DateTime.Now, baseBlockServerConstants.Rows[1].Cells[1].Value.ToString()));
@@ -234,12 +234,12 @@ namespace test_app
             {
                 connection_log.AppendText("IP:" + baseBlockServerConstants.Rows[0].Cells[1].Value.ToString() + "\r\n");
                 connection_log.AppendText("Порт: " + baseBlockServerConstants.Rows[1].Cells[1].Value.ToString() + "\r\n");
-            }
+            }*/
+            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(baseBlockServerConstants.Rows[0].Cells[1].Value.ToString(), "IP", showTime));
+            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(baseBlockServerConstants.Rows[1].Cells[1].Value.ToString(), "Порт", showTime));
 
             baseBlockSender = new TcpClient();
             baseBlockIP = IPAddress.Parse(baseBlockServerConstants.Rows[0].Cells[1].Value.ToString());
-            var token = tokenSource.Token;
-
 
             try
             {
@@ -415,14 +415,14 @@ namespace test_app
             //--------------------RunParam--------------------------
 
             //Запрос на чтение данных, сформированный в масиве
-            byte[] readRunningParams = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2A, 0x00, 0x04, 0x00 };
+            byte[] readGeneralParams = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2A, 0x00, 0x04, 0x00 };
             //Добавление фазы, с которой будут считываться данные 
-            readRunningParams[17] += (byte)phase;
+            readGeneralParams[17] += (byte)phase;
             //Массив для хранения данных
             dataResponse = new Byte[256];
             try
             {
-                await baseBlockStream.WriteAsync(readRunningParams, 0, readRunningParams.Length);
+                await baseBlockStream.WriteAsync(readGeneralParams, 0, readGeneralParams.Length);
                 await baseBlockStream.ReadAsync(dataResponse, 0, dataResponse.Length);
             }
             catch (System.IO.IOException e2)
@@ -458,9 +458,6 @@ namespace test_app
 
             //Чтение идёт с 0x3000 до 0x300E в RunParam, данные нужны с 0x3000 по 0x3007
             //            с 0x3100 до 0x3102 в CurrentParam
-
-            //ОСНОВНАЯ ЧАСТЬ ЗАПИСЫВАНИЯ В DATAGRID
-
 
             if (dataResponse[1] > 0x66)
             {
@@ -507,8 +504,8 @@ namespace test_app
 
             if (dataResponse != null || dataResponse.Length != 0)
             {
-                if (dataResponse[1] == 0x04)
-                {
+               if (dataResponse[1] == 0x04)
+               {
                     str = BitConverter.ToString(dataResponse, 0, dataResponse.Length).Split('-');
 
                     sizeStr = Convert.ToInt32(str[1], 16);
@@ -516,9 +513,9 @@ namespace test_app
                     Array.Resize(ref dataResponse, sizeStr + 2);
 
                     connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
-                }
+               }
             }
-            //---------------------------------------------------------
+            //------------------------------------------------------
 
             //-------------------CurrentParam-----------------------
             byte[] readCurrentData = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2B, 0x00, 0x04, 0x00 };
@@ -563,7 +560,6 @@ namespace test_app
                 return;
             }
 
-            //new Font(opFont, opFont.Style & ~FontStyle.Bold)
             for (int i = 19; i < dataResponse[18]; i++)
             {
                 if (dataResponse[i] == 0x31 && dataResponse[i - 1] < 0x03) //&& dataResponse[i + 2] > 0x00)
@@ -771,7 +767,7 @@ namespace test_app
             defaultGeneralPackage[17] += (byte)phase;
             defaultCurrentPackage[17] += (byte)phase;
             defaultGroundPackage[17] += (byte)phase;
-            //--------------------RunPackage--------------------------
+            //--------------------GeneralPackage--------------------------
             for (int i = 19; i < defaultGeneralPackage.Length; i++)
             {
                 if (defaultGeneralPackage[i] == 0x30 && defaultGeneralPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
@@ -819,8 +815,6 @@ namespace test_app
                 }
             }
 
-            //@TODO Вывести в отдельную ассинхронную задачу
-            //ЗАПИСЬ---------------------------------------------------
             await baseBlockStream.WriteAsync(defaultGeneralPackage, 0, defaultGeneralPackage.Length);
             //CONFIRM--------------------------------------------------
             dataResponse = new Byte[256];
@@ -839,7 +833,6 @@ namespace test_app
                 }
             }
             //---------------------------------------------------------
-
             //----------------CurrentPackage--------------------------
             for (int i = 19; i < defaultCurrentPackage.Length; i++)
             {
@@ -866,9 +859,7 @@ namespace test_app
                         }
                         baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
                         storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase].Value);
-                        //substorage = (byte)(storage & 0x00FF);
                         defaultCurrentPackage[i + 3] = (byte)(storage & 0x00FF);
-                        //substorage = (byte)(storage >> 8);
                         defaultCurrentPackage[i + 4] = (byte)(storage >> 8);
                     }
                     if (defaultCurrentPackage[i + 2] == 0x04)
@@ -889,7 +880,6 @@ namespace test_app
                     }
                 }
             }
-            //ЗАПИСЬ---------------------------------------------------
             await baseBlockStream.WriteAsync(defaultCurrentPackage, 0, defaultCurrentPackage.Length);
 
             //CONFIRM--------------------------------------------------
@@ -909,7 +899,72 @@ namespace test_app
                 }
             }
             //---------------------------------------------------------
-            int test = 0;
+            //-----------------GroundPackage---------------------------
+            for (int i = 19; i < defaultGroundPackage.Length; i++)
+            {
+                if (defaultGroundPackage[i] == 0x31 && defaultGroundPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
+                                                                                           //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
+                                                                                           //в первой половине 0x30
+                {
+                    if (defaultGroundPackage[i + 2] == 0x01)
+                    {
+                        if (baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Value.ToString() == "")
+                        {
+                            return;
+                        }
+                        baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        defaultGroundPackage[i + 3] = Convert.ToByte(baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Value);
+                    }
+                    if (defaultGroundPackage[i + 2] == 0x02)
+                    {
+                        if (baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Value.ToString() == "")
+                        {
+                            return;
+                        }
+                        baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Value);
+                        defaultGroundPackage[i + 3] = (byte)(storage & 0x00FF);
+                        defaultGroundPackage[i + 4] = (byte)(storage >> 8);
+                    }
+                    if (defaultGroundPackage[i + 2] == 0x04)
+                    {
+                        if (baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Value.ToString() == "")
+                        {
+                            return;
+                        }
+                        baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Value);
+                        defaultGroundPackage[i + 3] = (byte)(storage & 0x00FF);
+                        defaultGroundPackage[i + 4] = (byte)(storage >> 8);
+                        //defaultRunPackage[i + 5] = 0xFF; UNUSED
+                        //defaultRunPackage[i + 6] = 0xFF; UNSUED
+                        //@TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535
+                        //что является по факту диапазоном в 2 байта - 0xFF. Надо уточнять у китайцев
+                    }
+                }
+            }
+            await baseBlockStream.WriteAsync(defaultGroundPackage, 0, defaultGroundPackage.Length);
+
+            //CONFIRM--------------------------------------------------
+            dataResponse = new Byte[256];
+            baseBlockStream.Read(dataResponse, 0, dataResponse.Length);
+            if (dataResponse != null || dataResponse.Length != 0)
+            {
+                if (dataResponse[1] == 0x04)
+                {
+                    str = BitConverter.ToString(dataResponse, 0, dataResponse.Length).Split('-');
+
+                    sizeStr = Convert.ToInt32(str[1], 16);
+
+                    Array.Resize(ref dataResponse, sizeStr + 2);
+
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
+                }
+            }
+            //---------------------------------------------------------
         }
 
         /*
