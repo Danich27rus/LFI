@@ -2,7 +2,7 @@
 
 namespace test_app
 {
-    partial class jmih
+    partial class Jmih
     {
         /// <summary>
         /// Обязательная переменная конструктора.
@@ -30,7 +30,7 @@ namespace test_app
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(jmih));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Jmih));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.send_button = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
@@ -94,11 +94,11 @@ namespace test_app
             // connection_log
             // 
             this.connection_log.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.connection_log.Location = new System.Drawing.Point(6, 184);
+            this.connection_log.Location = new System.Drawing.Point(16, 136);
             this.connection_log.Multiline = true;
             this.connection_log.Name = "connection_log";
             this.connection_log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.connection_log.Size = new System.Drawing.Size(446, 458);
+            this.connection_log.Size = new System.Drawing.Size(446, 569);
             this.connection_log.TabIndex = 4;
             // 
             // time_check_box_1
@@ -133,7 +133,7 @@ namespace test_app
             this.groupBox1.Controls.Add(this.connection_log);
             this.groupBox1.Location = new System.Drawing.Point(760, 171);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(478, 657);
+            this.groupBox1.Size = new System.Drawing.Size(478, 721);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Сервисная консоль";
@@ -226,14 +226,14 @@ namespace test_app
             this.groupBox3.Controls.Add(this.baseBlockTelemetryDataGrid);
             this.groupBox3.Location = new System.Drawing.Point(27, 171);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(714, 657);
+            this.groupBox3.Size = new System.Drawing.Size(714, 721);
             this.groupBox3.TabIndex = 9;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Значения в памяти индикатора";
             // 
             // progressBarReceive
             // 
-            this.progressBarReceive.Location = new System.Drawing.Point(349, 617);
+            this.progressBarReceive.Location = new System.Drawing.Point(349, 680);
             this.progressBarReceive.Maximum = 200;
             this.progressBarReceive.Minimum = 1;
             this.progressBarReceive.Name = "progressBarReceive";
@@ -245,7 +245,7 @@ namespace test_app
             // 
             // writeParametersButton
             // 
-            this.writeParametersButton.Location = new System.Drawing.Point(21, 619);
+            this.writeParametersButton.Location = new System.Drawing.Point(21, 682);
             this.writeParametersButton.Name = "writeParametersButton";
             this.writeParametersButton.Size = new System.Drawing.Size(113, 23);
             this.writeParametersButton.TabIndex = 5;
@@ -255,7 +255,7 @@ namespace test_app
             // 
             // readParametersButton
             // 
-            this.readParametersButton.Location = new System.Drawing.Point(21, 568);
+            this.readParametersButton.Location = new System.Drawing.Point(21, 653);
             this.readParametersButton.Name = "readParametersButton";
             this.readParametersButton.Size = new System.Drawing.Size(113, 23);
             this.readParametersButton.TabIndex = 4;
@@ -266,7 +266,7 @@ namespace test_app
             // phaseCcheckBox
             // 
             this.phaseCcheckBox.AutoSize = true;
-            this.phaseCcheckBox.Location = new System.Drawing.Point(578, 571);
+            this.phaseCcheckBox.Location = new System.Drawing.Point(578, 653);
             this.phaseCcheckBox.Name = "phaseCcheckBox";
             this.phaseCcheckBox.Size = new System.Drawing.Size(76, 20);
             this.phaseCcheckBox.TabIndex = 3;
@@ -279,7 +279,7 @@ namespace test_app
             this.phaseBcheckBox.AutoSize = true;
             this.phaseBcheckBox.BackColor = System.Drawing.SystemColors.Control;
             this.phaseBcheckBox.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.phaseBcheckBox.Location = new System.Drawing.Point(465, 570);
+            this.phaseBcheckBox.Location = new System.Drawing.Point(466, 653);
             this.phaseBcheckBox.Name = "phaseBcheckBox";
             this.phaseBcheckBox.Size = new System.Drawing.Size(76, 20);
             this.phaseBcheckBox.TabIndex = 2;
@@ -290,7 +290,7 @@ namespace test_app
             // phaseAcheckBox
             // 
             this.phaseAcheckBox.AutoSize = true;
-            this.phaseAcheckBox.Location = new System.Drawing.Point(349, 570);
+            this.phaseAcheckBox.Location = new System.Drawing.Point(349, 653);
             this.phaseAcheckBox.Name = "phaseAcheckBox";
             this.phaseAcheckBox.Size = new System.Drawing.Size(76, 20);
             this.phaseAcheckBox.TabIndex = 1;
@@ -325,7 +325,7 @@ namespace test_app
             this.baseBlockTelemetryDataGrid.RowHeadersVisible = false;
             this.baseBlockTelemetryDataGrid.RowHeadersWidth = 51;
             this.baseBlockTelemetryDataGrid.RowTemplate.Height = 24;
-            this.baseBlockTelemetryDataGrid.Size = new System.Drawing.Size(664, 517);
+            this.baseBlockTelemetryDataGrid.Size = new System.Drawing.Size(664, 580);
             this.baseBlockTelemetryDataGrid.TabIndex = 0;
             this.baseBlockTelemetryDataGrid.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.baseBlockTelemetryDataGrid_CellValidating);
             // 
@@ -357,15 +357,15 @@ namespace test_app
             this.CCurrent.MinimumWidth = 6;
             this.CCurrent.Name = "CCurrent";
             // 
-            // jmih
+            // Jmih
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1262, 853);
+            this.ClientSize = new System.Drawing.Size(1262, 913);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
-            this.Name = "jmih";
+            this.Name = "Jmih";
             this.Text = "jmih";
             this.Load += new System.EventHandler(this.jmih_Load);
             this.groupBox1.ResumeLayout(false);

@@ -16,7 +16,7 @@ namespace test_app
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new jmih());
+            Application.Run(new Jmih());
         }
     }
 }

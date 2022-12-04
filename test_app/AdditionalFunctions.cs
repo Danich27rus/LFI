@@ -21,18 +21,9 @@ namespace test_app
         //public enum errorCodes { SysExc, IOExc, ScktExc }
         public static byte[] StringToByteArray(String hex)
         {
-            int hexSize = hex.Length;
-            /*int space = 0;
-            for (int i = 0; i < hexSize; i++)
-            {
-                if (hex[i] == ' ')
-                {
-                    space++;
-                }
-            }*/
             string[] flex = hex.Split(' ');
             byte[] bytes = new byte[flex.Length];
-            for (int i = 0; i < flex.Length; i++)
+            for (var i = 0; i < flex.Length; i++)
             {
                 //flex = hex.Substring(i, 2);
                 bytes[i] = Convert.ToByte(flex[i], 16);
@@ -80,16 +71,11 @@ namespace test_app
             string print = "";
             if (showTimeFlag)
             {
-                print += (String.Format("[{0}] {1}: {2}\r\n", DateTime.Now, cause, text));
-                //print += (String.Format("[{0}] {1}: {2}\r\n", DateTime.Now, cause));
+                print += ($"[{DateTime.Now}] {cause}: {text}\r\n");
                 return print;
             }
-            else
-            {
-                print += (String.Format("{0}: {1}\r\n", cause, text));
-                //print += (String.Format("{0}\r\n", cause));
-                return print;
-            }
+            print += ($"{cause}: {text}\r\n"); 
+            return print;
         }
     }
 }

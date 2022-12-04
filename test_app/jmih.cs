@@ -25,19 +25,19 @@ using System.IO.Ports;
 
 namespace test_app
 {
-    public partial class jmih : Form
+    public partial class Jmih : Form
     {
-        bool showTime;
-        int phase; //Фаза А - 1, Фаза Б - 2, Фаза С - 3
+        private bool _showTime;
+        private int _phase; //Фаза А - 1, Фаза Б - 2, Фаза С - 3
         //int prg = 0;
-        static Byte[] dataResponse;
+        private static byte[] _dataResponse;
 
-        protected CancellationTokenSource tokenSource = new CancellationTokenSource();
-        protected TcpClient baseBlockSender;
-        protected IPAddress baseBlockIP;
-        protected IPEndPoint baseBlockEnd;
-        protected NetworkStream baseBlockStream;
-        public jmih()
+        protected CancellationTokenSource TokenSource = new CancellationTokenSource();
+        protected TcpClient BaseBlockSender;
+        protected IPAddress BaseBlockIp;
+        //protected IPEndPoint BaseBlockEnd;
+        protected NetworkStream BaseBlockStream;
+        public Jmih()
         {
             InitializeComponent();
         }
@@ -46,8 +46,8 @@ namespace test_app
         private void jmih_Load(object sender, EventArgs e)
         {
             connectionIndicator.BackColor = Color.White;
-            showTime = false;
-            phase = 0;
+            _showTime = false;
+            _phase = 0;
             //baseBlockIP = IPAddress.Parse("192.168.1.1");
             //baseBlockEnd = new IPEndPoint(baseBlockIP, 10010);
             inputDataGrid_Setup();
@@ -56,40 +56,41 @@ namespace test_app
 
 
         //
-        private async void progressBarWork()
+        private async void ProgressBarWork()
         {
-            var token = tokenSource.Token;
+            var token = TokenSource.Token;
             await Task.Factory.StartNew(() =>
             {
-                System.Action inc = () =>
+                void Inc()
                 {
-                    for (int i = 0; i < 20; ++i)
+                    for (var i = 0; i < 20; ++i)
                     {
-                        Task.Delay(200);
+                        Task.Delay(200, token);
                         progressBarReceive.Increment(5);
                     }
-                };
+                }
+
                 if (TCP_CONNECTION.InvokeRequired)
                 {
-                    TCP_CONNECTION.BeginInvoke(inc);
+                    TCP_CONNECTION.BeginInvoke((System.Action)Inc);
                 }
                 else
                 {
-                    inc();
+                    Inc();
                 }
                 if (TCP_CONNECTION.InvokeRequired)
                 {
-                    TCP_CONNECTION.BeginInvoke(inc);
+                    TCP_CONNECTION.BeginInvoke((System.Action)Inc);
                 }
                 else
                 {
-                    inc();
+                    Inc();
                 }
             }, token);
         }
 
         //--------------Включение и отколючение кнопопк-----------
-        private void disableButtons()
+        private void DisableButtons()
         {
             TCP_CONNECTION.Enabled = false;
             closeConnectionButton.Enabled = false;
@@ -98,7 +99,7 @@ namespace test_app
             writeParametersButton.Enabled = false;
         }
 
-        private void enableButtons()
+        private void EnableButtons()
         {
             TCP_CONNECTION.Enabled = true;
             closeConnectionButton.Enabled = true;
@@ -126,7 +127,7 @@ namespace test_app
         {
             baseBlockTelemetryDataGrid.Rows.Add("Общие параметры индикатора");
             baseBlockTelemetryDataGrid.Rows[0].Cells[0].Style.BackColor = Color.Gray;
-            for (int i = 0; i < 4; ++i)
+            for (var i = 0; i < 4; ++i)
             {
                 baseBlockTelemetryDataGrid.Rows[0].Cells[i].Style.BackColor = ColorTranslator.FromHtml("#A0A0A0");
             }
@@ -141,7 +142,7 @@ namespace test_app
 
             baseBlockTelemetryDataGrid.Rows.Add("Параметры определения межфазного замыкания");
             baseBlockTelemetryDataGrid.Rows[9].Cells[0].Style.BackColor = Color.Gray;
-            for (int i = 0; i < 4; ++i)
+            for (var i = 0; i < 4; ++i)
             {
                 baseBlockTelemetryDataGrid.Rows[9].Cells[i].Style.BackColor = ColorTranslator.FromHtml("#A0A0A0");
             }
@@ -150,7 +151,7 @@ namespace test_app
             baseBlockTelemetryDataGrid.Rows.Add("Минимальное значение тока КЗ на линии");
             baseBlockTelemetryDataGrid.Rows.Add("Параметры определения замыкания на землю");
             baseBlockTelemetryDataGrid.Rows[13].Cells[0].Style.BackColor = Color.Gray;
-            for (int i = 0; i < 4; ++i)
+            for (var i = 0; i < 4; ++i)
             {
                 baseBlockTelemetryDataGrid.Rows[13].Cells[i].Style.BackColor = ColorTranslator.FromHtml("#A0A0A0");
             }
@@ -163,12 +164,12 @@ namespace test_app
 
 
             //Заголовки и секции readonly, остальное можно спокойно изменять
-            for (int i = 0; i < 16; ++i)
+            for (var i = 0; i < 16; ++i)
             {
                 baseBlockTelemetryDataGrid.Rows[i].Cells[0].ReadOnly = true;
                 if (i == 0 || i == 9 || i == 13)
                 {
-                    for (int j = 0; j < 4; ++j)
+                    for (var j = 0; j < 4; ++j)
                     {
                         baseBlockTelemetryDataGrid.Rows[i].Cells[j].ReadOnly = true;
                     }
@@ -180,44 +181,44 @@ namespace test_app
         //----------------Метка времени---------------------
         private void time_check_box_1_CheckedChanged(object sender, EventArgs e)
         {
-            showTime = false;
+            _showTime = false;
             if (time_check_box_1.Checked)
             {
-                showTime = true;
+                _showTime = true;
             }
         }
 
         //----------Кнопка "Отправка" для данных------------
         private async void send_button_Click(object sender, EventArgs e)
         {
-            if (textBox2.Text == null || textBox2.Text == "") return;
-            if (baseBlockStream == null)
+            if (string.IsNullOrEmpty(textBox2.Text)) return;
+            if (BaseBlockStream == null)
             {
                 return;
             }
             try
             {
-                Byte[] dataSend = AdditionalFunctions.StringToByteArray(textBox2.Text);
+                byte[] dataSend = AdditionalFunctions.StringToByteArray(textBox2.Text);
 
                 //Byte[] dataSend = { 0x68, 0x04, 0x43, 0x00, 0x00, 0x00 };
-                await baseBlockStream.WriteAsync(dataSend, 0, dataSend.Length);
+                await BaseBlockStream.WriteAsync(dataSend, 0, dataSend.Length);
 
-                dataResponse = new Byte[256];
-                await baseBlockStream.ReadAsync(dataResponse, 0, dataResponse.Length);
+                _dataResponse = new byte[256];
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
             catch (System.IO.IOException e2)
             {
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
             }
-            String[] str = BitConverter.ToString(dataResponse, 0, dataResponse.Length).Split('-');
-            Int32 sizeStr = Convert.ToInt32(str[1], 16);
-            Array.Resize(ref dataResponse, sizeStr + 2);
+            string[] str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
+            int sizeStr = Convert.ToInt32(str[1], 16);
+            Array.Resize(ref _dataResponse, sizeStr + 2);
 
-            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(str.ToString(), "", showTime));
+            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(str.ToString(), "", _showTime));
         }
 
         //-----------Кнопка "Установка соединения"---------------
-        async private void TCP_CONNECTION_Click(object sender, EventArgs e)
+        private async void TCP_CONNECTION_Click(object sender, EventArgs e)
         {
             if (baseBlockServerConstants.Rows[0].Cells[1].Value == null ||
                 baseBlockServerConstants.Rows[1].Cells[1].Value == null)
@@ -235,26 +236,26 @@ namespace test_app
                 connection_log.AppendText("IP:" + baseBlockServerConstants.Rows[0].Cells[1].Value.ToString() + "\r\n");
                 connection_log.AppendText("Порт: " + baseBlockServerConstants.Rows[1].Cells[1].Value.ToString() + "\r\n");
             }*/
-            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(baseBlockServerConstants.Rows[0].Cells[1].Value.ToString(), "IP", showTime));
-            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(baseBlockServerConstants.Rows[1].Cells[1].Value.ToString(), "Порт", showTime));
+            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(baseBlockServerConstants.Rows[0].Cells[1].Value.ToString(), "IP", _showTime));
+            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(baseBlockServerConstants.Rows[1].Cells[1].Value.ToString(), "Порт", _showTime));
 
-            baseBlockSender = new TcpClient();
-            baseBlockIP = IPAddress.Parse(baseBlockServerConstants.Rows[0].Cells[1].Value.ToString());
+            BaseBlockSender = new TcpClient();
+            BaseBlockIp = IPAddress.Parse(baseBlockServerConstants.Rows[0].Cells[1].Value.ToString());
 
             try
             {
-                disableButtons();
-                progressBarWork();
-                await baseBlockSender.ConnectAsync(baseBlockIP, Convert.ToInt32(baseBlockServerConstants.Rows[1].Cells[1].Value.ToString()));
+                DisableButtons();
+                ProgressBarWork();
+                await BaseBlockSender.ConnectAsync(BaseBlockIp, Convert.ToInt32(baseBlockServerConstants.Rows[1].Cells[1].Value.ToString()));
                 progressBarReceive.Value = 1;
-                baseBlockStream = baseBlockSender.GetStream();
+                BaseBlockStream = BaseBlockSender.GetStream();
                 connectionIndicator.BackColor = Color.Lime;
-                enableButtons();
+                EnableButtons();
                
             }
             catch (SocketException ex)
             {
-                enableButtons();
+                EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.ScktExc, ex.ToString());
             }
@@ -266,8 +267,8 @@ namespace test_app
             //@TODO Вывести в отдельную ассинхронную задачу
             try
             {
-                baseBlockSender.GetStream().Close();
-                baseBlockSender.Close();
+                BaseBlockSender.GetStream().Close();
+                BaseBlockSender.Close();
                 connectionIndicator.BackColor = Color.White;
             }
             catch(System.InvalidOperationException e1)
@@ -283,31 +284,30 @@ namespace test_app
         private void baseBlockServerConstants_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
         {
             string strCurData;
-            string strIPValidated = "";
+            string strIpValidated = "";
             if (baseBlockServerConstants.CurrentCell.ColumnIndex == 1)//нужный столбец
             {
                 if (baseBlockServerConstants.CurrentCell.RowIndex == 0)
                 {
-                    if (baseBlockServerConstants.CurrentCell.EditedFormattedValue.ToString() == null ||
-                        baseBlockServerConstants.CurrentCell.EditedFormattedValue.ToString() == "")
+                    if (baseBlockServerConstants.CurrentCell.EditedFormattedValue.ToString() == "")
                     {
                         return;
                     }
                     try
                     {
                         strCurData = baseBlockServerConstants.CurrentCell.EditedFormattedValue.ToString();
-                        string[] strIP = strCurData.Split('.');
-                        if (strIP.Length != 4)
+                        string[] strIp = strCurData.Split('.');
+                        if (strIp.Length != 4)
                         {
                             MessageBox.Show("IP адрес написан не по стандарту\n\rФормат записи: XXX.XXX.XXX.XXX или XXX.XXX.X.X", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                             baseBlockServerConstants.EndEdit();
                             baseBlockServerConstants.CurrentCell.Value = "";
                             return;
                         }
-                        for (var i = 0; i <= 3; i++)
+                        for (var i = 0; i <= 3; ++i)
                         {
-                            strIPValidated += strCurData;
-                            if ((Convert.ToInt32(strIP[i]) > 255 || (Convert.ToInt32(strIP[i]) < 0)))
+                            strIpValidated += strCurData;
+                            if ((Convert.ToInt32(strIp[i]) > 255 || (Convert.ToInt32(strIp[i]) < 0)))
                             {
                                 MessageBox.Show("Все числа должны быть в диапазоне от 0 до 255", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                                 baseBlockServerConstants.EndEdit();
@@ -324,8 +324,7 @@ namespace test_app
                 }
                 if (baseBlockServerConstants.CurrentCell.RowIndex == 1)
                 {
-                    if (baseBlockServerConstants.CurrentCell.EditedFormattedValue.ToString() == null ||
-                        baseBlockServerConstants.CurrentCell.EditedFormattedValue.ToString() == "")
+                    if (baseBlockServerConstants.CurrentCell.EditedFormattedValue.ToString() == "")
                     {
                         return;
                     }
@@ -362,7 +361,7 @@ namespace test_app
             //phase = 0;
             if (phaseAcheckBox.Checked)
             {
-                phase = 1;
+                _phase = 1;
                 phaseBcheckBox.Checked = false;
                 phaseCcheckBox.Checked = false;
             }
@@ -373,7 +372,7 @@ namespace test_app
             //phase = 0;
             if (phaseBcheckBox.Checked)
             {
-                phase = 2;
+                _phase = 2;
                 phaseAcheckBox.Checked = false;
                 phaseCcheckBox.Checked = false;
             }
@@ -384,7 +383,7 @@ namespace test_app
             //phase = 0;
             if (phaseCcheckBox.Checked)
             {
-                phase = 3;
+                _phase = 3;
                 phaseAcheckBox.Checked = false;
                 phaseBcheckBox.Checked = false;
             }
@@ -395,7 +394,7 @@ namespace test_app
         //Второе - CurrentParam
         private async void readParametersButton_Click(object sender, EventArgs e)
         {
-            if (baseBlockStream == null)
+            if (BaseBlockStream == null)
             {
                 MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                 return;
@@ -406,42 +405,42 @@ namespace test_app
                 return;
             }
 
-            String[] str;
-            Int32 sizeStr;
+            string[] str;
+            int sizeStr;
 
-            baseBlockStream.ReadTimeout = 25000; //10 секунд тайм аут
-            disableButtons();
+            BaseBlockStream.ReadTimeout = 25000; //10 секунд тайм аут
+            DisableButtons();
             //this.baseBlockTelemetryDataGrid.DefaultCellStyle.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Regular);
             //--------------------RunParam--------------------------
 
             //Запрос на чтение данных, сформированный в масиве
             byte[] readGeneralParams = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2A, 0x00, 0x04, 0x00 };
             //Добавление фазы, с которой будут считываться данные 
-            readGeneralParams[17] += (byte)phase;
+            readGeneralParams[17] += (byte)_phase;
             //Массив для хранения данных
-            dataResponse = new Byte[256];
+            _dataResponse = new byte[256];
             try
             {
-                await baseBlockStream.WriteAsync(readGeneralParams, 0, readGeneralParams.Length);
-                await baseBlockStream.ReadAsync(dataResponse, 0, dataResponse.Length);
+                await BaseBlockStream.WriteAsync(readGeneralParams, 0, readGeneralParams.Length);
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
             catch (System.IO.IOException e2)
             {
-                enableButtons();
+                EnableButtons();
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
             }
 
             //Конвертация полученных данных в битовый массив и разделение по ячейкам
-            str = BitConverter.ToString(dataResponse, 0, dataResponse.Length).Split('-');
+            str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
             
             sizeStr = Convert.ToInt32(str[1], 16);
 
-            Array.Resize(ref dataResponse, sizeStr + 2);
+            Array.Resize(ref _dataResponse, sizeStr + 2);
 
             if (sizeStr < 20)
             {
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", showTime));
-                enableButtons();
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", _showTime));
+                EnableButtons();
                 return;
             }
 
@@ -459,60 +458,60 @@ namespace test_app
             //Чтение идёт с 0x3000 до 0x300E в RunParam, данные нужны с 0x3000 по 0x3007
             //            с 0x3100 до 0x3102 в CurrentParam
 
-            if (dataResponse[1] > 0x66)
+            if (_dataResponse[1] > 0x66)
             {
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", showTime));
-                enableButtons();
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", _showTime));
+                EnableButtons();
                 return;
             }
 
-            for (int i = 19; i < dataResponse[18]; i++)
+            for (var i = 19; i < _dataResponse[18]; ++i)
             {
-                if (dataResponse[i] == 0x30 && dataResponse[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
+                if (_dataResponse[i] == 0x30 && _dataResponse[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
                                                                            //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно                                                                               //в первой половине 0x30
                 {
-                    if (dataResponse[i + 2] == 0x01)
+                    if (_dataResponse[i + 2] == 0x01)
                     {
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 1].Cells[phase].Value = Convert.ToInt32(dataResponse[i + 3]);
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 1].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 1].Cells[_phase].Value = Convert.ToInt32(_dataResponse[i + 3]);
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 1].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
                     }
-                    if (dataResponse[i + 2] == 0x02)
+                    if (_dataResponse[i + 2] == 0x02)
                     {
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 1].Cells[phase].Value = dataResponse[i + 4] << 8 | dataResponse[i + 3];
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 1].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 1].Cells[_phase].Value = _dataResponse[i + 4] << 8 | _dataResponse[i + 3];
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 1].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
                     }
-                    if (dataResponse[i + 2] == 0x04) //В проге используется всё равно FF FF, может китайцы опять переиграли
+                    if (_dataResponse[i + 2] == 0x04) //В проге используется всё равно FF FF, может китайцы опять переиграли
                     {
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 1].Cells[phase].Value = dataResponse[i + 4] << 8 | dataResponse[i + 3];
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 1].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 1].Cells[_phase].Value = _dataResponse[i + 4] << 8 | _dataResponse[i + 3];
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 1].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
                     }
                 }
             }
 
 
             //CONFIRM--------------------------------------------------
-            dataResponse = new Byte[256];
+            _dataResponse = new byte[256];
             try
             {
-                await baseBlockStream.ReadAsync(dataResponse, 0, dataResponse.Length);
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
             catch (System.IO.IOException e2)
             {
-                enableButtons();
+                EnableButtons();
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
             }
 
-            if (dataResponse != null || dataResponse.Length != 0)
+            if (_dataResponse != null || _dataResponse.Length != 0)
             {
-               if (dataResponse[1] == 0x04)
+               if (_dataResponse[1] == 0x04)
                {
-                    str = BitConverter.ToString(dataResponse, 0, dataResponse.Length).Split('-');
+                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
                     sizeStr = Convert.ToInt32(str[1], 16);
 
-                    Array.Resize(ref dataResponse, sizeStr + 2);
+                    Array.Resize(ref _dataResponse, sizeStr + 2);
 
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
                }
             }
             //------------------------------------------------------
@@ -520,29 +519,29 @@ namespace test_app
             //-------------------CurrentParam-----------------------
             byte[] readCurrentData = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2B, 0x00, 0x04, 0x00 };
             //68 11 1A 00 4C 00 7A 01 0D 00 00 00 00 00 00 2B 00 05 00
-            readCurrentData[17] += (byte)phase;
-            dataResponse = new Byte[256];
+            readCurrentData[17] += (byte)_phase;
+            _dataResponse = new byte[256];
             try
             {
-                await baseBlockStream.WriteAsync(readCurrentData, 0, readCurrentData.Length);
-                await baseBlockStream.ReadAsync(dataResponse, 0, dataResponse.Length);
+                await BaseBlockStream.WriteAsync(readCurrentData, 0, readCurrentData.Length);
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
             catch (System.IO.IOException e2)
             {
-                enableButtons();
+                EnableButtons();
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
             }
 
-            str = BitConverter.ToString(dataResponse, 0, dataResponse.Length).Split('-');
+            str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
             sizeStr = Convert.ToInt32(str[1], 16);
 
-            Array.Resize(ref dataResponse, sizeStr + 2);
+            Array.Resize(ref _dataResponse, sizeStr + 2);
 
             if (sizeStr < 20)
             {
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", showTime));
-                enableButtons();
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", _showTime));
+                EnableButtons();
                 return;
             }
 
@@ -553,148 +552,148 @@ namespace test_app
             //09 31 00 02 A0 00)                                                - доп параметры
 
 
-            if (dataResponse[1] > 0x66)
+            if (_dataResponse[1] > 0x66)
             {
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", showTime));
-                enableButtons();
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", _showTime));
+                EnableButtons();
                 return;
             }
 
-            for (int i = 19; i < dataResponse[18]; i++)
+            for (var i = 19; i < _dataResponse[18]; ++i)
             {
-                if (dataResponse[i] == 0x31 && dataResponse[i - 1] < 0x03) //&& dataResponse[i + 2] > 0x00)
+                if (_dataResponse[i] == 0x31 && _dataResponse[i - 1] < 0x03) //&& dataResponse[i + 2] > 0x00)
                                                                            //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
                                                                            //в первой половине 0x31
                 {
-                    if (dataResponse[i + 2] == 0x01)
+                    if (_dataResponse[i + 2] == 0x01)
                     {
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 10].Cells[phase].Value = Convert.ToInt32(dataResponse[i + 3]);
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 10].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 10].Cells[_phase].Value = Convert.ToInt32(_dataResponse[i + 3]);
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 10].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
                     }
-                    if (dataResponse[i + 2] == 0x02)
+                    if (_dataResponse[i + 2] == 0x02)
                     {
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 10].Cells[phase].Value = dataResponse[i + 4] << 8 | dataResponse[i + 3];
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 10].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 10].Cells[_phase].Value = _dataResponse[i + 4] << 8 | _dataResponse[i + 3];
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 10].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
                     }
-                    if (dataResponse[i + 2] == 0x04) //В проге используется всё равно FF FF, может китайцы опять переиграли
+                    if (_dataResponse[i + 2] == 0x04) //В проге используется всё равно FF FF, может китайцы опять переиграли
                     {
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 10].Cells[phase].Value = dataResponse[i + 4] << 8 | dataResponse[i + 3];
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 10].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 10].Cells[_phase].Value = _dataResponse[i + 4] << 8 | _dataResponse[i + 3];
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 10].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
                     }
                 }
             }
             //baseBlockTelemetryDataGrid.RowHeadersDefaultCellStyle.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Regular);
-            dataResponse = new Byte[256];
+            _dataResponse = new byte[256];
             //CONFIRM--------------------------------------------------
             try
             {
-                await baseBlockStream.ReadAsync(dataResponse, 0, dataResponse.Length);
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
             catch (System.IO.IOException e2)
             {
-                enableButtons();
+                EnableButtons();
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
             }
 
-            if (dataResponse != null || dataResponse.Length != 0)
+            if (_dataResponse != null || _dataResponse.Length != 0)
             {
-                if (dataResponse[1] == 0x04)
+                if (_dataResponse[1] == 0x04)
                 {
-                    str = BitConverter.ToString(dataResponse, 0, dataResponse.Length).Split('-');
+                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
                     sizeStr = Convert.ToInt32(str[1], 16);
 
-                    Array.Resize(ref dataResponse, sizeStr + 2);
+                    Array.Resize(ref _dataResponse, sizeStr + 2);
 
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
                 }
             }
             //---------------------------------------------------------
             //---------------------GroundParam-------------------------
             byte[] readGroundData = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2C, 0x00, 0x04, 0x00 };
             //68 11 1A 00 4C 00 7A 01 0D 00 00 00 00 00 00 2C 00 0X 00
-            readGroundData[17] += (byte)phase;
-            dataResponse = new Byte[256];
+            readGroundData[17] += (byte)_phase;
+            _dataResponse = new byte[256];
             try
             {
-                await baseBlockStream.WriteAsync(readGroundData, 0, readGroundData.Length);
-                await baseBlockStream.ReadAsync(dataResponse, 0, dataResponse.Length);
+                await BaseBlockStream.WriteAsync(readGroundData, 0, readGroundData.Length);
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
             catch (System.IO.IOException e2)
             {
-                enableButtons();
+                EnableButtons();
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
             }
 
-            str = BitConverter.ToString(dataResponse, 0, dataResponse.Length).Split('-');
+            str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
             sizeStr = Convert.ToInt32(str[1], 16);
 
-            Array.Resize(ref dataResponse, sizeStr + 2);
+            Array.Resize(ref _dataResponse, sizeStr + 2);
 
             if (sizeStr < 20)
             {
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", showTime));
-                enableButtons();
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", _showTime));
+                EnableButtons();
                 return;
             }
 
-            if (dataResponse[1] > 0x66)
+            if (_dataResponse[1] > 0x66)
             {
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", showTime));
-                enableButtons();
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", _showTime));
+                EnableButtons();
                 return;
             }
-            for (int i = 19; i < dataResponse[18]; i++)
+            for (int i = 19; i < _dataResponse[18]; ++i)
             {
-                if (dataResponse[i] == 0x32 && dataResponse[i - 1] < 0x02) //&& dataResponse[i + 2] > 0x00)
+                if (_dataResponse[i] == 0x32 && _dataResponse[i - 1] < 0x02) //&& dataResponse[i + 2] > 0x00)
                                                                            //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
                                                                            //в первой половине 0x31
                 {
-                    if (dataResponse[i + 2] == 0x01)
+                    if (_dataResponse[i + 2] == 0x01)
                     {
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 14].Cells[phase].Value = Convert.ToInt32(dataResponse[i + 3]);
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 14].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 14].Cells[_phase].Value = Convert.ToInt32(_dataResponse[i + 3]);
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 14].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
                     }
-                    if (dataResponse[i + 2] == 0x02)
+                    if (_dataResponse[i + 2] == 0x02)
                     {
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 14].Cells[phase].Value = dataResponse[i + 4] << 8 | dataResponse[i + 3];
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 14].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 14].Cells[_phase].Value = _dataResponse[i + 4] << 8 | _dataResponse[i + 3];
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 14].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
                     }
-                    if (dataResponse[i + 2] == 0x04) //В проге используется всё равно FF FF, может китайцы опять переиграли
+                    if (_dataResponse[i + 2] == 0x04) //В проге используется всё равно FF FF, может китайцы опять переиграли
                     {
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 14].Cells[phase].Value = dataResponse[i + 4] << 8 | dataResponse[i + 3];
-                        baseBlockTelemetryDataGrid.Rows[dataResponse[i - 1] + 14].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 14].Cells[_phase].Value = _dataResponse[i + 4] << 8 | _dataResponse[i + 3];
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 14].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
                     }
                 }
             }
-            dataResponse = new Byte[256];
+            _dataResponse = new byte[256];
 
             //CONFIRM--------------------------------------------------
             try
             {
-                await baseBlockStream.ReadAsync(dataResponse, 0, dataResponse.Length);
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
             catch (System.IO.IOException e2)
             {
-                enableButtons();
+                EnableButtons();
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
             }
 
-            if (dataResponse != null || dataResponse.Length != 0)
+            if (_dataResponse != null || _dataResponse.Length != 0)
             {
-                if (dataResponse[1] == 0x04)
+                if (_dataResponse[1] == 0x04)
                 {
-                    str = BitConverter.ToString(dataResponse, 0, dataResponse.Length).Split('-');
+                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
                     sizeStr = Convert.ToInt32(str[1], 16);
 
-                    Array.Resize(ref dataResponse, sizeStr + 2);
+                    Array.Resize(ref _dataResponse, sizeStr + 2);
 
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
                 }
             }
-            enableButtons();
+            EnableButtons();
         }
 
         //---------------Проверка на изменение ячейки в таблице телеизмерений------------
@@ -712,7 +711,7 @@ namespace test_app
             {
                 return;
             }
-            String currentValue = baseBlockTelemetryDataGrid.CurrentCell.Value.ToString();
+            string currentValue = baseBlockTelemetryDataGrid.CurrentCell.Value.ToString();
             try
             {
                 if (baseBlockTelemetryDataGrid.CurrentCell.EditedFormattedValue.ToString() != currentValue)
@@ -733,14 +732,14 @@ namespace test_app
         //В момент перезаписи все жирные подписи становятся снова обычными
         private async void writeParametersButton_Click(object sender, EventArgs e)
         {
-            String[] str;
-            Int32 sizeStr;
+            string[] str;
+            int sizeStr;
 
             //68 40 1C 00 4E 00 7D 01 0D 00 00 00 00 00 00 2A 00 05 2F
             //00 30 00 02 50 00 | 01 30 00 01 06 | 02 30 00 02 2C 01
             //03 30 00 04 84 03 00 00 | 04 30 00 02 78 00 | 05 30 00 01 14
             //06 30 00 01 0A | 07 30 00 02 0A 00
-            Int16 storage;
+            short storage;
 
             byte[] defaultGeneralPackage =
               { 0x68, 0x40, 0x1C, 0x00, 0x4E, 0x00, 0x7D, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2A, 0x00, 0x04, 0x2F,
@@ -764,11 +763,11 @@ namespace test_app
                 0x00, 0x32, 0x00, 0x01, 0x1E,
                 0x01, 0x32, 0x00, 0x02, 0x0A, 0x00 };
 
-            defaultGeneralPackage[17] += (byte)phase;
-            defaultCurrentPackage[17] += (byte)phase;
-            defaultGroundPackage[17] += (byte)phase;
+            defaultGeneralPackage[17] += (byte)_phase;
+            defaultCurrentPackage[17] += (byte)_phase;
+            defaultGroundPackage[17] += (byte)_phase;
             //--------------------GeneralPackage--------------------------
-            for (int i = 19; i < defaultGeneralPackage.Length; i++)
+            for (var i = 19; i < defaultGeneralPackage.Length; ++i)
             {
                 if (defaultGeneralPackage[i] == 0x30 && defaultGeneralPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
                                                                                      //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
@@ -776,35 +775,35 @@ namespace test_app
                 {
                     if (defaultGeneralPackage[i + 2] == 0x01)
                     {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Value.ToString() == "")
+                        if (baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Value.ToString() == "")
                         {
                             return;
                         }
-                        baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        defaultGeneralPackage[i + 3] = Convert.ToByte(baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Value);
+                        baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        defaultGeneralPackage[i + 3] = Convert.ToByte(baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Value);
                     }
                     if (defaultGeneralPackage[i + 2] == 0x02)
                     {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Value.ToString() == "")
+                        if (baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Value.ToString() == "")
                         {
                             return;
                         }
-                        baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Value);
+                        baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Value);
                         defaultGeneralPackage[i + 3] = (byte)(storage & 0x00FF);
                         defaultGeneralPackage[i + 4] = (byte)(storage >> 8);
                     }
                     if (defaultGeneralPackage[i + 2] == 0x04)
                     {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Value.ToString() == "")
+                        if (baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Value.ToString() == "")
                         {
                             return;
                         }
-                        baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[phase].Value);
+                        baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Value);
                         defaultGeneralPackage[i + 3] = (byte)(storage & 0x00FF);
                         defaultGeneralPackage[i + 4] = (byte)(storage >> 8);
                         //defaultRunPackage[i + 5] = 0xFF; UNUSED
@@ -815,26 +814,26 @@ namespace test_app
                 }
             }
 
-            await baseBlockStream.WriteAsync(defaultGeneralPackage, 0, defaultGeneralPackage.Length);
+            await BaseBlockStream.WriteAsync(defaultGeneralPackage, 0, defaultGeneralPackage.Length);
             //CONFIRM--------------------------------------------------
-            dataResponse = new Byte[256];
-            await baseBlockStream.ReadAsync(dataResponse, 0, dataResponse.Length);
-            if (dataResponse != null || dataResponse.Length != 0)
+            _dataResponse = new byte[256];
+            await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            if (_dataResponse != null || _dataResponse.Length != 0)
             {
-                if (dataResponse[1] == 0x04)
+                if (_dataResponse[1] == 0x04)
                 {
-                    str = BitConverter.ToString(dataResponse, 0, dataResponse.Length).Split('-');
+                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
                     sizeStr = Convert.ToInt32(str[1], 16);
 
-                    Array.Resize(ref dataResponse, sizeStr + 2);
+                    Array.Resize(ref _dataResponse, sizeStr + 2);
 
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
                 }
             }
             //---------------------------------------------------------
             //----------------CurrentPackage--------------------------
-            for (int i = 19; i < defaultCurrentPackage.Length; i++)
+            for (int i = 19; i < defaultCurrentPackage.Length; ++i)
             {
                 if (defaultCurrentPackage[i] == 0x31 && defaultCurrentPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
                                                                                              //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
@@ -842,35 +841,35 @@ namespace test_app
                 {
                     if (defaultCurrentPackage[i + 2] == 0x01)
                     {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase].Value.ToString() == "")
+                        if (baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Value.ToString() == "")
                         {
                             return;
                         }
-                        baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        defaultCurrentPackage[i + 3] = Convert.ToByte(baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase].Value);
+                        baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        defaultCurrentPackage[i + 3] = Convert.ToByte(baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Value);
                     }
                     if (defaultCurrentPackage[i + 2] == 0x02)
                     {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase].Value.ToString() == "")
+                        if (baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Value.ToString() == "")
                         {
                             return;
                         }
-                        baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase].Value);
+                        baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Value);
                         defaultCurrentPackage[i + 3] = (byte)(storage & 0x00FF);
                         defaultCurrentPackage[i + 4] = (byte)(storage >> 8);
                     }
                     if (defaultCurrentPackage[i + 2] == 0x04)
                     {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase].Value.ToString() == "")
+                        if (baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Value.ToString() == "")
                         {
                             return;
                         }
-                        baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[phase].Value);
+                        baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Value);
                         defaultCurrentPackage[i + 3] = (byte)(storage & 0x00FF);
                         defaultCurrentPackage[i + 4] = (byte)(storage >> 8);
                         //defaultRunPackage[i + 5] = 0xFF; UNUSED
@@ -880,27 +879,27 @@ namespace test_app
                     }
                 }
             }
-            await baseBlockStream.WriteAsync(defaultCurrentPackage, 0, defaultCurrentPackage.Length);
+            await BaseBlockStream.WriteAsync(defaultCurrentPackage, 0, defaultCurrentPackage.Length);
 
             //CONFIRM--------------------------------------------------
-            dataResponse = new Byte[256];
-            baseBlockStream.Read(dataResponse, 0, dataResponse.Length);
-            if (dataResponse != null || dataResponse.Length != 0)
+            _dataResponse = new byte[256];
+            BaseBlockStream.Read(_dataResponse, 0, _dataResponse.Length);
+            if (_dataResponse != null || _dataResponse.Length != 0)
             {
-                if (dataResponse[1] == 0x04)
+                if (_dataResponse[1] == 0x04)
                 {
-                    str = BitConverter.ToString(dataResponse, 0, dataResponse.Length).Split('-');
+                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
                     sizeStr = Convert.ToInt32(str[1], 16);
 
-                    Array.Resize(ref dataResponse, sizeStr + 2);
+                    Array.Resize(ref _dataResponse, sizeStr + 2);
 
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
                 }
             }
             //---------------------------------------------------------
             //-----------------GroundPackage---------------------------
-            for (int i = 19; i < defaultGroundPackage.Length; i++)
+            for (int i = 19; i < defaultGroundPackage.Length; ++i)
             {
                 if (defaultGroundPackage[i] == 0x31 && defaultGroundPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
                                                                                            //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
@@ -908,35 +907,35 @@ namespace test_app
                 {
                     if (defaultGroundPackage[i + 2] == 0x01)
                     {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Value.ToString() == "")
+                        if (baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Value.ToString() == "")
                         {
                             return;
                         }
-                        baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        defaultGroundPackage[i + 3] = Convert.ToByte(baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Value);
+                        baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        defaultGroundPackage[i + 3] = Convert.ToByte(baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[_phase].Value);
                     }
                     if (defaultGroundPackage[i + 2] == 0x02)
                     {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Value.ToString() == "")
+                        if (baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Value.ToString() == "")
                         {
                             return;
                         }
-                        baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Value);
+                        baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Value);
                         defaultGroundPackage[i + 3] = (byte)(storage & 0x00FF);
                         defaultGroundPackage[i + 4] = (byte)(storage >> 8);
                     }
                     if (defaultGroundPackage[i + 2] == 0x04)
                     {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Value.ToString() == "")
+                        if (baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Value.ToString() == "")
                         {
                             return;
                         }
-                        baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[phase].Value);
+                        baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Value);
                         defaultGroundPackage[i + 3] = (byte)(storage & 0x00FF);
                         defaultGroundPackage[i + 4] = (byte)(storage >> 8);
                         //defaultRunPackage[i + 5] = 0xFF; UNUSED
@@ -946,22 +945,22 @@ namespace test_app
                     }
                 }
             }
-            await baseBlockStream.WriteAsync(defaultGroundPackage, 0, defaultGroundPackage.Length);
+            await BaseBlockStream.WriteAsync(defaultGroundPackage, 0, defaultGroundPackage.Length);
 
             //CONFIRM--------------------------------------------------
-            dataResponse = new Byte[256];
-            baseBlockStream.Read(dataResponse, 0, dataResponse.Length);
-            if (dataResponse != null || dataResponse.Length != 0)
+            _dataResponse = new byte[256];
+            BaseBlockStream.Read(_dataResponse, 0, _dataResponse.Length);
+            if (_dataResponse != null || _dataResponse.Length != 0)
             {
-                if (dataResponse[1] == 0x04)
+                if (_dataResponse[1] == 0x04)
                 {
-                    str = BitConverter.ToString(dataResponse, 0, dataResponse.Length).Split('-');
+                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
                     sizeStr = Convert.ToInt32(str[1], 16);
 
-                    Array.Resize(ref dataResponse, sizeStr + 2);
+                    Array.Resize(ref _dataResponse, sizeStr + 2);
 
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(dataResponse).Replace("-", " ")), "Confirm/Подтверждение", showTime));
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
                 }
             }
             //---------------------------------------------------------
