@@ -47,6 +47,7 @@ namespace test_app
             this.inputConstants = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TCP_CONNECTION = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.baseBlockUploadLabel = new System.Windows.Forms.Label();
             this.progressBarReceive = new System.Windows.Forms.ProgressBar();
             this.writeParametersButton = new System.Windows.Forms.Button();
             this.readParametersButton = new System.Windows.Forms.Button();
@@ -58,6 +59,8 @@ namespace test_app
             this.ACurrent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.BCurrent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CCurrent = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.readOperatingParametersButton = new System.Windows.Forms.Button();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.baseBlockServerConstants)).BeginInit();
@@ -68,7 +71,7 @@ namespace test_app
             // send_button
             // 
             this.send_button.Location = new System.Drawing.Point(12, 42);
-            this.send_button.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.send_button.Margin = new System.Windows.Forms.Padding(2);
             this.send_button.Name = "send_button";
             this.send_button.Size = new System.Drawing.Size(91, 23);
             this.send_button.TabIndex = 0;
@@ -79,7 +82,7 @@ namespace test_app
             // textBox2
             // 
             this.textBox2.Location = new System.Drawing.Point(12, 20);
-            this.textBox2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox2.Margin = new System.Windows.Forms.Padding(2);
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(336, 20);
             this.textBox2.TabIndex = 6;
@@ -98,7 +101,7 @@ namespace test_app
             // 
             this.connection_log.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.connection_log.Location = new System.Drawing.Point(12, 114);
-            this.connection_log.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.connection_log.Margin = new System.Windows.Forms.Padding(2);
             this.connection_log.Multiline = true;
             this.connection_log.Name = "connection_log";
             this.connection_log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -109,7 +112,7 @@ namespace test_app
             // 
             this.time_check_box_1.AutoSize = true;
             this.time_check_box_1.Location = new System.Drawing.Point(249, 42);
-            this.time_check_box_1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.time_check_box_1.Margin = new System.Windows.Forms.Padding(2);
             this.time_check_box_1.Name = "time_check_box_1";
             this.time_check_box_1.Size = new System.Drawing.Size(105, 17);
             this.time_check_box_1.TabIndex = 5;
@@ -138,9 +141,9 @@ namespace test_app
             this.groupBox1.Controls.Add(this.textBox2);
             this.groupBox1.Controls.Add(this.connection_log);
             this.groupBox1.Location = new System.Drawing.Point(570, 139);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
             this.groupBox1.Size = new System.Drawing.Size(358, 604);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
@@ -151,7 +154,7 @@ namespace test_app
             this.serviceConsoleHelpButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("serviceConsoleHelpButton.BackgroundImage")));
             this.serviceConsoleHelpButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.serviceConsoleHelpButton.Location = new System.Drawing.Point(107, 42);
-            this.serviceConsoleHelpButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.serviceConsoleHelpButton.Margin = new System.Windows.Forms.Padding(2);
             this.serviceConsoleHelpButton.Name = "serviceConsoleHelpButton";
             this.serviceConsoleHelpButton.Size = new System.Drawing.Size(22, 23);
             this.serviceConsoleHelpButton.TabIndex = 7;
@@ -166,9 +169,9 @@ namespace test_app
             this.groupBox2.Controls.Add(this.TCP_CONNECTION);
             this.groupBox2.Controls.Add(this.connectionIndicator);
             this.groupBox2.Location = new System.Drawing.Point(20, 21);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(2);
             this.groupBox2.Size = new System.Drawing.Size(908, 113);
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
@@ -177,7 +180,7 @@ namespace test_app
             // closeConnectionButton
             // 
             this.closeConnectionButton.Location = new System.Drawing.Point(751, 43);
-            this.closeConnectionButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.closeConnectionButton.Margin = new System.Windows.Forms.Padding(2);
             this.closeConnectionButton.Name = "closeConnectionButton";
             this.closeConnectionButton.Size = new System.Drawing.Size(146, 19);
             this.closeConnectionButton.TabIndex = 6;
@@ -195,7 +198,7 @@ namespace test_app
             this.Constants,
             this.inputConstants});
             this.baseBlockServerConstants.Location = new System.Drawing.Point(16, 20);
-            this.baseBlockServerConstants.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.baseBlockServerConstants.Margin = new System.Windows.Forms.Padding(2);
             this.baseBlockServerConstants.Name = "baseBlockServerConstants";
             this.baseBlockServerConstants.RowHeadersVisible = false;
             this.baseBlockServerConstants.RowHeadersWidth = 51;
@@ -221,7 +224,7 @@ namespace test_app
             // TCP_CONNECTION
             // 
             this.TCP_CONNECTION.Location = new System.Drawing.Point(751, 20);
-            this.TCP_CONNECTION.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.TCP_CONNECTION.Margin = new System.Windows.Forms.Padding(2);
             this.TCP_CONNECTION.Name = "TCP_CONNECTION";
             this.TCP_CONNECTION.Size = new System.Drawing.Size(146, 19);
             this.TCP_CONNECTION.TabIndex = 0;
@@ -231,6 +234,9 @@ namespace test_app
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.textBox1);
+            this.groupBox3.Controls.Add(this.readOperatingParametersButton);
+            this.groupBox3.Controls.Add(this.baseBlockUploadLabel);
             this.groupBox3.Controls.Add(this.progressBarReceive);
             this.groupBox3.Controls.Add(this.writeParametersButton);
             this.groupBox3.Controls.Add(this.readParametersButton);
@@ -239,18 +245,27 @@ namespace test_app
             this.groupBox3.Controls.Add(this.phaseAcheckBox);
             this.groupBox3.Controls.Add(this.baseBlockTelemetryDataGrid);
             this.groupBox3.Location = new System.Drawing.Point(20, 139);
-            this.groupBox3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(2);
             this.groupBox3.Size = new System.Drawing.Size(536, 604);
             this.groupBox3.TabIndex = 9;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Значения в памяти индикатора";
             // 
+            // baseBlockUploadLabel
+            // 
+            this.baseBlockUploadLabel.AutoSize = true;
+            this.baseBlockUploadLabel.Location = new System.Drawing.Point(13, 460);
+            this.baseBlockUploadLabel.Name = "baseBlockUploadLabel";
+            this.baseBlockUploadLabel.Size = new System.Drawing.Size(172, 13);
+            this.baseBlockUploadLabel.TabIndex = 7;
+            this.baseBlockUploadLabel.Text = "Время отправки телеизмерений";
+            // 
             // progressBarReceive
             // 
             this.progressBarReceive.Location = new System.Drawing.Point(262, 567);
-            this.progressBarReceive.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.progressBarReceive.Margin = new System.Windows.Forms.Padding(2);
             this.progressBarReceive.Maximum = 200;
             this.progressBarReceive.Minimum = 1;
             this.progressBarReceive.Name = "progressBarReceive";
@@ -263,7 +278,7 @@ namespace test_app
             // writeParametersButton
             // 
             this.writeParametersButton.Location = new System.Drawing.Point(16, 567);
-            this.writeParametersButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.writeParametersButton.Margin = new System.Windows.Forms.Padding(2);
             this.writeParametersButton.Name = "writeParametersButton";
             this.writeParametersButton.Size = new System.Drawing.Size(85, 19);
             this.writeParametersButton.TabIndex = 5;
@@ -273,8 +288,8 @@ namespace test_app
             // 
             // readParametersButton
             // 
-            this.readParametersButton.Location = new System.Drawing.Point(16, 531);
-            this.readParametersButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.readParametersButton.Location = new System.Drawing.Point(16, 533);
+            this.readParametersButton.Margin = new System.Windows.Forms.Padding(2);
             this.readParametersButton.Name = "readParametersButton";
             this.readParametersButton.Size = new System.Drawing.Size(85, 19);
             this.readParametersButton.TabIndex = 4;
@@ -285,8 +300,8 @@ namespace test_app
             // phaseCcheckBox
             // 
             this.phaseCcheckBox.AutoSize = true;
-            this.phaseCcheckBox.Location = new System.Drawing.Point(426, 533);
-            this.phaseCcheckBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.phaseCcheckBox.Location = new System.Drawing.Point(426, 535);
+            this.phaseCcheckBox.Margin = new System.Windows.Forms.Padding(2);
             this.phaseCcheckBox.Name = "phaseCcheckBox";
             this.phaseCcheckBox.Size = new System.Drawing.Size(65, 17);
             this.phaseCcheckBox.TabIndex = 3;
@@ -299,8 +314,8 @@ namespace test_app
             this.phaseBcheckBox.AutoSize = true;
             this.phaseBcheckBox.BackColor = System.Drawing.SystemColors.Control;
             this.phaseBcheckBox.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.phaseBcheckBox.Location = new System.Drawing.Point(343, 533);
-            this.phaseBcheckBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.phaseBcheckBox.Location = new System.Drawing.Point(343, 535);
+            this.phaseBcheckBox.Margin = new System.Windows.Forms.Padding(2);
             this.phaseBcheckBox.Name = "phaseBcheckBox";
             this.phaseBcheckBox.Size = new System.Drawing.Size(65, 17);
             this.phaseBcheckBox.TabIndex = 2;
@@ -311,8 +326,8 @@ namespace test_app
             // phaseAcheckBox
             // 
             this.phaseAcheckBox.AutoSize = true;
-            this.phaseAcheckBox.Location = new System.Drawing.Point(262, 533);
-            this.phaseAcheckBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.phaseAcheckBox.Location = new System.Drawing.Point(262, 535);
+            this.phaseAcheckBox.Margin = new System.Windows.Forms.Padding(2);
             this.phaseAcheckBox.Name = "phaseAcheckBox";
             this.phaseAcheckBox.Size = new System.Drawing.Size(65, 17);
             this.phaseAcheckBox.TabIndex = 1;
@@ -343,7 +358,7 @@ namespace test_app
             this.baseBlockTelemetryDataGrid.DefaultCellStyle = dataGridViewCellStyle1;
             this.baseBlockTelemetryDataGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(160)))), ((int)(((byte)(160)))), ((int)(((byte)(160)))));
             this.baseBlockTelemetryDataGrid.Location = new System.Drawing.Point(16, 20);
-            this.baseBlockTelemetryDataGrid.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.baseBlockTelemetryDataGrid.Margin = new System.Windows.Forms.Padding(2);
             this.baseBlockTelemetryDataGrid.Name = "baseBlockTelemetryDataGrid";
             this.baseBlockTelemetryDataGrid.RowHeadersVisible = false;
             this.baseBlockTelemetryDataGrid.RowHeadersWidth = 51;
@@ -380,6 +395,22 @@ namespace test_app
             this.CCurrent.MinimumWidth = 6;
             this.CCurrent.Name = "CCurrent";
             // 
+            // readOperatingParametersButton
+            // 
+            this.readOperatingParametersButton.Location = new System.Drawing.Point(343, 476);
+            this.readOperatingParametersButton.Name = "readOperatingParametersButton";
+            this.readOperatingParametersButton.Size = new System.Drawing.Size(148, 23);
+            this.readOperatingParametersButton.TabIndex = 8;
+            this.readOperatingParametersButton.Text = "Прочитать с блока";
+            this.readOperatingParametersButton.UseVisualStyleBackColor = true;
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(16, 476);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(169, 20);
+            this.textBox1.TabIndex = 9;
+            // 
             // Jmih
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -388,7 +419,7 @@ namespace test_app
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Jmih";
             this.Text = "jmih";
             this.Load += new System.EventHandler(this.jmih_Load);
@@ -432,6 +463,9 @@ namespace test_app
         private DataGridViewTextBoxColumn Constants;
         private DataGridViewTextBoxColumn inputConstants;
         private ProgressBar progressBarReceive;
+        private Label baseBlockUploadLabel;
+        private TextBox textBox1;
+        private Button readOperatingParametersButton;
     }
 }
 

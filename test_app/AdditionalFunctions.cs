@@ -74,7 +74,7 @@ namespace test_app
                 print += ($"[{DateTime.Now}] {cause}: {text}\r\n");
                 return print;
             }
-            print += ($"{cause}: {text}\r\n"); 
+            print += ($"{cause}: {text}\r\n");
             return print;
         }
     }
