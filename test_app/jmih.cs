@@ -27,8 +27,9 @@ namespace test_app
 {
     public partial class Jmih : Form
     {
-        private bool _showTime;
+        private bool _showTime, _isUserInput;
         private int _phase; //Фаза А - 1, Фаза Б - 2, Фаза С - 3
+        string _currentSCADAValue;
         //int prg = 0;
         private static byte[] _dataResponse;
 
@@ -95,8 +96,8 @@ namespace test_app
             TCP_CONNECTION.Enabled = false;
             closeConnectionButton.Enabled = false;
             send_button.Enabled = false;
-            readParametersButton.Enabled = false;
-            writeParametersButton.Enabled = false;
+            readIndicatorParametersButton.Enabled = false;
+            writeIndicatorParametersButton.Enabled = false;
         }
 
         private void EnableButtons()
@@ -104,8 +105,8 @@ namespace test_app
             TCP_CONNECTION.Enabled = true;
             closeConnectionButton.Enabled = true;
             send_button.Enabled = true;
-            readParametersButton.Enabled = true;
-            writeParametersButton.Enabled = true;
+            readIndicatorParametersButton.Enabled = true;
+            writeIndicatorParametersButton.Enabled = true;
         }
 
         //-----------Настройка таблицы с IP/Port------------
@@ -392,7 +393,7 @@ namespace test_app
         //---------Чтение параметров индикатора RunParam и CurrentParam-------------
         //Первое читается - RunParam     
         //Второе - CurrentParam
-        private async void readParametersButton_Click(object sender, EventArgs e)
+        private async void readIndicatorParametersButton_Click(object sender, EventArgs e)
         {
             if (BaseBlockStream == null)
             {
@@ -730,7 +731,7 @@ namespace test_app
 
         //--------------------Запись данных на индикаторы------------------
         //В момент перезаписи все жирные подписи становятся снова обычными
-        private async void writeParametersButton_Click(object sender, EventArgs e)
+        private async void writeIndicatorParametersButton_Click(object sender, EventArgs e)
         {
             string[] str;
             int sizeStr;
@@ -837,7 +838,7 @@ namespace test_app
             {
                 if (defaultCurrentPackage[i] == 0x31 && defaultCurrentPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
                                                                                              //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
-                                                                                             //в первой половине 0x30
+                                                                                             //в первой половине 0x31
                 {
                     if (defaultCurrentPackage[i + 2] == 0x01)
                     {
@@ -903,7 +904,7 @@ namespace test_app
             {
                 if (defaultGroundPackage[i] == 0x31 && defaultGroundPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
                                                                                            //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
-                                                                                           //в первой половине 0x30
+                                                                                           //в первой половине 0x32
                 {
                     if (defaultGroundPackage[i + 2] == 0x01)
                     {
@@ -974,17 +975,13 @@ namespace test_app
                 MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                 return;
             }
-            if (!phaseAcheckBox.Checked && !phaseBcheckBox.Checked && !phaseCcheckBox.Checked)
-            {
-                MessageBox.Show("Необходимо выбрать одну из трёх фаз для считывания данных", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
-                return;
-            }
 
             string[] str;
             int sizeStr;
 
             byte[] readOperatingParams = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00 };
 
+            DisableButtons();
             _dataResponse = new byte[256];
             try
             {
@@ -996,8 +993,6 @@ namespace test_app
                 EnableButtons();
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
             }
-
-            //Конвертация полученных данных в битовый массив и разделение по ячейкам
             str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
             sizeStr = Convert.ToInt32(str[1], 16);
@@ -1006,11 +1001,88 @@ namespace test_app
 
             if (sizeStr < 20)
             {
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", _showTime));
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ вернул не те данные", _showTime));
                 EnableButtons();
                 return;
             }
+            //@TODO: Возвращаемы ответ больше 256, это нужно учитывать если потом придётся работаь с областью 8B FF
+            for (int i = 19; i < _dataResponse[18]; ++i)
+            {   
+                if (_dataResponse[i] == 0x00 && _dataResponse[i - 1] == 0x15) //&& dataResponse[i + 2] > 0x00)
+                                                                             //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
+                                                                             //в первой половине 0x31
+                {
+                    _isUserInput = false;
+                    SCADA_TextBox.Text = Convert.ToInt32(_dataResponse[i + 4] << 8 | _dataResponse[i + 3]).ToString();
+                    _currentSCADAValue = SCADA_TextBox.Text;
+                }
+            }
+            EnableButtons();
         }
+
+        private void WriteSCADAParameterButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void SCADA_TextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            _isUserInput = true;
+        }
+
+        private void SCADA_TextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (_isUserInput)
+            {
+                try
+                {
+                    if (SCADA_TextBox.Text != _currentSCADAValue)
+                    {
+                        //colNum = baseBlockServerConstants.CurrentCell
+                        SCADA_TextBox.Font =
+                            new Font("Microsoft Sans Serif", 8, FontStyle.Bold);
+                        _currentSCADAValue = SCADA_TextBox.Text;
+                    }
+                }
+                catch (System.Exception e1)
+                {
+                    AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString());
+                }
+            }
+        }
+
+        /*private void SCADA_TextBox_Validating(object sender, CancelEventArgs e)
+        {
+            if (SCADA_TextBox.Text == null ||
+                SCADA_TextBox.Text == "")
+            {
+                return;
+            }
+            string currentValue = SCADA_TextBox.Text;
+            try
+            {
+                if (baseBlockTelemetryDataGrid.CurrentCell.EditedFormattedValue.ToString() != currentValue)
+                {
+                    //colNum = baseBlockServerConstants.CurrentCell
+                    baseBlockTelemetryDataGrid.Rows[baseBlockTelemetryDataGrid.CurrentCell.RowIndex].Cells[baseBlockTelemetryDataGrid.CurrentCell.ColumnIndex].Style.Font =
+                        new Font("Microsoft Sans Serif", 8, FontStyle.Bold);
+                }
+            }
+            catch (System.Exception e1)
+            {
+                AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString());
+            }
+        }*/
+
+
+        //---------------Проверка на изменение значения в окошке с временем отправки телеизмерений------------
+        //Если значение будет изменено - шрифт станет жирным
+        //Если значение записывается в первый раз - шрифт будет нормальным
+        //Если значение перезаписывается компьютером - шрифт будет нормальным
+
+
+
+
         /*
  Task t = Task.Factory.StartNew(() =>
    {

@@ -52,8 +52,8 @@ namespace test_app
             this.ReadSCADAParameterButton = new System.Windows.Forms.Button();
             this.baseBlockUploadTimeLabel = new System.Windows.Forms.Label();
             this.progressBarReceive = new System.Windows.Forms.ProgressBar();
-            this.writeParametersButton = new System.Windows.Forms.Button();
-            this.readParametersButton = new System.Windows.Forms.Button();
+            this.writeIndicatorParametersButton = new System.Windows.Forms.Button();
+            this.readIndicatorParametersButton = new System.Windows.Forms.Button();
             this.phaseCcheckBox = new System.Windows.Forms.CheckBox();
             this.phaseBcheckBox = new System.Windows.Forms.CheckBox();
             this.phaseAcheckBox = new System.Windows.Forms.CheckBox();
@@ -240,8 +240,8 @@ namespace test_app
             this.groupBox3.Controls.Add(this.ReadSCADAParameterButton);
             this.groupBox3.Controls.Add(this.baseBlockUploadTimeLabel);
             this.groupBox3.Controls.Add(this.progressBarReceive);
-            this.groupBox3.Controls.Add(this.writeParametersButton);
-            this.groupBox3.Controls.Add(this.readParametersButton);
+            this.groupBox3.Controls.Add(this.writeIndicatorParametersButton);
+            this.groupBox3.Controls.Add(this.readIndicatorParametersButton);
             this.groupBox3.Controls.Add(this.phaseCcheckBox);
             this.groupBox3.Controls.Add(this.phaseBcheckBox);
             this.groupBox3.Controls.Add(this.phaseAcheckBox);
@@ -257,12 +257,13 @@ namespace test_app
             // 
             // WriteSCADAParameterButton
             // 
-            this.WriteSCADAParameterButton.Location = new System.Drawing.Point(262, 503);
+            this.WriteSCADAParameterButton.Location = new System.Drawing.Point(262, 502);
             this.WriteSCADAParameterButton.Name = "WriteSCADAParameterButton";
             this.WriteSCADAParameterButton.Size = new System.Drawing.Size(238, 23);
             this.WriteSCADAParameterButton.TabIndex = 10;
-            this.WriteSCADAParameterButton.Text = "Записать в базовый блок";
+            this.WriteSCADAParameterButton.Text = "Записать данные в базовый блок";
             this.WriteSCADAParameterButton.UseVisualStyleBackColor = true;
+            this.WriteSCADAParameterButton.Click += new System.EventHandler(this.WriteSCADAParameterButton_Click);
             // 
             // SCADA_TextBox
             // 
@@ -270,6 +271,8 @@ namespace test_app
             this.SCADA_TextBox.Name = "SCADA_TextBox";
             this.SCADA_TextBox.Size = new System.Drawing.Size(169, 20);
             this.SCADA_TextBox.TabIndex = 9;
+            this.SCADA_TextBox.TextChanged += new System.EventHandler(this.SCADA_TextBox_TextChanged);
+            this.SCADA_TextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SCADA_TextBox_KeyDown);
             // 
             // ReadSCADAParameterButton
             // 
@@ -277,7 +280,7 @@ namespace test_app
             this.ReadSCADAParameterButton.Name = "ReadSCADAParameterButton";
             this.ReadSCADAParameterButton.Size = new System.Drawing.Size(238, 23);
             this.ReadSCADAParameterButton.TabIndex = 8;
-            this.ReadSCADAParameterButton.Text = "Прочитать с базового блока";
+            this.ReadSCADAParameterButton.Text = "Прочитать данные с базового блока";
             this.ReadSCADAParameterButton.UseVisualStyleBackColor = true;
             this.ReadSCADAParameterButton.Click += new System.EventHandler(this.ReadSCADAParameterButton_Click);
             // 
@@ -292,7 +295,7 @@ namespace test_app
             // 
             // progressBarReceive
             // 
-            this.progressBarReceive.Location = new System.Drawing.Point(262, 567);
+            this.progressBarReceive.Location = new System.Drawing.Point(16, 567);
             this.progressBarReceive.Margin = new System.Windows.Forms.Padding(2);
             this.progressBarReceive.Maximum = 200;
             this.progressBarReceive.Minimum = 1;
@@ -303,32 +306,32 @@ namespace test_app
             this.progressBarReceive.TabIndex = 6;
             this.progressBarReceive.Value = 1;
             // 
-            // writeParametersButton
+            // writeIndicatorParametersButton
             // 
-            this.writeParametersButton.Location = new System.Drawing.Point(16, 567);
-            this.writeParametersButton.Margin = new System.Windows.Forms.Padding(2);
-            this.writeParametersButton.Name = "writeParametersButton";
-            this.writeParametersButton.Size = new System.Drawing.Size(85, 19);
-            this.writeParametersButton.TabIndex = 5;
-            this.writeParametersButton.Text = "Записать";
-            this.writeParametersButton.UseVisualStyleBackColor = true;
-            this.writeParametersButton.Click += new System.EventHandler(this.writeParametersButton_Click);
+            this.writeIndicatorParametersButton.Location = new System.Drawing.Point(262, 566);
+            this.writeIndicatorParametersButton.Margin = new System.Windows.Forms.Padding(2);
+            this.writeIndicatorParametersButton.Name = "writeIndicatorParametersButton";
+            this.writeIndicatorParametersButton.Size = new System.Drawing.Size(238, 22);
+            this.writeIndicatorParametersButton.TabIndex = 5;
+            this.writeIndicatorParametersButton.Text = "Записать данные на индикатор";
+            this.writeIndicatorParametersButton.UseVisualStyleBackColor = true;
+            this.writeIndicatorParametersButton.Click += new System.EventHandler(this.writeParametersButton_Click);
             // 
-            // readParametersButton
+            // readIndicatorParametersButton
             // 
-            this.readParametersButton.Location = new System.Drawing.Point(16, 544);
-            this.readParametersButton.Margin = new System.Windows.Forms.Padding(2);
-            this.readParametersButton.Name = "readParametersButton";
-            this.readParametersButton.Size = new System.Drawing.Size(85, 19);
-            this.readParametersButton.TabIndex = 4;
-            this.readParametersButton.Text = "Прочитать";
-            this.readParametersButton.UseVisualStyleBackColor = true;
-            this.readParametersButton.Click += new System.EventHandler(this.readParametersButton_Click);
+            this.readIndicatorParametersButton.Location = new System.Drawing.Point(262, 538);
+            this.readIndicatorParametersButton.Margin = new System.Windows.Forms.Padding(2);
+            this.readIndicatorParametersButton.Name = "readIndicatorParametersButton";
+            this.readIndicatorParametersButton.Size = new System.Drawing.Size(238, 23);
+            this.readIndicatorParametersButton.TabIndex = 4;
+            this.readIndicatorParametersButton.Text = "Прочитать данные с индикатора";
+            this.readIndicatorParametersButton.UseVisualStyleBackColor = true;
+            this.readIndicatorParametersButton.Click += new System.EventHandler(this.readParametersButton_Click);
             // 
             // phaseCcheckBox
             // 
             this.phaseCcheckBox.AutoSize = true;
-            this.phaseCcheckBox.Location = new System.Drawing.Point(426, 546);
+            this.phaseCcheckBox.Location = new System.Drawing.Point(180, 544);
             this.phaseCcheckBox.Margin = new System.Windows.Forms.Padding(2);
             this.phaseCcheckBox.Name = "phaseCcheckBox";
             this.phaseCcheckBox.Size = new System.Drawing.Size(65, 17);
@@ -342,7 +345,7 @@ namespace test_app
             this.phaseBcheckBox.AutoSize = true;
             this.phaseBcheckBox.BackColor = System.Drawing.SystemColors.Control;
             this.phaseBcheckBox.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.phaseBcheckBox.Location = new System.Drawing.Point(344, 546);
+            this.phaseBcheckBox.Location = new System.Drawing.Point(98, 544);
             this.phaseBcheckBox.Margin = new System.Windows.Forms.Padding(2);
             this.phaseBcheckBox.Name = "phaseBcheckBox";
             this.phaseBcheckBox.Size = new System.Drawing.Size(65, 17);
@@ -354,7 +357,7 @@ namespace test_app
             // phaseAcheckBox
             // 
             this.phaseAcheckBox.AutoSize = true;
-            this.phaseAcheckBox.Location = new System.Drawing.Point(262, 546);
+            this.phaseAcheckBox.Location = new System.Drawing.Point(16, 544);
             this.phaseAcheckBox.Margin = new System.Windows.Forms.Padding(2);
             this.phaseAcheckBox.Name = "phaseAcheckBox";
             this.phaseAcheckBox.Size = new System.Drawing.Size(65, 17);
@@ -465,8 +468,8 @@ namespace test_app
         private DataGridViewTextBoxColumn ACurrent;
         private DataGridViewTextBoxColumn BCurrent;
         private DataGridViewTextBoxColumn CCurrent;
-        private Button writeParametersButton;
-        private Button readParametersButton;
+        private Button writeIndicatorParametersButton;
+        private Button readIndicatorParametersButton;
         private CheckBox phaseCcheckBox;
         private CheckBox phaseBcheckBox;
         private CheckBox phaseAcheckBox;
