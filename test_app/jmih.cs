@@ -966,54 +966,99 @@ namespace test_app
             //---------------------------------------------------------
         }
 
-        /*
-          Task t = Task.Factory.StartNew(() =>
+        //-------------Чтение рабочих параметров ББ---------------------------- 
+        private async void ReadSCADAParameterButton_Click(object sender, EventArgs e)
+        {
+            if (BaseBlockStream == null)
             {
-                System.Action disableButtons = () => { 
-                    TCP_CONNECTION.Enabled = false;
-                    closeConnectionButton.Enabled = false;
-                    send_button.Enabled = false;
-                    readParametersButton.Enabled = false;
-                    writeParametersButton.Enabled = false;
-                };
-                System.Action enableButtons = () =>
-                {
-                    TCP_CONNECTION.Enabled = true;
-                    closeConnectionButton.Enabled = true;
-                    send_button.Enabled = true;
-                    readParametersButton.Enabled = true;
-                    writeParametersButton.Enabled = true;
-                };
+                MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                return;
+            }
+            if (!phaseAcheckBox.Checked && !phaseBcheckBox.Checked && !phaseCcheckBox.Checked)
+            {
+                MessageBox.Show("Необходимо выбрать одну из трёх фаз для считывания данных", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                return;
+            }
 
-                if (TCP_CONNECTION.InvokeRequired)
-                {
-                    TCP_CONNECTION.BeginInvoke(disableButtons);
-                }
-                else
-                {
-                    disableButtons();
-                }     
+            string[] str;
+            int sizeStr;
 
-                try
-                {
-                    await baseBlockSender.ConnectAsync(baseBlockIP, Convert.ToInt32(baseBlockServerConstants.Rows[1].Cells[1].Value.ToString()));
-                    baseBlockStream = baseBlockSender.GetStream();
-                    connectionIndicator.BackColor = Color.Lime;
-                }
-                catch (SocketException ex)
-                {
-                    //connection_log.AppendText("Ошибка: " + ex.ToString() + "\r\n");
-                    connectionIndicator.BackColor = Color.Red;
-                    AdditionalFunctions.ErrorExceptionHandler(errorCodes.ScktExc, ex.ToString());
-                }
-                if (TCP_CONNECTION.InvokeRequired)
-                {
-                    TCP_CONNECTION.BeginInvoke(enableButtons);
-                }
-                else
-                {
-                    enableButtons();
-                }
-            }, token) ; */
+            byte[] readOperatingParams = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00 };
+
+            _dataResponse = new byte[256];
+            try
+            {
+                await BaseBlockStream.WriteAsync(readOperatingParams, 0, readOperatingParams.Length);
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            }
+            catch (System.IO.IOException e2)
+            {
+                EnableButtons();
+                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
+            }
+
+            //Конвертация полученных данных в битовый массив и разделение по ячейкам
+            str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
+
+            sizeStr = Convert.ToInt32(str[1], 16);
+
+            Array.Resize(ref _dataResponse, sizeStr + 2);
+
+            if (sizeStr < 20)
+            {
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", _showTime));
+                EnableButtons();
+                return;
+            }
+        }
+        /*
+ Task t = Task.Factory.StartNew(() =>
+   {
+       System.Action disableButtons = () => { 
+           TCP_CONNECTION.Enabled = false;
+           closeConnectionButton.Enabled = false;
+           send_button.Enabled = false;
+           readParametersButton.Enabled = false;
+           writeParametersButton.Enabled = false;
+       };
+       System.Action enableButtons = () =>
+       {
+           TCP_CONNECTION.Enabled = true;
+           closeConnectionButton.Enabled = true;
+           send_button.Enabled = true;
+           readParametersButton.Enabled = true;
+           writeParametersButton.Enabled = true;
+       };
+
+       if (TCP_CONNECTION.InvokeRequired)
+       {
+           TCP_CONNECTION.BeginInvoke(disableButtons);
+       }
+       else
+       {
+           disableButtons();
+       }     
+
+       try
+       {
+           await baseBlockSender.ConnectAsync(baseBlockIP, Convert.ToInt32(baseBlockServerConstants.Rows[1].Cells[1].Value.ToString()));
+           baseBlockStream = baseBlockSender.GetStream();
+           connectionIndicator.BackColor = Color.Lime;
+       }
+       catch (SocketException ex)
+       {
+           //connection_log.AppendText("Ошибка: " + ex.ToString() + "\r\n");
+           connectionIndicator.BackColor = Color.Red;
+           AdditionalFunctions.ErrorExceptionHandler(errorCodes.ScktExc, ex.ToString());
+       }
+       if (TCP_CONNECTION.InvokeRequired)
+       {
+           TCP_CONNECTION.BeginInvoke(enableButtons);
+       }
+       else
+       {
+           enableButtons();
+       }
+   }, token) ; */
     }
 }
