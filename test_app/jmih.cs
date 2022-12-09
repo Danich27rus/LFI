@@ -30,6 +30,7 @@ namespace test_app
         private bool _showTime, _isUserInput;
         private int _phase; //Фаза А - 1, Фаза Б - 2, Фаза С - 3
         string _currentSCADAValue;
+        int test = 2;
         //int prg = 0;
         private static byte[] _dataResponse;
 
@@ -212,7 +213,7 @@ namespace test_app
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
             }
             string[] str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
-            int sizeStr = Convert.ToInt32(str[1], 16);
+            int sizeStr = Convert.ToInt16(str[1], 16);
             Array.Resize(ref _dataResponse, sizeStr + 2);
 
             connection_log.AppendText(AdditionalFunctions.TextBoxPrint(str.ToString(), "", _showTime));
@@ -247,7 +248,7 @@ namespace test_app
             {
                 DisableButtons();
                 ProgressBarWork();
-                await BaseBlockSender.ConnectAsync(BaseBlockIp, Convert.ToInt32(baseBlockServerConstants.Rows[1].Cells[1].Value.ToString()));
+                await BaseBlockSender.ConnectAsync(BaseBlockIp, Convert.ToInt16(baseBlockServerConstants.Rows[1].Cells[1].Value.ToString()));
                 progressBarReceive.Value = 1;
                 BaseBlockStream = BaseBlockSender.GetStream();
                 connectionIndicator.BackColor = Color.Lime;
@@ -434,7 +435,7 @@ namespace test_app
             //Конвертация полученных данных в битовый массив и разделение по ячейкам
             str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
             
-            sizeStr = Convert.ToInt32(str[1], 16);
+            sizeStr = Convert.ToInt16(str[1], 16);
 
             Array.Resize(ref _dataResponse, sizeStr + 2);
 
@@ -473,7 +474,7 @@ namespace test_app
                 {
                     if (_dataResponse[i + 2] == 0x01)
                     {
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 1].Cells[_phase].Value = Convert.ToInt32(_dataResponse[i + 3]);
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 1].Cells[_phase].Value = Convert.ToInt16(_dataResponse[i + 3]);
                         baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 1].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
                     }
                     if (_dataResponse[i + 2] == 0x02)
@@ -508,7 +509,7 @@ namespace test_app
                {
                     str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
-                    sizeStr = Convert.ToInt32(str[1], 16);
+                    sizeStr = Convert.ToInt16(str[1], 16);
 
                     Array.Resize(ref _dataResponse, sizeStr + 2);
 
@@ -535,7 +536,7 @@ namespace test_app
 
             str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
-            sizeStr = Convert.ToInt32(str[1], 16);
+            sizeStr = Convert.ToInt16(str[1], 16);
 
             Array.Resize(ref _dataResponse, sizeStr + 2);
 
@@ -568,7 +569,7 @@ namespace test_app
                 {
                     if (_dataResponse[i + 2] == 0x01)
                     {
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 10].Cells[_phase].Value = Convert.ToInt32(_dataResponse[i + 3]);
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 10].Cells[_phase].Value = Convert.ToInt16(_dataResponse[i + 3]);
                         baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 10].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
                     }
                     if (_dataResponse[i + 2] == 0x02)
@@ -602,7 +603,7 @@ namespace test_app
                 {
                     str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
-                    sizeStr = Convert.ToInt32(str[1], 16);
+                    sizeStr = Convert.ToInt16(str[1], 16);
 
                     Array.Resize(ref _dataResponse, sizeStr + 2);
 
@@ -628,7 +629,7 @@ namespace test_app
 
             str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
-            sizeStr = Convert.ToInt32(str[1], 16);
+            sizeStr = Convert.ToInt16(str[1], 16);
 
             Array.Resize(ref _dataResponse, sizeStr + 2);
 
@@ -653,7 +654,7 @@ namespace test_app
                 {
                     if (_dataResponse[i + 2] == 0x01)
                     {
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 14].Cells[_phase].Value = Convert.ToInt32(_dataResponse[i + 3]);
+                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 14].Cells[_phase].Value = Convert.ToInt16(_dataResponse[i + 3]);
                         baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 14].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
                     }
                     if (_dataResponse[i + 2] == 0x02)
@@ -687,7 +688,7 @@ namespace test_app
                 {
                     str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
-                    sizeStr = Convert.ToInt32(str[1], 16);
+                    sizeStr = Convert.ToInt16(str[1], 16);
 
                     Array.Resize(ref _dataResponse, sizeStr + 2);
 
@@ -825,7 +826,7 @@ namespace test_app
                 {
                     str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
-                    sizeStr = Convert.ToInt32(str[1], 16);
+                    sizeStr = Convert.ToInt16(str[1], 16);
 
                     Array.Resize(ref _dataResponse, sizeStr + 2);
 
@@ -891,7 +892,7 @@ namespace test_app
                 {
                     str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
-                    sizeStr = Convert.ToInt32(str[1], 16);
+                    sizeStr = Convert.ToInt16(str[1], 16);
 
                     Array.Resize(ref _dataResponse, sizeStr + 2);
 
@@ -942,7 +943,7 @@ namespace test_app
                         //defaultRunPackage[i + 5] = 0xFF; UNUSED
                         //defaultRunPackage[i + 6] = 0xFF; UNSUED
                         //@TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535
-                        //что является по факту диапазоном в 2 байта - 0xFF. Надо уточнять у китайцев
+                        //что является по факту диапазоном в 2 байта - 0xFFFF. Надо уточнять у китайцев
                     }
                 }
             }
@@ -957,7 +958,7 @@ namespace test_app
                 {
                     str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
-                    sizeStr = Convert.ToInt32(str[1], 16);
+                    sizeStr = Convert.ToInt16(str[1], 16);
 
                     Array.Resize(ref _dataResponse, sizeStr + 2);
 
@@ -995,7 +996,7 @@ namespace test_app
             }
             str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
-            sizeStr = Convert.ToInt32(str[1], 16);
+            sizeStr = Convert.ToInt16(str[1], 16);
 
             Array.Resize(ref _dataResponse, sizeStr + 2);
 
@@ -1006,41 +1007,190 @@ namespace test_app
                 return;
             }
             //@TODO: Возвращаемы ответ больше 256, это нужно учитывать если потом придётся работаь с областью 8B FF
-            for (int i = 19; i < _dataResponse[18]; ++i)
+            for (var i = 19; i < _dataResponse[18]; ++i)
             {   
                 if (_dataResponse[i] == 0x00 && _dataResponse[i - 1] == 0x15) //&& dataResponse[i + 2] > 0x00)
                                                                              //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
                                                                              //в первой половине 0x31
                 {
                     _isUserInput = false;
-                    SCADA_TextBox.Text = Convert.ToInt32(_dataResponse[i + 4] << 8 | _dataResponse[i + 3]).ToString();
+                    SCADA_TextBox.Text = Convert.ToInt16(_dataResponse[i + 4] << 8 | _dataResponse[i + 3]).ToString();
                     _currentSCADAValue = SCADA_TextBox.Text;
                 }
             }
+
+            //byte[] send_s_frame = { 0x68, 0x04, 0x01, 0x00, 0x02, 0x00 };
+            //int h = 1;
+            //h = 2;
+            //await BaseBlockStream.WriteAsync(send_s_frame, 0, send_s_frame.Length);
+
+            //CONFIRM--------------------------------------------------
+            _dataResponse = new byte[256];
+            await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            if (_dataResponse != null || _dataResponse.Length != 0)
+            {
+                //if (_dataResponse[1] == 0x04)
+                //{
+                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
+
+                    //sizeStr = Convert.ToInt16(str[1], 16);
+
+                    //Array.Resize(ref _dataResponse, sizeStr + 2);
+
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
+                //}
+            }
+            //---------------------------------------------------------
+
+            //CONFIRM--------------------------------------------------
+            _dataResponse = new byte[256];
+            await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            if (_dataResponse != null || _dataResponse.Length != 0)
+            {
+                //if (_dataResponse[1] == 0x04)
+                //{
+                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
+
+                    //sizeStr = Convert.ToInt16(str[1], 16);
+
+                    //Array.Resize(ref _dataResponse, sizeStr + 2);
+
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
+                //}
+            }
+            //---------------------------------------------------------
             EnableButtons();
         }
 
-        private void WriteSCADAParameterButton_Click(object sender, EventArgs e)
+        private async void WriteSCADAParameterButton_Click(object sender, EventArgs e)
         {
+            if (BaseBlockStream == null)
+            {
+                MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                return;
+            }
+            if (SCADA_TextBox.Text == "" || SCADA_TextBox.Text == null)
+            {
+                MessageBox.Show("Поле 'Время отправки телеизмерений' не должно быть пустым", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                return;
+            }
+            DisableButtons();
             string[] str;
             int sizeStr;
 
-            //68 40 1C 00 4E 00 7D 01 0D 00 00 00 00 00 00 2A 00 05 2F
-            //00 30 00 02 50 00 | 01 30 00 01 06 | 02 30 00 02 2C 01
-            //03 30 00 04 84 03 00 00 | 04 30 00 02 78 00 | 05 30 00 01 14
-            //06 30 00 01 0A | 07 30 00 02 0A 00
             short storage;
 
             byte[] defaultWritePackage =
-              { 0x68, 0x40, 0x1C, 0x00, 0x4E, 0x00, 0x7D, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2A, 0x00, 0x04, 0x2F,
-                0x00, 0x30, 0x00, 0x02, 0x00, 0x00,
-                0x01, 0x30, 0x00, 0x01, 0x00,
-                0x02, 0x30, 0x00, 0x02, 0x00, 0x00,
-                0x03, 0x30, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00,
-                0x04, 0x30, 0x00, 0x02, 0x00, 0x00,
-                0x05, 0x30, 0x00, 0x01, 0x00,
-                0x06, 0x30, 0x00, 0x01, 0x00,
-                0x07, 0x30, 0x00, 0x02, 0x00, 0x00 };
+              { 0x68, 0xE8, 0x1C, 0x00, 0x4E, 0x00, 0x7D, 0x01, 0x0D, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0xD7,
+                0x0D, 0x00, 0x00, 0x02, 0x00, 0x00, // OHL RF
+                0x0E, 0x00, 0x00, 0x02, 0x01, 0x00, // Режим работы - в реальном времени
+                0x0F, 0x00, 0x00, 0x02, 0x01, 0x00, // Тип устройства - удалённое уст.
+                0x10, 0x00, 0x00, 0x02, 0x00, 0x00, // Тип индикаторов - RF001
+                0x11, 0x00, 0x00, 0x02, 0x60, 0x54, // Интервал блокировки при ошибке (?)
+                0x12, 0x00, 0x00, 0x02, 0x78, 0x1E, // 
+                0x13, 0x00, 0x00, 0x02, 0x78, 0x00, // AD Acquisition time
+                0x14, 0x00, 0x00, 0x02, 0x3C, 0x00, // Heartbeat time
+                0x15, 0x00, 0x00, 0x02, 0x84, 0x03, // Время отправки запроса на получение телеизмерений
+                0x16, 0x00, 0x00, 0x02, 0x3C, 0x00, // 
+                0x18, 0x00, 0x00, 0x02, 0x84, 0x03, // 
+                0x1A, 0x00, 0x00, 0x02, 0x3C, 0x00, // Время которое фиксирует режим "power" если работа блока питания нестабильна 
+                0x1F, 0x00, 0x00, 0x02, 0x01, 0x00, // Адрес подстанции
+                0x21, 0x00, 0x00, 0x02, 0x06, 0x00, // Частота работы RF устройства
+                0x22, 0x00, 0x00, 0x02, 0x64, 0x00, // 
+                0x23, 0x00, 0x00, 0x02, 0x00, 0x00, // 
+                0x24, 0x00, 0x00, 0x02, 0x0A, 0x00, // 
+                0x8B, 0xFF, 0x00, 0x02, 0xD3, 0x04, // Значение защиты перенапряжения
+                0x8C, 0xFF, 0x00, 0x02, 0x5B, 0x13, // Частота дикретизации АЦП батареи
+                0x93, 0xFF, 0x00, 0x02, 0x00, 0x00, // 
+                0x8D, 0xFF, 0x00, 0x02, 0x00, 0x00, // 
+                0x8E, 0xFF, 0x00, 0x02, 0x00, 0x00, // 
+                0x8F, 0xFF, 0x00, 0x02, 0x00, 0x00, // 
+                0xA0, 0x00, 0x00, 0x01, 0x00,
+                0xA1, 0x00, 0x00, 0x01, 0x00,
+                0xA2, 0x00, 0x00, 0x01, 0x00,
+                0xA3, 0x00, 0x00, 0x01, 0x00,
+                0xA4, 0x00, 0x00, 0x01, 0x00,
+                0xA5, 0x00, 0x00, 0x02, 0x00, 0x00,
+                0xA6, 0x00, 0x00, 0x02, 0x00, 0x00,
+                0x85, 0xFF, 0x00, 0x01, 0x00,
+                0x86, 0xFF, 0x00, 0x02, 0x0A, 0x00,
+                0x9D, 0xFF, 0x00, 0x02, 0x00, 0x00,
+                0x9E, 0xFF, 0x00, 0x01, 0x00,
+                0x20, 0xFF, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00,
+                0x21, 0xFF, 0x00, 0x01, 0x00
+            };
+
+            //byte[] defaultWritePackage =
+            //{ 0x68, 0x17, 0x1C, 0x00, 0x4E, 0x00, 0x7D, 0x01, 0x0D, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x06,
+            //  0x15, 0x00, 0x00, 0x02, 0x84, 0x03 };
+            defaultWritePackage[3] += (byte)test;
+            defaultWritePackage[4] += (byte)test;
+            defaultWritePackage[72] = (byte)(Convert.ToInt16(SCADA_TextBox.Text) >> 8);
+            defaultWritePackage[71] = (byte)(Convert.ToInt16(SCADA_TextBox.Text) & 0xFF);
+            //defaultWritePackage[24] = (byte)(Convert.ToInt16(SCADA_TextBox.Text) >> 8);
+            //defaultWritePackage[23] = (byte)(Convert.ToInt16(SCADA_TextBox.Text) & 0xFF);
+            //defaultWritePackage[78] << 8 | defaultWritePackage[77]
+            //SCADA_TextBox.Text = Convert.ToInt16(defaultWritePackage[72]).ToString();
+            _dataResponse = new byte[256];
+            BaseBlockStream.Write(defaultWritePackage, 0, defaultWritePackage.Length);
+            BaseBlockStream.Read(_dataResponse, 0, _dataResponse.Length);
+            //CONFIRM--------------------------------------------------
+
+            //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            //if (_dataResponse != null || _dataResponse.Length != 0)
+            //{
+                //if (_dataResponse[1] == 0x04)
+                //{
+                    //str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
+
+                    //sizeStr = Convert.ToInt16(str[1], 16);
+
+                    //Array.Resize(ref _dataResponse, sizeStr + 2);
+
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
+                //}
+            //}
+            //---------------------------------------------------------
+
+            //await BaseBlockStream.WriteAsync(defaultWritePackage, 0, defaultWritePackage.Length);
+            //CONFIRM--------------------------------------------------
+            _dataResponse = new byte[256];
+            BaseBlockStream.Read(_dataResponse, 0, _dataResponse.Length);
+            //if (_dataResponse != null || _dataResponse.Length != 0)
+            //{
+                //if (_dataResponse[1] == 0x04)
+                //{
+                    //str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
+
+                    //sizeStr = Convert.ToInt16(str[1], 16);
+
+                    //Array.Resize(ref _dataResponse, sizeStr + 2);
+
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
+            //}
+            //}
+            //---------------------------------------------------------
+            BaseBlockStream.Flush();
+            
+            //CONFIRM--------------------------------------------------
+            //_dataResponse = new byte[256];
+            //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            //if (_dataResponse != null || _dataResponse.Length != 0)
+            //{
+            //if (_dataResponse[1] == 0x04)
+            //{
+            //str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
+
+            //sizeStr = Convert.ToInt16(str[1], 16);
+
+            //Array.Resize(ref _dataResponse, sizeStr + 2);
+
+            //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
+            //}
+            //}
+            //---------------------------------------------------------
+            EnableButtons();
+            test += 2;
         }
 
         private void SCADA_TextBox_KeyDown(object sender, KeyEventArgs e)
