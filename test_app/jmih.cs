@@ -1006,7 +1006,7 @@ namespace test_app
                 EnableButtons();
                 return;
             }
-            //@TODO: Возвращаемы ответ больше 256, это нужно учитывать если потом придётся работаь с областью 8B FF
+            //@TODO: Возвращаемый ответ больше 256, это нужно учитывать если потом придётся работать с областью 8B FF
             for (var i = 19; i < _dataResponse[18]; ++i)
             {   
                 if (_dataResponse[i] == 0x00 && _dataResponse[i - 1] == 0x15) //&& dataResponse[i + 2] > 0x00)
@@ -1069,7 +1069,7 @@ namespace test_app
                 MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                 return;
             }
-            if (SCADA_TextBox.Text == "" || SCADA_TextBox.Text == null)
+            if (string.IsNullOrEmpty(SCADA_TextBox.Text))
             {
                 MessageBox.Show("Поле 'Время отправки телеизмерений' не должно быть пустым", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                 return;
@@ -1113,6 +1113,7 @@ namespace test_app
                 0xA5, 0x00, 0x00, 0x02, 0x00, 0x00,
                 0xA6, 0x00, 0x00, 0x02, 0x00, 0x00,
                 0x85, 0xFF, 0x00, 0x01, 0x00,
+                0x1F, 0xFF, 0x00, 0x01, 0x00,
                 0x86, 0xFF, 0x00, 0x02, 0x0A, 0x00,
                 0x9D, 0xFF, 0x00, 0x02, 0x00, 0x00,
                 0x9E, 0xFF, 0x00, 0x01, 0x00,
@@ -1132,8 +1133,8 @@ namespace test_app
             //defaultWritePackage[78] << 8 | defaultWritePackage[77]
             //SCADA_TextBox.Text = Convert.ToInt16(defaultWritePackage[72]).ToString();
             _dataResponse = new byte[256];
-            BaseBlockStream.Write(defaultWritePackage, 0, defaultWritePackage.Length);
-            BaseBlockStream.Read(_dataResponse, 0, _dataResponse.Length);
+            await BaseBlockStream.WriteAsync(defaultWritePackage, 0, defaultWritePackage.Length);
+            await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             //CONFIRM--------------------------------------------------
 
             //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
