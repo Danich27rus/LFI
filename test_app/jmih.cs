@@ -33,6 +33,8 @@ namespace test_app
         int test = 2;
         //int prg = 0;
         private static byte[] _dataResponse;
+        public string[] str;
+        public int sizeStr;
 
         protected CancellationTokenSource TokenSource = new CancellationTokenSource();
         protected TcpClient BaseBlockSender;
@@ -57,7 +59,7 @@ namespace test_app
         }
 
 
-        //
+        //----------------Индикатор выполнения--------------------------
         private async void ProgressBarWork()
         {
             var token = TokenSource.Token;
@@ -253,7 +255,7 @@ namespace test_app
                 BaseBlockStream = BaseBlockSender.GetStream();
                 connectionIndicator.BackColor = Color.Lime;
                 EnableButtons();
-               
+
             }
             catch (SocketException ex)
             {
@@ -273,7 +275,7 @@ namespace test_app
                 BaseBlockSender.Close();
                 connectionIndicator.BackColor = Color.White;
             }
-            catch(System.InvalidOperationException e1)
+            catch (System.InvalidOperationException e1)
             {
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.InvalOpExc, e1.ToString());
             }
@@ -391,6 +393,40 @@ namespace test_app
             }
         }
 
+        //----------Ответ CONFIRM от ББ при запросе на чтение параметров------------
+        private async void ReadCONFIRM(byte CheckLength, byte position)
+        {
+            _dataResponse = new byte[256];
+            try
+            {
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            }
+            catch (System.IO.IOException e2)
+            {
+               EnableButtons();
+               AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
+            }
+
+            if (_dataResponse != null || _dataResponse.Length != 0)
+            {
+                if (_dataResponse[position] == CheckLength)
+                {
+                    if (CheckLength == 0x68)
+                    {
+                        _dataResponse = AdditionalFunctions.ArrayShift(_dataResponse, 11); //@TODO Баг в чтении подтверждения
+                    }
+                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
+
+                    sizeStr = Convert.ToInt16(str[1], 16);
+
+                    Array.Resize(ref _dataResponse, sizeStr + 2);
+
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
+                }
+            }
+        }
+
+
         //---------Чтение параметров индикатора RunParam и CurrentParam-------------
         //Первое читается - RunParam     
         //Второе - CurrentParam
@@ -406,9 +442,6 @@ namespace test_app
                 MessageBox.Show("Необходимо выбрать одну из трёх фаз для считывания данных", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                 return;
             }
-
-            string[] str;
-            int sizeStr;
 
             BaseBlockStream.ReadTimeout = 25000; //10 секунд тайм аут
             DisableButtons();
@@ -434,7 +467,7 @@ namespace test_app
 
             //Конвертация полученных данных в битовый массив и разделение по ячейкам
             str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
-            
+
             sizeStr = Convert.ToInt16(str[1], 16);
 
             Array.Resize(ref _dataResponse, sizeStr + 2);
@@ -470,7 +503,7 @@ namespace test_app
             for (var i = 19; i < _dataResponse[18]; ++i)
             {
                 if (_dataResponse[i] == 0x30 && _dataResponse[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
-                                                                           //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно                                                                               //в первой половине 0x30
+                                                                             //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно                                                                               //в первой половине 0x30
                 {
                     if (_dataResponse[i + 2] == 0x01)
                     {
@@ -492,30 +525,7 @@ namespace test_app
 
 
             //CONFIRM--------------------------------------------------
-            _dataResponse = new byte[256];
-            try
-            {
-                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-            }
-            catch (System.IO.IOException e2)
-            {
-                EnableButtons();
-                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
-            }
-
-            if (_dataResponse != null || _dataResponse.Length != 0)
-            {
-               if (_dataResponse[1] == 0x04)
-               {
-                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
-
-                    sizeStr = Convert.ToInt16(str[1], 16);
-
-                    Array.Resize(ref _dataResponse, sizeStr + 2);
-
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
-               }
-            }
+            ReadCONFIRM(0x04, 1);
             //------------------------------------------------------
 
             //-------------------CurrentParam-----------------------
@@ -564,8 +574,8 @@ namespace test_app
             for (var i = 19; i < _dataResponse[18]; ++i)
             {
                 if (_dataResponse[i] == 0x31 && _dataResponse[i - 1] < 0x03) //&& dataResponse[i + 2] > 0x00)
-                                                                           //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
-                                                                           //в первой половине 0x31
+                                                                             //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
+                                                                             //в первой половине 0x31
                 {
                     if (_dataResponse[i + 2] == 0x01)
                     {
@@ -587,29 +597,7 @@ namespace test_app
             //baseBlockTelemetryDataGrid.RowHeadersDefaultCellStyle.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Regular);
             _dataResponse = new byte[256];
             //CONFIRM--------------------------------------------------
-            try
-            {
-                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-            }
-            catch (System.IO.IOException e2)
-            {
-                EnableButtons();
-                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
-            }
-
-            if (_dataResponse != null || _dataResponse.Length != 0)
-            {
-                if (_dataResponse[1] == 0x04)
-                {
-                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
-
-                    sizeStr = Convert.ToInt16(str[1], 16);
-
-                    Array.Resize(ref _dataResponse, sizeStr + 2);
-
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
-                }
-            }
+            ReadCONFIRM(0x04, 1);
             //---------------------------------------------------------
             //---------------------GroundParam-------------------------
             byte[] readGroundData = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2C, 0x00, 0x04, 0x00 };
@@ -649,8 +637,8 @@ namespace test_app
             for (int i = 19; i < _dataResponse[18]; ++i)
             {
                 if (_dataResponse[i] == 0x32 && _dataResponse[i - 1] < 0x02) //&& dataResponse[i + 2] > 0x00)
-                                                                           //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
-                                                                           //в первой половине 0x31
+                                                                             //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
+                                                                             //в первой половине 0x31
                 {
                     if (_dataResponse[i + 2] == 0x01)
                     {
@@ -672,30 +660,7 @@ namespace test_app
             _dataResponse = new byte[256];
 
             //CONFIRM--------------------------------------------------
-            try
-            {
-                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-            }
-            catch (System.IO.IOException e2)
-            {
-                EnableButtons();
-                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
-            }
-
-            if (_dataResponse != null || _dataResponse.Length != 0)
-            {
-                if (_dataResponse[1] == 0x04)
-                {
-                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
-
-                    sizeStr = Convert.ToInt16(str[1], 16);
-
-                    Array.Resize(ref _dataResponse, sizeStr + 2);
-
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
-                }
-            }
-            EnableButtons();
+            ReadCONFIRM(0x04, 1);
         }
 
         //---------------Проверка на изменение ячейки в таблице телеизмерений------------
@@ -772,8 +737,8 @@ namespace test_app
             for (var i = 19; i < defaultGeneralPackage.Length; ++i)
             {
                 if (defaultGeneralPackage[i] == 0x30 && defaultGeneralPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
-                                                                                     //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
-                                                                                     //в первой половине 0x30
+                                                                                             //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
+                                                                                             //в первой половине 0x30
                 {
                     if (defaultGeneralPackage[i + 2] == 0x01)
                     {
@@ -818,21 +783,7 @@ namespace test_app
 
             await BaseBlockStream.WriteAsync(defaultGeneralPackage, 0, defaultGeneralPackage.Length);
             //CONFIRM--------------------------------------------------
-            _dataResponse = new byte[256];
-            await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-            if (_dataResponse != null || _dataResponse.Length != 0)
-            {
-                if (_dataResponse[1] == 0x04)
-                {
-                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
-
-                    sizeStr = Convert.ToInt16(str[1], 16);
-
-                    Array.Resize(ref _dataResponse, sizeStr + 2);
-
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
-                }
-            }
+            ReadCONFIRM(0x04, 1);
             //---------------------------------------------------------
             //----------------CurrentPackage--------------------------
             for (int i = 19; i < defaultCurrentPackage.Length; ++i)
@@ -884,21 +835,7 @@ namespace test_app
             await BaseBlockStream.WriteAsync(defaultCurrentPackage, 0, defaultCurrentPackage.Length);
 
             //CONFIRM--------------------------------------------------
-            _dataResponse = new byte[256];
-            BaseBlockStream.Read(_dataResponse, 0, _dataResponse.Length);
-            if (_dataResponse != null || _dataResponse.Length != 0)
-            {
-                if (_dataResponse[1] == 0x04)
-                {
-                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
-
-                    sizeStr = Convert.ToInt16(str[1], 16);
-
-                    Array.Resize(ref _dataResponse, sizeStr + 2);
-
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
-                }
-            }
+            ReadCONFIRM(0x04, 1);
             //---------------------------------------------------------
             //-----------------GroundPackage---------------------------
             for (int i = 19; i < defaultGroundPackage.Length; ++i)
@@ -950,21 +887,7 @@ namespace test_app
             await BaseBlockStream.WriteAsync(defaultGroundPackage, 0, defaultGroundPackage.Length);
 
             //CONFIRM--------------------------------------------------
-            _dataResponse = new byte[256];
-            BaseBlockStream.Read(_dataResponse, 0, _dataResponse.Length);
-            if (_dataResponse != null || _dataResponse.Length != 0)
-            {
-                if (_dataResponse[1] == 0x04)
-                {
-                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
-
-                    sizeStr = Convert.ToInt16(str[1], 16);
-
-                    Array.Resize(ref _dataResponse, sizeStr + 2);
-
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
-                }
-            }
+            ReadCONFIRM(0x04, 1);
             //---------------------------------------------------------
         }
 
@@ -1008,10 +931,10 @@ namespace test_app
             }
             //@TODO: Возвращаемый ответ больше 256, это нужно учитывать если потом придётся работать с областью 8B FF
             for (var i = 19; i < _dataResponse[18]; ++i)
-            {   
+            {
                 if (_dataResponse[i] == 0x00 && _dataResponse[i - 1] == 0x15) //&& dataResponse[i + 2] > 0x00)
-                                                                             //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
-                                                                             //в первой половине 0x31
+                                                                              //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
+                                                                              //в первой половине 0x31
                 {
                     _isUserInput = false;
                     SCADA_TextBox.Text = Convert.ToInt16(_dataResponse[i + 4] << 8 | _dataResponse[i + 3]).ToString();
@@ -1019,46 +942,26 @@ namespace test_app
                 }
             }
 
+
             //byte[] send_s_frame = { 0x68, 0x04, 0x01, 0x00, 0x02, 0x00 };
             //int h = 1;
             //h = 2;
             //await BaseBlockStream.WriteAsync(send_s_frame, 0, send_s_frame.Length);
 
+            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
             //CONFIRM--------------------------------------------------
-            _dataResponse = new byte[256];
-            await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-            if (_dataResponse != null || _dataResponse.Length != 0)
-            {
-                //if (_dataResponse[1] == 0x04)
-                //{
-                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
-
-                    //sizeStr = Convert.ToInt16(str[1], 16);
-
-                    //Array.Resize(ref _dataResponse, sizeStr + 2);
-
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
-                //}
-            }
+            ReadCONFIRM(0x68, 11);
             //---------------------------------------------------------
-
+            BaseBlockStream.Flush();
             //CONFIRM--------------------------------------------------
-            _dataResponse = new byte[256];
-            await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-            if (_dataResponse != null || _dataResponse.Length != 0)
-            {
-                //if (_dataResponse[1] == 0x04)
-                //{
-                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
-
-                    //sizeStr = Convert.ToInt16(str[1], 16);
-
-                    //Array.Resize(ref _dataResponse, sizeStr + 2);
-
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
-                //}
-            }
+            //ReadCONFIRM(0x04);
             //---------------------------------------------------------
+            //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
+            ////await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            ////connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
+            //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
             EnableButtons();
         }
 
@@ -1128,51 +1031,29 @@ namespace test_app
             defaultWritePackage[4] += (byte)test;
             defaultWritePackage[72] = (byte)(Convert.ToInt16(SCADA_TextBox.Text) >> 8);
             defaultWritePackage[71] = (byte)(Convert.ToInt16(SCADA_TextBox.Text) & 0xFF);
-            //defaultWritePackage[24] = (byte)(Convert.ToInt16(SCADA_TextBox.Text) >> 8);
-            //defaultWritePackage[23] = (byte)(Convert.ToInt16(SCADA_TextBox.Text) & 0xFF);
-            //defaultWritePackage[78] << 8 | defaultWritePackage[77]
-            //SCADA_TextBox.Text = Convert.ToInt16(defaultWritePackage[72]).ToString();
+
             _dataResponse = new byte[256];
             await BaseBlockStream.WriteAsync(defaultWritePackage, 0, defaultWritePackage.Length);
             await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-            //CONFIRM--------------------------------------------------
+
 
             //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-            //if (_dataResponse != null || _dataResponse.Length != 0)
-            //{
-                //if (_dataResponse[1] == 0x04)
-                //{
-                    //str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
+            //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
 
-                    //sizeStr = Convert.ToInt16(str[1], 16);
+            //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
 
-                    //Array.Resize(ref _dataResponse, sizeStr + 2);
 
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
-                //}
-            //}
+            //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
+            //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "OK:", _showTime));
+            //CONFIRM--------------------------------------------------
+            ReadCONFIRM(0x04, 1);
             //---------------------------------------------------------
 
-            //await BaseBlockStream.WriteAsync(defaultWritePackage, 0, defaultWritePackage.Length);
-            //CONFIRM--------------------------------------------------
-            _dataResponse = new byte[256];
-            BaseBlockStream.Read(_dataResponse, 0, _dataResponse.Length);
-            //if (_dataResponse != null || _dataResponse.Length != 0)
-            //{
-                //if (_dataResponse[1] == 0x04)
-                //{
-                    //str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
-
-                    //sizeStr = Convert.ToInt16(str[1], 16);
-
-                    //Array.Resize(ref _dataResponse, sizeStr + 2);
-
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
-            //}
-            //}
+            //ReadCONFIRM(0x04);
             //---------------------------------------------------------
             BaseBlockStream.Flush();
-            
+
             //CONFIRM--------------------------------------------------
             //_dataResponse = new byte[256];
             //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
@@ -1302,4 +1183,5 @@ namespace test_app
        }
    }, token) ; */
     }
+
 }

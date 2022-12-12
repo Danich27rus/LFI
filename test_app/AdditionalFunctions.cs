@@ -77,5 +77,19 @@ namespace test_app
             print += ($"{cause}: {text}\r\n");
             return print;
         }
+
+        //Сдвиг массива влево на нужное кол-во шагов (offset)
+        public static byte[] ArrayShift(byte[] array, int offset)
+        {
+            int n = array.Length;
+            for (int i = 0; i < offset; ++i)
+            {
+                byte aLast = array[n - 1];
+                for (int j = 0; j < n - 1; j++)
+                    array[j] = array[j + 1];
+                array[0] = aLast;
+            }
+            return array;
+        }
     }
 }
