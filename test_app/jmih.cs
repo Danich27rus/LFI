@@ -27,20 +27,25 @@ namespace test_app
 {
     public partial class Jmih : Form
     {
+
+        #region Переменные в среде жмыха 
+
+        private static byte[] _dataResponse;
+        private static byte _errorCode;
         private bool _showTime, _isUserInput;
         private int _phase; //Фаза А - 1, Фаза Б - 2, Фаза С - 3
         string _currentSCADAValue;
-        int test = 2;
-        //int prg = 0;
-        private static byte[] _dataResponse;
+
         public string[] str;
         public int sizeStr;
 
         protected CancellationTokenSource TokenSource = new CancellationTokenSource();
         protected TcpClient BaseBlockSender;
         protected IPAddress BaseBlockIp;
-        //protected IPEndPoint BaseBlockEnd;
         protected NetworkStream BaseBlockStream;
+
+        #endregion
+
         public Jmih()
         {
             InitializeComponent();
@@ -52,25 +57,39 @@ namespace test_app
             connectionIndicator.BackColor = Color.White;
             _showTime = false;
             _phase = 0;
-            //baseBlockIP = IPAddress.Parse("192.168.1.1");
-            //baseBlockEnd = new IPEndPoint(baseBlockIP, 10010);
             inputDataGrid_Setup();
             telemetryDataGrid_Setup();
         }
 
+        private void ProgressBarTimer_Tick()
+        {
+            ProgressBarTimer.Interval = 1000;
+            ProgressBarTimer.Tick += new EventHandler(IncreaseProgressBar);
+            ProgressBarTimer.Start();
+        }
+
+        private void IncreaseProgressBar(object sender, EventArgs e)
+        {
+            progressBarReceive.Increment(20);
+            if (progressBarReceive.Value == progressBarReceive.Maximum)
+            {
+                ProgressBarTimer.Stop();
+            }
+        }
 
         //----------------Индикатор выполнения--------------------------
         private async void ProgressBarWork()
         {
-            var token = TokenSource.Token;
-            await Task.Factory.StartNew(() =>
+            /*var token = TokenSource.Token;
+            await Task.Run(() =>
             {
                 void Inc()
                 {
-                    for (var i = 0; i < 20; ++i)
+                    for (var i = 0; i < 1000; ++i)
                     {
-                        Task.Delay(200, token);
-                        progressBarReceive.Increment(5);
+                        //Task.Delay(5000, token);
+                        Thread.Sleep(50);
+                        progressBarReceive.Increment(1);
                     }
                 }
 
@@ -91,6 +110,35 @@ namespace test_app
                     Inc();
                 }
             }, token);
+            await Task.Factory.StartNew(() =>
+            {
+                void Inc()
+                {
+                    for (var i = 0; i < 40; ++i)
+                    {
+                        //Task.Delay(5000, token);
+                        Thread.Sleep(50);
+                        progressBarReceive.Increment(1);
+                    }
+                }
+
+                if (TCP_CONNECTION.InvokeRequired)
+                {
+                    TCP_CONNECTION.BeginInvoke((System.Action)Inc);
+                }
+                else
+                {
+                    Inc();
+                }
+                if (TCP_CONNECTION.InvokeRequired)
+                {
+                    TCP_CONNECTION.BeginInvoke((System.Action)Inc);
+                }
+                else
+                {
+                    Inc();
+                }
+            }, token);*/
         }
 
         //--------------Включение и отколючение кнопопк-----------
@@ -101,6 +149,8 @@ namespace test_app
             send_button.Enabled = false;
             readIndicatorParametersButton.Enabled = false;
             writeIndicatorParametersButton.Enabled = false;
+            ReadSCADAParameterButton.Enabled = false;
+            WriteSCADAParameterButton.Enabled = false;
         }
 
         private void EnableButtons()
@@ -110,6 +160,8 @@ namespace test_app
             send_button.Enabled = true;
             readIndicatorParametersButton.Enabled = true;
             writeIndicatorParametersButton.Enabled = true;
+            ReadSCADAParameterButton.Enabled = true;
+            WriteSCADAParameterButton.Enabled = true;
         }
 
         //-----------Настройка таблицы с IP/Port------------
@@ -203,8 +255,6 @@ namespace test_app
             try
             {
                 byte[] dataSend = AdditionalFunctions.StringToByteArray(textBox2.Text);
-
-                //Byte[] dataSend = { 0x68, 0x04, 0x43, 0x00, 0x00, 0x00 };
                 await BaseBlockStream.WriteAsync(dataSend, 0, dataSend.Length);
 
                 _dataResponse = new byte[256];
@@ -212,7 +262,8 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
-                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
+                connectionIndicator.BackColor = Color.Red;
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
             }
             string[] str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
             int sizeStr = Convert.ToInt16(str[1], 16);
@@ -230,16 +281,7 @@ namespace test_app
                 MessageBox.Show("Какое-то из полей IP/Порт пустое, его необходимо заполнить", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                 return;
             }
-            /*if (showTime)
-            {
-                connection_log.AppendText(String.Format("[{0}]IP: {1}\r\n", DateTime.Now, baseBlockServerConstants.Rows[0].Cells[1].Value.ToString()));
-                connection_log.AppendText(String.Format("[{0}]Порт: {1}\r\n", DateTime.Now, baseBlockServerConstants.Rows[1].Cells[1].Value.ToString()));
-            }
-            else
-            {
-                connection_log.AppendText("IP:" + baseBlockServerConstants.Rows[0].Cells[1].Value.ToString() + "\r\n");
-                connection_log.AppendText("Порт: " + baseBlockServerConstants.Rows[1].Cells[1].Value.ToString() + "\r\n");
-            }*/
+
             connection_log.AppendText(AdditionalFunctions.TextBoxPrint(baseBlockServerConstants.Rows[0].Cells[1].Value.ToString(), "IP", _showTime));
             connection_log.AppendText(AdditionalFunctions.TextBoxPrint(baseBlockServerConstants.Rows[1].Cells[1].Value.ToString(), "Порт", _showTime));
 
@@ -249,8 +291,10 @@ namespace test_app
             try
             {
                 DisableButtons();
-                ProgressBarWork();
+                ProgressBarTimer_Tick();
                 await BaseBlockSender.ConnectAsync(BaseBlockIp, Convert.ToInt16(baseBlockServerConstants.Rows[1].Cells[1].Value.ToString()));
+                //thread.Start();
+                ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
                 BaseBlockStream = BaseBlockSender.GetStream();
                 connectionIndicator.BackColor = Color.Lime;
@@ -259,9 +303,10 @@ namespace test_app
             }
             catch (SocketException ex)
             {
+                ProgressBarTimer.Stop();
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
-                AdditionalFunctions.ErrorExceptionHandler(errorCodes.ScktExc, ex.ToString());
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.ScktExc, ex.ToString()).ToString(), "Код ошибки", _showTime));
             }
         }
 
@@ -277,11 +322,15 @@ namespace test_app
             }
             catch (System.InvalidOperationException e1)
             {
-                AdditionalFunctions.ErrorExceptionHandler(errorCodes.InvalOpExc, e1.ToString());
+                connectionIndicator.BackColor = Color.Yellow;
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.InvalOpExc, e1.ToString()).ToString(), "Код ошибки", _showTime));
             }
             //System.InvalidOperationException
             //System.InvalidOperationException: "Операция не разрешается на неподключенных сокетах."
         }
+
+
+        #region Функции, отвечающие за валидацию данных
 
         //----------------Валидация введёных данных в DataGrid-----------------------
         //----Данные: IP и порты-----------------------------------------------------
@@ -352,6 +401,66 @@ namespace test_app
             }
         }
 
+        //---------------Проверка на изменение ячейки в таблице телеизмерений------------
+        //Если значение будет изменено - шрифт станет жирным
+        //Если значение записывается в первый раз - шрифт будет нормальным
+        //Если значение перезаписывается компьютером - шрифт будет нормальным
+        private void baseBlockTelemetryDataGrid_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            if (baseBlockTelemetryDataGrid.CurrentCell.Value == null ||
+                baseBlockTelemetryDataGrid.CurrentCell.Value.ToString() == "")
+            {
+                return;
+            }
+            if (baseBlockTelemetryDataGrid.CurrentCell.ColumnIndex == 0)
+            {
+                return;
+            }
+            string currentValue = baseBlockTelemetryDataGrid.CurrentCell.Value.ToString();
+            try
+            {
+                if (baseBlockTelemetryDataGrid.CurrentCell.EditedFormattedValue.ToString() != currentValue)
+                {
+                    //colNum = baseBlockServerConstants.CurrentCell
+                    baseBlockTelemetryDataGrid.Rows[baseBlockTelemetryDataGrid.CurrentCell.RowIndex].Cells[baseBlockTelemetryDataGrid.CurrentCell.ColumnIndex].Style.Font =
+                        new Font("Microsoft Sans Serif", 8, FontStyle.Bold);
+                }
+            }
+            catch (System.Exception e1)
+            {
+                AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString());
+            }
+
+        }
+
+        private void SCADA_TextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            _isUserInput = true;
+        }
+
+        private void SCADA_TextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (_isUserInput)
+            {
+                try
+                {
+                    if (SCADA_TextBox.Text != _currentSCADAValue)
+                    {
+                        //colNum = baseBlockServerConstants.CurrentCell
+                        SCADA_TextBox.Font =
+                            new Font("Microsoft Sans Serif", 8, FontStyle.Bold);
+                        _currentSCADAValue = SCADA_TextBox.Text;
+                    }
+                }
+                catch (System.Exception e1)
+                {
+                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString()).ToString(), "Код ошибки", _showTime));
+                }
+            }
+        }
+
+        #endregion
+
         private void serviceConsoleHelpButton_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Данная сервисная консоль предназначена для вывода информации в raw-виде" +
@@ -393,35 +502,39 @@ namespace test_app
             }
         }
 
-        //----------Ответ CONFIRM от ББ при запросе на чтение параметров------------
-        private async void ReadCONFIRM(byte CheckLength, byte position)
-        {
-            _dataResponse = new byte[256];
-            try
-            {
-                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-            }
-            catch (System.IO.IOException e2)
-            {
-               EnableButtons();
-               AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
-            }
+        #region Функции, отвечающие за чтение данных c индикаторов и памяти ББ
 
+
+        //----------Ответ CONFIRM от ББ при запросе на чтение параметров------------
+        private void ReadCONFIRM(byte CheckLength, byte position, byte[] OptionalSavePlace = null)
+        {
             if (_dataResponse != null || _dataResponse.Length != 0)
             {
                 if (_dataResponse[position] == CheckLength)
                 {
-                    if (CheckLength == 0x68)
+                    if (OptionalSavePlace != null && OptionalSavePlace.Length > 8)
                     {
-                        _dataResponse = AdditionalFunctions.ArrayShift(_dataResponse, 11); //@TODO Баг в чтении подтверждения
+                        Array.ConstrainedCopy(_dataResponse, 0, OptionalSavePlace, 10, 12);
+
+                        str = BitConverter.ToString(OptionalSavePlace, 0, OptionalSavePlace.Length).Split('-');
+
+                        sizeStr = Convert.ToInt16(str[1], 16);
+
+                        Array.Resize(ref OptionalSavePlace, sizeStr + 2);
+
+                        connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(OptionalSavePlace).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
+
                     }
-                    str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
+                    else
+                    {
+                        str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
-                    sizeStr = Convert.ToInt16(str[1], 16);
+                        sizeStr = Convert.ToInt16(str[1], 16);
 
-                    Array.Resize(ref _dataResponse, sizeStr + 2);
+                        Array.Resize(ref _dataResponse, sizeStr + 2);
 
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
+                        connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
+                    }
                 }
             }
         }
@@ -462,7 +575,8 @@ namespace test_app
             catch (System.IO.IOException e2)
             {
                 EnableButtons();
-                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
+                connectionIndicator.BackColor = Color.Red;
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
             }
 
             //Конвертация полученных данных в битовый массив и разделение по ячейкам
@@ -525,6 +639,17 @@ namespace test_app
 
 
             //CONFIRM--------------------------------------------------
+            _dataResponse = new byte[256];
+            try
+            {
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            }
+            catch (System.IO.IOException e2)
+            {
+                EnableButtons();
+                connectionIndicator.BackColor = Color.Red;
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
+            }
             ReadCONFIRM(0x04, 1);
             //------------------------------------------------------
 
@@ -541,7 +666,8 @@ namespace test_app
             catch (System.IO.IOException e2)
             {
                 EnableButtons();
-                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
+                connectionIndicator.BackColor = Color.Red;
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
             }
 
             str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
@@ -595,8 +721,18 @@ namespace test_app
                 }
             }
             //baseBlockTelemetryDataGrid.RowHeadersDefaultCellStyle.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Regular);
-            _dataResponse = new byte[256];
             //CONFIRM--------------------------------------------------
+            _dataResponse = new byte[256];
+            try
+            {
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            }
+            catch (System.IO.IOException e2)
+            {
+                EnableButtons();
+                connectionIndicator.BackColor = Color.Red;
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
+            }
             ReadCONFIRM(0x04, 1);
             //---------------------------------------------------------
             //---------------------GroundParam-------------------------
@@ -612,7 +748,8 @@ namespace test_app
             catch (System.IO.IOException e2)
             {
                 EnableButtons();
-                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
+                connectionIndicator.BackColor = Color.Red;
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
             }
 
             str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
@@ -657,51 +794,116 @@ namespace test_app
                     }
                 }
             }
-            _dataResponse = new byte[256];
-
             //CONFIRM--------------------------------------------------
-            ReadCONFIRM(0x04, 1);
-        }
-
-        //---------------Проверка на изменение ячейки в таблице телеизмерений------------
-        //Если значение будет изменено - шрифт станет жирным
-        //Если значение записывается в первый раз - шрифт будет нормальным
-        //Если значение перезаписывается компьютером - шрифт будет нормальным
-        private void baseBlockTelemetryDataGrid_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
-        {
-            if (baseBlockTelemetryDataGrid.CurrentCell.Value == null ||
-                baseBlockTelemetryDataGrid.CurrentCell.Value.ToString() == "")
-            {
-                return;
-            }
-            if (baseBlockTelemetryDataGrid.CurrentCell.ColumnIndex == 0)
-            {
-                return;
-            }
-            string currentValue = baseBlockTelemetryDataGrid.CurrentCell.Value.ToString();
+            _dataResponse = new byte[256];
             try
             {
-                if (baseBlockTelemetryDataGrid.CurrentCell.EditedFormattedValue.ToString() != currentValue)
-                {
-                    //colNum = baseBlockServerConstants.CurrentCell
-                    baseBlockTelemetryDataGrid.Rows[baseBlockTelemetryDataGrid.CurrentCell.RowIndex].Cells[baseBlockTelemetryDataGrid.CurrentCell.ColumnIndex].Style.Font =
-                        new Font("Microsoft Sans Serif", 8, FontStyle.Bold);
-                }
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
-            catch (System.Exception e1)
+            catch (System.IO.IOException e2)
             {
-                AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString());
+                EnableButtons();
+                connectionIndicator.BackColor = Color.Red;
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
             }
-
+            ReadCONFIRM(0x04, 1);
+            EnableButtons();
         }
 
+        //-------------Чтение рабочих параметров ББ---------------------------- 
+        private async void ReadSCADAParameterButton_Click(object sender, EventArgs e)
+        {
+            if (BaseBlockStream == null)
+            {
+                MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                return;
+            }
+
+            string[] str;
+            byte[] ConfirmArray;
+            int sizeStr;
+
+            byte[] readOperatingParams = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00 };
+
+            DisableButtons();
+            _dataResponse = new byte[256];
+            ConfirmArray = new byte[32];
+            try
+            {
+                await BaseBlockStream.WriteAsync(readOperatingParams, 0, readOperatingParams.Length);
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            }
+            catch (System.IO.IOException e2)
+            {
+                EnableButtons();
+                connectionIndicator.BackColor = Color.Red;
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
+            }
+            str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
+
+            Array.ConstrainedCopy(_dataResponse, _dataResponse.GetUpperBound(0) - 8, ConfirmArray, 0, 9);
+            sizeStr = Convert.ToInt16(str[1], 16);
+
+            Array.Resize(ref _dataResponse, sizeStr + 2);
+
+            if (sizeStr < 20)
+            {
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ вернул не те данные", _showTime));
+                EnableButtons();
+                return;
+            }
+            //@TODO: Возвращаемый ответ больше 256, это нужно учитывать если потом придётся работать с областью 8B FF
+            for (var i = 19; i < _dataResponse[18]; ++i)
+            {
+                if (_dataResponse[i] == 0x00 && _dataResponse[i - 1] == 0x15) //&& dataResponse[i + 2] > 0x00)
+                                                                              //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
+                                                                              //в первой половине 0x31
+                {
+                    _isUserInput = false;
+                    SCADA_TextBox.Text = Convert.ToInt16(_dataResponse[i + 4] << 8 | _dataResponse[i + 3]).ToString();
+                    SCADA_TextBox.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Regular);
+                    _currentSCADAValue = SCADA_TextBox.Text;
+                }
+            }
+
+            //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
+            //CONFIRM--------------------------------------------------
+            _dataResponse = new byte[256];
+            try
+            {
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            }
+            catch (System.IO.IOException e2)
+            {
+                EnableButtons();
+                connectionIndicator.BackColor = Color.Red;
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
+            }
+            ReadCONFIRM(0x01, 1, ConfirmArray);
+            _dataResponse = new byte[256];
+            try
+            {
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            }
+            catch (System.IO.IOException e2)
+            {
+                EnableButtons();
+                connectionIndicator.BackColor = Color.Red;
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
+            }
+            ReadCONFIRM(0x04, 1);
+            //---------------------------------------------------------
+            BaseBlockStream.Flush();
+            EnableButtons();
+        }
+
+        #endregion
+
+        #region Функции, отвечающие за запись данных на индикаторы и память ББ
         //--------------------Запись данных на индикаторы------------------
         //В момент перезаписи все жирные подписи становятся снова обычными
         private async void writeIndicatorParametersButton_Click(object sender, EventArgs e)
         {
-            string[] str;
-            int sizeStr;
-
             //68 40 1C 00 4E 00 7D 01 0D 00 00 00 00 00 00 2A 00 05 2F
             //00 30 00 02 50 00 | 01 30 00 01 06 | 02 30 00 02 2C 01
             //03 30 00 04 84 03 00 00 | 04 30 00 02 78 00 | 05 30 00 01 14
@@ -783,6 +985,17 @@ namespace test_app
 
             await BaseBlockStream.WriteAsync(defaultGeneralPackage, 0, defaultGeneralPackage.Length);
             //CONFIRM--------------------------------------------------
+            _dataResponse = new byte[256];
+            try
+            {
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            }
+            catch (System.IO.IOException e2)
+            {
+                EnableButtons();
+                connectionIndicator.BackColor = Color.Red;
+                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
+            }
             ReadCONFIRM(0x04, 1);
             //---------------------------------------------------------
             //----------------CurrentPackage--------------------------
@@ -835,6 +1048,17 @@ namespace test_app
             await BaseBlockStream.WriteAsync(defaultCurrentPackage, 0, defaultCurrentPackage.Length);
 
             //CONFIRM--------------------------------------------------
+            _dataResponse = new byte[256];
+            try
+            {
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            }
+            catch (System.IO.IOException e2)
+            {
+                EnableButtons();
+                connectionIndicator.BackColor = Color.Red;
+                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
+            }
             ReadCONFIRM(0x04, 1);
             //---------------------------------------------------------
             //-----------------GroundPackage---------------------------
@@ -887,82 +1111,19 @@ namespace test_app
             await BaseBlockStream.WriteAsync(defaultGroundPackage, 0, defaultGroundPackage.Length);
 
             //CONFIRM--------------------------------------------------
-            ReadCONFIRM(0x04, 1);
-            //---------------------------------------------------------
-        }
-
-        //-------------Чтение рабочих параметров ББ---------------------------- 
-        private async void ReadSCADAParameterButton_Click(object sender, EventArgs e)
-        {
-            if (BaseBlockStream == null)
-            {
-                MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
-                return;
-            }
-
-            string[] str;
-            int sizeStr;
-
-            byte[] readOperatingParams = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00 };
-
-            DisableButtons();
             _dataResponse = new byte[256];
             try
             {
-                await BaseBlockStream.WriteAsync(readOperatingParams, 0, readOperatingParams.Length);
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
             catch (System.IO.IOException e2)
             {
                 EnableButtons();
+                connectionIndicator.BackColor = Color.Red;
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
             }
-            str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
-
-            sizeStr = Convert.ToInt16(str[1], 16);
-
-            Array.Resize(ref _dataResponse, sizeStr + 2);
-
-            if (sizeStr < 20)
-            {
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ вернул не те данные", _showTime));
-                EnableButtons();
-                return;
-            }
-            //@TODO: Возвращаемый ответ больше 256, это нужно учитывать если потом придётся работать с областью 8B FF
-            for (var i = 19; i < _dataResponse[18]; ++i)
-            {
-                if (_dataResponse[i] == 0x00 && _dataResponse[i - 1] == 0x15) //&& dataResponse[i + 2] > 0x00)
-                                                                              //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
-                                                                              //в первой половине 0x31
-                {
-                    _isUserInput = false;
-                    SCADA_TextBox.Text = Convert.ToInt16(_dataResponse[i + 4] << 8 | _dataResponse[i + 3]).ToString();
-                    _currentSCADAValue = SCADA_TextBox.Text;
-                }
-            }
-
-
-            //byte[] send_s_frame = { 0x68, 0x04, 0x01, 0x00, 0x02, 0x00 };
-            //int h = 1;
-            //h = 2;
-            //await BaseBlockStream.WriteAsync(send_s_frame, 0, send_s_frame.Length);
-
-            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
-            //CONFIRM--------------------------------------------------
-            ReadCONFIRM(0x68, 11);
+            ReadCONFIRM(0x04, 1);
             //---------------------------------------------------------
-            BaseBlockStream.Flush();
-            //CONFIRM--------------------------------------------------
-            //ReadCONFIRM(0x04);
-            //---------------------------------------------------------
-            //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-            //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
-            ////await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-            ////connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
-            //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-            //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
-            EnableButtons();
         }
 
         private async void WriteSCADAParameterButton_Click(object sender, EventArgs e)
@@ -978,10 +1139,6 @@ namespace test_app
                 return;
             }
             DisableButtons();
-            string[] str;
-            int sizeStr;
-
-            short storage;
 
             byte[] defaultWritePackage =
               { 0x68, 0xE8, 0x1C, 0x00, 0x4E, 0x00, 0x7D, 0x01, 0x0D, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0xD7,
@@ -1024,11 +1181,8 @@ namespace test_app
                 0x21, 0xFF, 0x00, 0x01, 0x00
             };
 
-            //byte[] defaultWritePackage =
-            //{ 0x68, 0x17, 0x1C, 0x00, 0x4E, 0x00, 0x7D, 0x01, 0x0D, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x06,
-            //  0x15, 0x00, 0x00, 0x02, 0x84, 0x03 };
-            defaultWritePackage[3] += (byte)test;
-            defaultWritePackage[4] += (byte)test;
+            //defaultWritePackage[3] += (byte)test;
+            //defaultWritePackage[4] += (byte)test;
             defaultWritePackage[72] = (byte)(Convert.ToInt16(SCADA_TextBox.Text) >> 8);
             defaultWritePackage[71] = (byte)(Convert.ToInt16(SCADA_TextBox.Text) & 0xFF);
 
@@ -1036,17 +1190,18 @@ namespace test_app
             await BaseBlockStream.WriteAsync(defaultWritePackage, 0, defaultWritePackage.Length);
             await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
 
-
-            //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-            //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
-
-            //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-
-
-            //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-            //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
-            //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "OK:", _showTime));
             //CONFIRM--------------------------------------------------
+            _dataResponse = new byte[256];
+            try
+            {
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            }
+            catch (System.IO.IOException e2)
+            {
+                EnableButtons();
+                connectionIndicator.BackColor = Color.Red;
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
+            }
             ReadCONFIRM(0x04, 1);
             //---------------------------------------------------------
 
@@ -1054,134 +1209,10 @@ namespace test_app
             //---------------------------------------------------------
             BaseBlockStream.Flush();
 
-            //CONFIRM--------------------------------------------------
-            //_dataResponse = new byte[256];
-            //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-            //if (_dataResponse != null || _dataResponse.Length != 0)
-            //{
-            //if (_dataResponse[1] == 0x04)
-            //{
-            //str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
-
-            //sizeStr = Convert.ToInt16(str[1], 16);
-
-            //Array.Resize(ref _dataResponse, sizeStr + 2);
-
-            //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
-            //}
-            //}
-            //---------------------------------------------------------
             EnableButtons();
-            test += 2;
+            //test += 2;
         }
 
-        private void SCADA_TextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            _isUserInput = true;
-        }
-
-        private void SCADA_TextBox_TextChanged(object sender, EventArgs e)
-        {
-            if (_isUserInput)
-            {
-                try
-                {
-                    if (SCADA_TextBox.Text != _currentSCADAValue)
-                    {
-                        //colNum = baseBlockServerConstants.CurrentCell
-                        SCADA_TextBox.Font =
-                            new Font("Microsoft Sans Serif", 8, FontStyle.Bold);
-                        _currentSCADAValue = SCADA_TextBox.Text;
-                    }
-                }
-                catch (System.Exception e1)
-                {
-                    AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString());
-                }
-            }
-        }
-
-        /*private void SCADA_TextBox_Validating(object sender, CancelEventArgs e)
-        {
-            if (SCADA_TextBox.Text == null ||
-                SCADA_TextBox.Text == "")
-            {
-                return;
-            }
-            string currentValue = SCADA_TextBox.Text;
-            try
-            {
-                if (baseBlockTelemetryDataGrid.CurrentCell.EditedFormattedValue.ToString() != currentValue)
-                {
-                    //colNum = baseBlockServerConstants.CurrentCell
-                    baseBlockTelemetryDataGrid.Rows[baseBlockTelemetryDataGrid.CurrentCell.RowIndex].Cells[baseBlockTelemetryDataGrid.CurrentCell.ColumnIndex].Style.Font =
-                        new Font("Microsoft Sans Serif", 8, FontStyle.Bold);
-                }
-            }
-            catch (System.Exception e1)
-            {
-                AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString());
-            }
-        }*/
-
-
-        //---------------Проверка на изменение значения в окошке с временем отправки телеизмерений------------
-        //Если значение будет изменено - шрифт станет жирным
-        //Если значение записывается в первый раз - шрифт будет нормальным
-        //Если значение перезаписывается компьютером - шрифт будет нормальным
-
-
-
-
-        /*
- Task t = Task.Factory.StartNew(() =>
-   {
-       System.Action disableButtons = () => { 
-           TCP_CONNECTION.Enabled = false;
-           closeConnectionButton.Enabled = false;
-           send_button.Enabled = false;
-           readParametersButton.Enabled = false;
-           writeParametersButton.Enabled = false;
-       };
-       System.Action enableButtons = () =>
-       {
-           TCP_CONNECTION.Enabled = true;
-           closeConnectionButton.Enabled = true;
-           send_button.Enabled = true;
-           readParametersButton.Enabled = true;
-           writeParametersButton.Enabled = true;
-       };
-
-       if (TCP_CONNECTION.InvokeRequired)
-       {
-           TCP_CONNECTION.BeginInvoke(disableButtons);
-       }
-       else
-       {
-           disableButtons();
-       }     
-
-       try
-       {
-           await baseBlockSender.ConnectAsync(baseBlockIP, Convert.ToInt32(baseBlockServerConstants.Rows[1].Cells[1].Value.ToString()));
-           baseBlockStream = baseBlockSender.GetStream();
-           connectionIndicator.BackColor = Color.Lime;
-       }
-       catch (SocketException ex)
-       {
-           //connection_log.AppendText("Ошибка: " + ex.ToString() + "\r\n");
-           connectionIndicator.BackColor = Color.Red;
-           AdditionalFunctions.ErrorExceptionHandler(errorCodes.ScktExc, ex.ToString());
-       }
-       if (TCP_CONNECTION.InvokeRequired)
-       {
-           TCP_CONNECTION.BeginInvoke(enableButtons);
-       }
-       else
-       {
-           enableButtons();
-       }
-   }, token) ; */
+        #endregion
     }
-
 }

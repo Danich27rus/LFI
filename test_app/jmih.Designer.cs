@@ -30,6 +30,7 @@ namespace test_app
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Jmih));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.send_button = new System.Windows.Forms.Button();
@@ -62,6 +63,7 @@ namespace test_app
             this.ACurrent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.BCurrent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CCurrent = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ProgressBarTimer = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.baseBlockServerConstants)).BeginInit();
@@ -297,7 +299,7 @@ namespace test_app
             // 
             this.progressBarReceive.Location = new System.Drawing.Point(16, 567);
             this.progressBarReceive.Margin = new System.Windows.Forms.Padding(2);
-            this.progressBarReceive.Maximum = 200;
+            this.progressBarReceive.Maximum = 1000;
             this.progressBarReceive.Minimum = 1;
             this.progressBarReceive.Name = "progressBarReceive";
             this.progressBarReceive.Size = new System.Drawing.Size(229, 20);
@@ -426,6 +428,11 @@ namespace test_app
             this.CCurrent.MinimumWidth = 6;
             this.CCurrent.Name = "CCurrent";
             // 
+            // ProgressBarTimer
+            // 
+            //this.ProgressBarTimer.Interval = 1000;
+            //this.ProgressBarTimer.Tick += new System.EventHandler(this.ProgressBarTimer_Tick);
+            // 
             // Jmih
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -482,6 +489,7 @@ namespace test_app
         private TextBox SCADA_TextBox;
         private Button ReadSCADAParameterButton;
         private Button WriteSCADAParameterButton;
+        private Timer ProgressBarTimer;
     }
 }
 

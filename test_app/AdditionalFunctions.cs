@@ -32,33 +32,33 @@ namespace test_app
         }
 
         //Обработчик ошибок
-        public static string ErrorExceptionHandler(errorCodes err, string expText)
+        public static byte ErrorExceptionHandler(errorCodes err, string expText)
         {
             switch (err)
             {
                 case errorCodes.SysExc:
                     {
                         MessageBox.Show(expText);
-                        return "sys ne ok";
+                        return (byte)errorCodes.SysExc;
                     }
                 case errorCodes.IOExc:
                     {
                         MessageBox.Show(expText);
-                        return "io ne ok";
+                        return (byte)errorCodes.IOExc;
                     }
                 case errorCodes.ScktExc:
                     {
                         MessageBox.Show(expText);
-                        return "socket ne ok";
+                        return (byte)errorCodes.ScktExc;
                     }
                 case errorCodes.InvalOpExc:
                     {
                         MessageBox.Show(expText);
-                        return "opeartion ne ok";
+                        return (byte)errorCodes.InvalOpExc;
                     }
                 default:
                     {
-                        return "ne ok";
+                        return 0xFF;
                     }
             }
 
