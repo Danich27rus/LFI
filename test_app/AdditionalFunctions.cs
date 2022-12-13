@@ -18,7 +18,6 @@ namespace test_app
 
     internal class AdditionalFunctions
     {
-        //public enum errorCodes { SysExc, IOExc, ScktExc }
         public static byte[] StringToByteArray(String hex)
         {
             string[] flex = hex.Split(' ');
@@ -38,22 +37,22 @@ namespace test_app
             {
                 case errorCodes.SysExc:
                     {
-                        MessageBox.Show(expText);
+                        MessageBox.Show(expText, "Системная ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                         return (byte)errorCodes.SysExc;
                     }
                 case errorCodes.IOExc:
                     {
-                        MessageBox.Show(expText);
+                        MessageBox.Show(expText, "Системная ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                         return (byte)errorCodes.IOExc;
                     }
                 case errorCodes.ScktExc:
                     {
-                        MessageBox.Show(expText);
+                        MessageBox.Show(expText, "Системная ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                         return (byte)errorCodes.ScktExc;
                     }
                 case errorCodes.InvalOpExc:
                     {
-                        MessageBox.Show(expText);
+                        MessageBox.Show(expText, "Системная ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                         return (byte)errorCodes.InvalOpExc;
                     }
                 default:

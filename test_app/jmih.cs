@@ -61,6 +61,7 @@ namespace test_app
             telemetryDataGrid_Setup();
         }
 
+        //----------------Индикатор выполнения--------------------------
         private void IncreaseProgressBar(object sender, EventArgs e)
         {
             progressBarReceive.PerformStep();
@@ -68,70 +69,6 @@ namespace test_app
             {
                 ProgressBarTimer.Stop();
             }
-        }
-
-        //----------------Индикатор выполнения--------------------------
-        private async void ProgressBarWork()
-        {
-            /*var token = TokenSource.Token;
-            await Task.Run(() =>
-            {
-                void Inc()
-                {
-                    for (var i = 0; i < 1000; ++i)
-                    {
-                        //Task.Delay(5000, token);
-                        Thread.Sleep(50);
-                        progressBarReceive.Increment(1);
-                    }
-                }
-
-                if (TCP_CONNECTION.InvokeRequired)
-                {
-                    TCP_CONNECTION.BeginInvoke((System.Action)Inc);
-                }
-                else
-                {
-                    Inc();
-                }
-                if (TCP_CONNECTION.InvokeRequired)
-                {
-                    TCP_CONNECTION.BeginInvoke((System.Action)Inc);
-                }
-                else
-                {
-                    Inc();
-                }
-            }, token);
-            await Task.Factory.StartNew(() =>
-            {
-                void Inc()
-                {
-                    for (var i = 0; i < 40; ++i)
-                    {
-                        //Task.Delay(5000, token);
-                        Thread.Sleep(50);
-                        progressBarReceive.Increment(1);
-                    }
-                }
-
-                if (TCP_CONNECTION.InvokeRequired)
-                {
-                    TCP_CONNECTION.BeginInvoke((System.Action)Inc);
-                }
-                else
-                {
-                    Inc();
-                }
-                if (TCP_CONNECTION.InvokeRequired)
-                {
-                    TCP_CONNECTION.BeginInvoke((System.Action)Inc);
-                }
-                else
-                {
-                    Inc();
-                }
-            }, token);*/
         }
 
         //--------------Включение и отколючение кнопопк-----------
