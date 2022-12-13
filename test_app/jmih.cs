@@ -61,16 +61,9 @@ namespace test_app
             telemetryDataGrid_Setup();
         }
 
-        private void ProgressBarTimer_Tick()
-        {
-            ProgressBarTimer.Interval = 1000;
-            ProgressBarTimer.Tick += new EventHandler(IncreaseProgressBar);
-            ProgressBarTimer.Start();
-        }
-
         private void IncreaseProgressBar(object sender, EventArgs e)
         {
-            progressBarReceive.Increment(20);
+            progressBarReceive.PerformStep();
             if (progressBarReceive.Value == progressBarReceive.Maximum)
             {
                 ProgressBarTimer.Stop();
@@ -269,7 +262,7 @@ namespace test_app
             int sizeStr = Convert.ToInt16(str[1], 16);
             Array.Resize(ref _dataResponse, sizeStr + 2);
 
-            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(str.ToString(), "", _showTime));
+            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Ответ", _showTime));
         }
 
         //-----------Кнопка "Установка соединения"---------------
@@ -291,11 +284,9 @@ namespace test_app
             try
             {
                 DisableButtons();
-                ProgressBarTimer_Tick();
+                ProgressBarTimer.Start();
                 await BaseBlockSender.ConnectAsync(BaseBlockIp, Convert.ToInt16(baseBlockServerConstants.Rows[1].Cells[1].Value.ToString()));
-                //thread.Start();
                 ProgressBarTimer.Stop();
-                progressBarReceive.Value = 1;
                 BaseBlockStream = BaseBlockSender.GetStream();
                 connectionIndicator.BackColor = Color.Lime;
                 EnableButtons();
@@ -303,6 +294,7 @@ namespace test_app
             }
             catch (SocketException ex)
             {
+                progressBarReceive.Value = 1;
                 ProgressBarTimer.Stop();
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
@@ -372,7 +364,7 @@ namespace test_app
                     }
                     catch (System.Exception e1)
                     {
-                        AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString());
+                        connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString()).ToString(), "Код ошибки", _showTime));
                     }
                 }
                 if (baseBlockServerConstants.CurrentCell.RowIndex == 1)
@@ -395,7 +387,7 @@ namespace test_app
                     }
                     catch (System.Exception e1)
                     {
-                        AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString());
+                        connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString()).ToString(), "Код ошибки", _showTime));
                     }
                 }
             }
@@ -428,7 +420,7 @@ namespace test_app
             }
             catch (System.Exception e1)
             {
-                AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString());
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString()).ToString(), "Код ошибки", _showTime));
             }
 
         }
@@ -522,7 +514,7 @@ namespace test_app
 
                         Array.Resize(ref OptionalSavePlace, sizeStr + 2);
 
-                        connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(OptionalSavePlace).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
+                        connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(OptionalSavePlace).Replace("-", " ")), "Подтверждение", _showTime));
 
                     }
                     else
@@ -533,7 +525,7 @@ namespace test_app
 
                         Array.Resize(ref _dataResponse, sizeStr + 2);
 
-                        connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Confirm/Подтверждение", _showTime));
+                        connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Подтверждение", _showTime));
                     }
                 }
             }
@@ -560,7 +552,6 @@ namespace test_app
             DisableButtons();
             //this.baseBlockTelemetryDataGrid.DefaultCellStyle.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Regular);
             //--------------------RunParam--------------------------
-
             //Запрос на чтение данных, сформированный в масиве
             byte[] readGeneralParams = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2A, 0x00, 0x04, 0x00 };
             //Добавление фазы, с которой будут считываться данные 
@@ -865,7 +856,6 @@ namespace test_app
                     _currentSCADAValue = SCADA_TextBox.Text;
                 }
             }
-
             //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
             //CONFIRM--------------------------------------------------
             _dataResponse = new byte[256];
@@ -904,6 +894,7 @@ namespace test_app
         //В момент перезаписи все жирные подписи становятся снова обычными
         private async void writeIndicatorParametersButton_Click(object sender, EventArgs e)
         {
+            DisableButtons();
             //68 40 1C 00 4E 00 7D 01 0D 00 00 00 00 00 00 2A 00 05 2F
             //00 30 00 02 50 00 | 01 30 00 01 06 | 02 30 00 02 2C 01
             //03 30 00 04 84 03 00 00 | 04 30 00 02 78 00 | 05 30 00 01 14
@@ -1123,6 +1114,7 @@ namespace test_app
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
             }
             ReadCONFIRM(0x04, 1);
+            EnableButtons();
             //---------------------------------------------------------
         }
 
@@ -1204,13 +1196,8 @@ namespace test_app
             }
             ReadCONFIRM(0x04, 1);
             //---------------------------------------------------------
-
-            //ReadCONFIRM(0x04);
-            //---------------------------------------------------------
             BaseBlockStream.Flush();
-
             EnableButtons();
-            //test += 2;
         }
 
         #endregion

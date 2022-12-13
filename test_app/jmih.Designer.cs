@@ -303,7 +303,7 @@ namespace test_app
             this.progressBarReceive.Minimum = 1;
             this.progressBarReceive.Name = "progressBarReceive";
             this.progressBarReceive.Size = new System.Drawing.Size(229, 20);
-            this.progressBarReceive.Step = 1;
+            this.progressBarReceive.Step = 50;
             this.progressBarReceive.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBarReceive.TabIndex = 6;
             this.progressBarReceive.Value = 1;
@@ -430,8 +430,8 @@ namespace test_app
             // 
             // ProgressBarTimer
             // 
-            //this.ProgressBarTimer.Interval = 1000;
-            //this.ProgressBarTimer.Tick += new System.EventHandler(this.ProgressBarTimer_Tick);
+            this.ProgressBarTimer.Interval = 1000;
+            this.ProgressBarTimer.Tick += new System.EventHandler(this.IncreaseProgressBar);
             // 
             // Jmih
             // 
