@@ -1068,6 +1068,8 @@ namespace test_app
                 return;
             }
             DisableButtons();
+            _isUserInput = false;
+            SCADA_TextBox.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Regular);
 
             byte[] defaultWritePackage =
               { 0x68, 0xE8, 0x1C, 0x00, 0x4E, 0x00, 0x7D, 0x01, 0x0D, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0xD7,
