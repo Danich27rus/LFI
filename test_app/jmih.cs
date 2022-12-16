@@ -336,19 +336,38 @@ namespace test_app
         //Если значение перезаписывается компьютером - шрифт будет нормальным
         private void baseBlockTelemetryDataGrid_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
         {
-            if (baseBlockTelemetryDataGrid.CurrentCell.Value == null ||
-                baseBlockTelemetryDataGrid.CurrentCell.Value.ToString() == "")
-            {
-                return;
-            }
+            string save = null;
             if (baseBlockTelemetryDataGrid.CurrentCell.ColumnIndex == 0)
             {
                 return;
             }
-            string currentValue = baseBlockTelemetryDataGrid.CurrentCell.Value.ToString();
+            if (!(int.TryParse(baseBlockTelemetryDataGrid.CurrentCell.EditedFormattedValue.ToString(), out _)))
+            {
+                if (baseBlockTelemetryDataGrid.CurrentCell.Value == null ||
+                    baseBlockTelemetryDataGrid.CurrentCell.Value == "")
+                {
+                    baseBlockTelemetryDataGrid.EndEdit();
+                    baseBlockTelemetryDataGrid.CurrentCell.Value = null;
+                }
+                else
+                {
+                    save = baseBlockTelemetryDataGrid.CurrentCell.Value.ToString();
+                    baseBlockTelemetryDataGrid.EndEdit();
+                    baseBlockTelemetryDataGrid.CurrentCell.Value = save;
+                }
+                /*if (baseBlockTelemetryDataGrid.CurrentCell.Value == null ||
+                    baseBlockTelemetryDataGrid.CurrentCell.Value == "")
+                {
+                    baseBlockTelemetryDataGrid.CurrentCell.Value = "";
+                }*/
+                //baseBlockTelemetryDataGrid.CurrentCell.Value = save;
+                //baseBlockTelemetryDataGrid.CurrentCell.Value = "";
+                MessageBox.Show("Введёное значение не является числом, необходимо ввести число", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                return;
+            }
             try
             {
-                if (baseBlockTelemetryDataGrid.CurrentCell.EditedFormattedValue.ToString() != currentValue)
+                if (baseBlockTelemetryDataGrid.CurrentCell.EditedFormattedValue.ToString() != save && string.IsNullOrEmpty(save))
                 {
                     //colNum = baseBlockServerConstants.CurrentCell
                     baseBlockTelemetryDataGrid.Rows[baseBlockTelemetryDataGrid.CurrentCell.RowIndex].Cells[baseBlockTelemetryDataGrid.CurrentCell.ColumnIndex].Style.Font =
@@ -373,19 +392,39 @@ namespace test_app
             {
                 try
                 {
-                    if (SCADA_TextBox.Text != _currentSCADAValue)
-                    {
-                        //colNum = baseBlockServerConstants.CurrentCell
-                        SCADA_TextBox.Font =
+                    //colNum = baseBlockServerConstants.CurrentCell
+                    SCADA_TextBox.Font =
                             new Font("Microsoft Sans Serif", 8, FontStyle.Bold);
-                        _currentSCADAValue = SCADA_TextBox.Text;
-                    }
                 }
                 catch (System.Exception e1)
                 {
                     connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString()).ToString(), "Код ошибки", _showTime));
                 }
             }
+        }
+
+
+        private void SCADA_TextBox_Validating(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrEmpty(SCADA_TextBox.Text))
+            {
+                return;
+            }
+            //var isNumeric = int.TryParse(SCADA_TextBox.Text, out _);
+            if (!(int.TryParse(SCADA_TextBox.Text, out _)))
+            {
+                MessageBox.Show("Введёное значение не является числом, необходимо ввести число", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                SCADA_TextBox.Text = "";
+                return;
+            }
+            if (Convert.ToInt64(SCADA_TextBox.Text) > 65535)
+            {
+                MessageBox.Show("Значение не должно быть больше 65535", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                SCADA_TextBox.Text = "65535";
+                return;
+                //e.Cancel = true;
+            }
+            _currentSCADAValue = SCADA_TextBox.Text;
         }
 
         #endregion
