@@ -274,8 +274,9 @@ namespace test_app
             this.SCADA_TextBox.Size = new System.Drawing.Size(169, 20);
             this.SCADA_TextBox.TabIndex = 9;
             this.SCADA_TextBox.TextChanged += new System.EventHandler(this.SCADA_TextBox_TextChanged);
-            this.SCADA_TextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SCADA_TextBox_KeyDown);
-            this.SCADA_TextBox.Validating += new System.ComponentModel.CancelEventHandler(this.SCADA_TextBox_Validating);
+            //this.SCADA_TextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SCADA_TextBox_KeyDown);
+            this.SCADA_TextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.SCADA_TextBox_KeyUp);
+            //this.SCADA_TextBox.Validating += new System.ComponentModel.CancelEventHandler(this.SCADA_TextBox_Validating);
             // 
             // ReadSCADAParameterButton
             // 

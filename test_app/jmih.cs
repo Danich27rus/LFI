@@ -343,8 +343,7 @@ namespace test_app
             }
             if (!(int.TryParse(baseBlockTelemetryDataGrid.CurrentCell.EditedFormattedValue.ToString(), out _)))
             {
-                if (baseBlockTelemetryDataGrid.CurrentCell.Value == null ||
-                    baseBlockTelemetryDataGrid.CurrentCell.Value == "")
+                if (baseBlockTelemetryDataGrid.CurrentCell.Value == null)
                 {
                     baseBlockTelemetryDataGrid.EndEdit();
                     baseBlockTelemetryDataGrid.CurrentCell.Value = null;
@@ -355,13 +354,6 @@ namespace test_app
                     baseBlockTelemetryDataGrid.EndEdit();
                     baseBlockTelemetryDataGrid.CurrentCell.Value = save;
                 }
-                /*if (baseBlockTelemetryDataGrid.CurrentCell.Value == null ||
-                    baseBlockTelemetryDataGrid.CurrentCell.Value == "")
-                {
-                    baseBlockTelemetryDataGrid.CurrentCell.Value = "";
-                }*/
-                //baseBlockTelemetryDataGrid.CurrentCell.Value = save;
-                //baseBlockTelemetryDataGrid.CurrentCell.Value = "";
                 MessageBox.Show("Введёное значение не является числом, необходимо ввести число", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                 return;
             }
@@ -386,46 +378,46 @@ namespace test_app
             _isUserInput = true;
         }
 
-        private void SCADA_TextBox_TextChanged(object sender, EventArgs e)
+        private void SCADA_TextBox_KeyUp(object sender, KeyEventArgs e)
         {
-            if (_isUserInput)
-            {
-                try
-                {
-                    //colNum = baseBlockServerConstants.CurrentCell
-                    SCADA_TextBox.Font =
-                            new Font("Microsoft Sans Serif", 8, FontStyle.Bold);
-                }
-                catch (System.Exception e1)
-                {
-                    connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString()).ToString(), "Код ошибки", _showTime));
-                }
-            }
-        }
-
-
-        private void SCADA_TextBox_Validating(object sender, CancelEventArgs e)
-        {
-            if (string.IsNullOrEmpty(SCADA_TextBox.Text))
-            {
-                return;
-            }
-            //var isNumeric = int.TryParse(SCADA_TextBox.Text, out _);
-            if (!(int.TryParse(SCADA_TextBox.Text, out _)))
-            {
-                MessageBox.Show("Введёное значение не является числом, необходимо ввести число", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
-                SCADA_TextBox.Text = "";
-                return;
-            }
             if (Convert.ToInt64(SCADA_TextBox.Text) > 65535)
             {
                 MessageBox.Show("Значение не должно быть больше 65535", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                 SCADA_TextBox.Text = "65535";
                 return;
-                //e.Cancel = true;
+                //e.Handled = true;
             }
-            _currentSCADAValue = SCADA_TextBox.Text;
         }
+
+        private void SCADA_TextBox_TextChanged(object sender, EventArgs e)
+        {
+            //if (_isUserInput)
+            //{
+                //try
+                //{
+                    //colNum = baseBlockServerConstants.CurrentCell
+                    SCADA_TextBox.Font =
+                            new Font("Microsoft Sans Serif", 8, FontStyle.Bold);
+                //}
+                //catch (System.Exception e1)
+                //{
+                    //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString()).ToString(), "Код ошибки", _showTime));
+                //}
+            //}
+        }
+
+        /*private void SCADA_TextBox_Validating(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrEmpty(SCADA_TextBox.Text))
+            {
+                return;
+            }
+            if ()
+            {
+                _currentSCADAValue = SCADA_TextBox.Text;
+            }
+            //_currentSCADAValue = SCADA_TextBox.Text;
+        }*/
 
         #endregion
 
@@ -643,7 +635,7 @@ namespace test_app
 
             Array.Resize(ref _dataResponse, sizeStr + 2);
 
-            if (sizeStr < 20)
+            if (sizeStr < 30)
             {
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", _showTime));
                 EnableButtons();
@@ -789,6 +781,7 @@ namespace test_app
             string[] str;
             byte[] ConfirmArray;
             int sizeStr;
+            //bool firstTimeRead = true;
 
             byte[] readOperatingParams = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00 };
 
@@ -826,7 +819,7 @@ namespace test_app
                                                                               //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
                                                                               //в первой половине 0x31
                 {
-                    _isUserInput = false;
+                    //_isUserInput = false;
                     SCADA_TextBox.Text = Convert.ToInt16(_dataResponse[i + 4] << 8 | _dataResponse[i + 3]).ToString();
                     SCADA_TextBox.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Regular);
                     _currentSCADAValue = SCADA_TextBox.Text;
