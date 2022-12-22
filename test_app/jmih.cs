@@ -31,10 +31,11 @@ namespace test_app
         #region Переменные в среде жмыха 
 
         private static byte[] _dataResponse;
-        private static byte _errorCode;
-        private bool _showTime, _isUserInput;
+        //private static byte _errorCode;
+        private bool _showTime;
+        private bool _teleindicationFlag = false;
         private int _phase; //Фаза А - 1, Фаза Б - 2, Фаза С - 3
-        string _currentSCADAValue;
+
 
         public string[] str;
         public int sizeStr;
@@ -59,6 +60,36 @@ namespace test_app
             _phase = 0;
             inputDataGrid_Setup();
             telemetryDataGrid_Setup();
+        }
+
+        //---------------Таймер для телеизмерений-----------------------
+        private async void StopTimer(object sender, EventArgs e)
+        {
+            if (_teleindicationFlag)
+            {
+                return;
+            }
+
+            byte[] data = new byte[256];
+            byte[] skip = { 0x68, 0x04, 0x07, 0x00, 0x02, 0x00 };
+
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.ReadAsync(data, 0, data.Length);
+
+            _teleindicationFlag = true;
+            TeleindicationStopTimer.Stop();
         }
 
         //----------------Индикатор выполнения--------------------------
@@ -341,6 +372,10 @@ namespace test_app
             {
                 return;
             }
+            if (baseBlockTelemetryDataGrid.CurrentCell.EditedFormattedValue.ToString() == "")
+            {
+                return;
+            }
             if (!(int.TryParse(baseBlockTelemetryDataGrid.CurrentCell.EditedFormattedValue.ToString(), out _)))
             {
                 if (baseBlockTelemetryDataGrid.CurrentCell.Value == null)
@@ -373,13 +408,26 @@ namespace test_app
 
         }
 
-        private void SCADA_TextBox_KeyDown(object sender, KeyEventArgs e)
+        private void SCADA_TextBox_KeyPress(object sender, KeyPressEventArgs e)
         {
-            _isUserInput = true;
+            SCADA_TextBox.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Bold);
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))// && (e.KeyChar != '.'))
+            {
+                e.Handled = true;
+            }
+            // only allow one decimal point
+            //if ((e.KeyChar == '.') && ((sender as TextBox).Text.IndexOf('.') > -1))
+            //{
+            //e.Handled = true;
+            //}
         }
 
-        private void SCADA_TextBox_KeyUp(object sender, KeyEventArgs e)
+        private void SCADA_TextBox_TextChanged(object sender, EventArgs e)
         {
+            if (string.IsNullOrEmpty(SCADA_TextBox.Text))
+            {
+                return;
+            }
             if (Convert.ToInt64(SCADA_TextBox.Text) > 65535)
             {
                 MessageBox.Show("Значение не должно быть больше 65535", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
@@ -387,23 +435,6 @@ namespace test_app
                 return;
                 //e.Handled = true;
             }
-        }
-
-        private void SCADA_TextBox_TextChanged(object sender, EventArgs e)
-        {
-            //if (_isUserInput)
-            //{
-                //try
-                //{
-                    //colNum = baseBlockServerConstants.CurrentCell
-                    SCADA_TextBox.Font =
-                            new Font("Microsoft Sans Serif", 8, FontStyle.Bold);
-                //}
-                //catch (System.Exception e1)
-                //{
-                    //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.SysExc, e1.ToString()).ToString(), "Код ошибки", _showTime));
-                //}
-            //}
         }
 
         /*private void SCADA_TextBox_Validating(object sender, CancelEventArgs e)
@@ -499,6 +530,36 @@ namespace test_app
             }
         }
 
+        private async void ReadTeleindication(byte[] OptionalSavePlace = null)
+        {
+            byte[] skip = { 0x68, 0x04, 0x01, 0x00, 0x02, 0x00 };
+            byte[] test = { 0x68, 0x04, 0x43, 0x00, 0x00, 0x00 };
+
+            byte[] TeleindicationData = new byte[4096];
+            //Это выглядит очень плохо, но иначе телизмерения будут сыпаться постоянно
+            //await BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);
+            //await BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);
+            //await BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);
+            //await BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);
+            /*await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);
+            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            await BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);*/
+        }
 
         //---------Чтение параметров индикатора RunParam и CurrentParam-------------
         //Первое читается - RunParam     
@@ -772,6 +833,7 @@ namespace test_app
         //-------------Чтение рабочих параметров ББ---------------------------- 
         private async void ReadSCADAParameterButton_Click(object sender, EventArgs e)
         {
+            TeleindicationStopTimer.Start();
             if (BaseBlockStream == null)
             {
                 MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
@@ -822,7 +884,7 @@ namespace test_app
                     //_isUserInput = false;
                     SCADA_TextBox.Text = Convert.ToInt16(_dataResponse[i + 4] << 8 | _dataResponse[i + 3]).ToString();
                     SCADA_TextBox.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Regular);
-                    _currentSCADAValue = SCADA_TextBox.Text;
+                    //_currentSCADAValue = SCADA_TextBox.Text;
                 }
             }
             //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
@@ -850,7 +912,16 @@ namespace test_app
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
             }
-            ReadCONFIRM(0x04, 1);
+            if (_dataResponse[1] == 0x04)
+            {
+                ReadCONFIRM(0x04, 1);
+            }
+            else
+            {
+                ReadTeleindication();
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            }
+
             //---------------------------------------------------------
             BaseBlockStream.Flush();
             EnableButtons();
@@ -1100,7 +1171,7 @@ namespace test_app
                 return;
             }
             DisableButtons();
-            _isUserInput = false;
+            //_isUserInput = false;
             SCADA_TextBox.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Regular);
 
             byte[] defaultWritePackage =
