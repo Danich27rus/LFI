@@ -65,30 +65,18 @@ namespace test_app
         //---------------Таймер для телеизмерений-----------------------
         private async void StopTimer(object sender, EventArgs e)
         {
-            if (_teleindicationFlag)
-            {
-                return;
-            }
+            //if (_teleindicationFlag)
+            //{
+                //return;
+            //}
 
-            byte[] data = new byte[256];
-            byte[] skip = { 0x68, 0x04, 0x07, 0x00, 0x02, 0x00 };
+            byte[] data = new byte[512];
+            //byte[] stop = { 0x68, 0x04, 0x13, 0x00, 0x02, 0x00 };
 
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
+            //await BaseBlockStream.WriteAsync(stop, 0, stop.Length);
             await BaseBlockStream.ReadAsync(data, 0, data.Length);
 
-            _teleindicationFlag = true;
+            //_teleindicationFlag = true;
             TeleindicationStopTimer.Stop();
         }
 
@@ -530,35 +518,17 @@ namespace test_app
             }
         }
 
-        private async void ReadTeleindication(byte[] OptionalSavePlace = null)
+        private void ReadTeleindication(byte[] OptionalSavePlace = null)
         {
-            byte[] skip = { 0x68, 0x04, 0x01, 0x00, 0x02, 0x00 };
+            byte[] stop = { 0x68, 0x04, 0x13, 0x00, 0x02, 0x00 };
             byte[] test = { 0x68, 0x04, 0x43, 0x00, 0x00, 0x00 };
 
             byte[] TeleindicationData = new byte[4096];
-            //Это выглядит очень плохо, но иначе телизмерения будут сыпаться постоянно
-            //await BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);
-            //await BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);
-            //await BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);
-            //await BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);
-            /*await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);
-            await BaseBlockStream.WriteAsync(skip, 0, skip.Length);
-            await BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);*/
+            BaseBlockStream.WriteAsync(stop, 0, stop.Length);
+            Thread.Sleep(1000);
+            BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);
+            TeleindicationStopTimer.Start();
+            //TeleindicationStopTimer.
         }
 
         //---------Чтение параметров индикатора RunParam и CurrentParam-------------
@@ -833,7 +803,7 @@ namespace test_app
         //-------------Чтение рабочих параметров ББ---------------------------- 
         private async void ReadSCADAParameterButton_Click(object sender, EventArgs e)
         {
-            TeleindicationStopTimer.Start();
+            TeleindicationStopTimer.Stop();
             if (BaseBlockStream == null)
             {
                 MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
@@ -918,8 +888,11 @@ namespace test_app
             }
             else
             {
+                byte[] ok = new byte[1024];
                 ReadTeleindication();
-                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                TeleindicationStopTimer.Start();
+                //await BaseBlockStream.ReadAsync(ok, 0, ok.Length);
+                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
 
             //---------------------------------------------------------
