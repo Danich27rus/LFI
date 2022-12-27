@@ -32,7 +32,7 @@ namespace test_app
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Jmih));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.send_button = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -65,13 +65,11 @@ namespace test_app
             this.CCurrent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ProgressBarTimer = new System.Windows.Forms.Timer(this.components);
             this.TeleindicationStopTimer = new System.Windows.Forms.Timer(this.components);
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.baseBlockServerConstants)).BeginInit();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.baseBlockTelemetryDataGrid)).BeginInit();
-            this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // send_button
@@ -106,7 +104,7 @@ namespace test_app
             // connection_log
             // 
             this.connection_log.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.connection_log.Location = new System.Drawing.Point(12, 114);
+            this.connection_log.Location = new System.Drawing.Point(12, 112);
             this.connection_log.Margin = new System.Windows.Forms.Padding(2);
             this.connection_log.Multiline = true;
             this.connection_log.Name = "connection_log";
@@ -141,17 +139,16 @@ namespace test_app
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.groupBox1.Controls.Add(this.serviceConsoleHelpButton);
             this.groupBox1.Controls.Add(this.time_check_box_1);
             this.groupBox1.Controls.Add(this.send_button);
             this.groupBox1.Controls.Add(this.textBox2);
             this.groupBox1.Controls.Add(this.connection_log);
-            this.groupBox1.Location = new System.Drawing.Point(542, 2);
+            this.groupBox1.Location = new System.Drawing.Point(556, 137);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox1.Size = new System.Drawing.Size(368, 604);
+            this.groupBox1.Size = new System.Drawing.Size(364, 600);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Сервисная консоль";
@@ -175,11 +172,11 @@ namespace test_app
             this.groupBox2.Controls.Add(this.baseBlockServerConstants);
             this.groupBox2.Controls.Add(this.TCP_CONNECTION);
             this.groupBox2.Controls.Add(this.connectionIndicator);
-            this.groupBox2.Location = new System.Drawing.Point(2, 610);
+            this.groupBox2.Location = new System.Drawing.Point(11, 11);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox2.Size = new System.Drawing.Size(908, 113);
+            this.groupBox2.Size = new System.Drawing.Size(911, 113);
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Соединение";
@@ -252,11 +249,11 @@ namespace test_app
             this.groupBox3.Controls.Add(this.phaseBcheckBox);
             this.groupBox3.Controls.Add(this.phaseAcheckBox);
             this.groupBox3.Controls.Add(this.baseBlockTelemetryDataGrid);
-            this.groupBox3.Location = new System.Drawing.Point(2, 2);
+            this.groupBox3.Location = new System.Drawing.Point(11, 137);
             this.groupBox3.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox3.Size = new System.Drawing.Size(536, 604);
+            this.groupBox3.Size = new System.Drawing.Size(531, 600);
             this.groupBox3.TabIndex = 9;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Значения в памяти индикатора";
@@ -385,14 +382,14 @@ namespace test_app
             this.ACurrent,
             this.BCurrent,
             this.CCurrent});
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.baseBlockTelemetryDataGrid.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.baseBlockTelemetryDataGrid.DefaultCellStyle = dataGridViewCellStyle2;
             this.baseBlockTelemetryDataGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(160)))), ((int)(((byte)(160)))), ((int)(((byte)(160)))));
             this.baseBlockTelemetryDataGrid.Location = new System.Drawing.Point(16, 20);
             this.baseBlockTelemetryDataGrid.Margin = new System.Windows.Forms.Padding(2);
@@ -442,23 +439,14 @@ namespace test_app
             this.TeleindicationStopTimer.Interval = 30000;
             this.TeleindicationStopTimer.Tick += new System.EventHandler(this.StopTimer);
             // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.flowLayoutPanel1.Controls.Add(this.groupBox3);
-            this.flowLayoutPanel1.Controls.Add(this.groupBox1);
-            this.flowLayoutPanel1.Controls.Add(this.groupBox2);
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(20, 12);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(923, 730);
-            this.flowLayoutPanel1.TabIndex = 10;
-            // 
             // Jmih
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(946, 754);
-            this.Controls.Add(this.flowLayoutPanel1);
+            this.ClientSize = new System.Drawing.Size(930, 748);
+            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.groupBox3);
+            this.Controls.Add(this.groupBox2);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Jmih";
             this.Text = "jmih";
@@ -471,7 +459,6 @@ namespace test_app
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.baseBlockTelemetryDataGrid)).EndInit();
-            this.flowLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -510,7 +497,6 @@ namespace test_app
         private Button WriteSCADAParameterButton;
         private Timer ProgressBarTimer;
         private Timer TeleindicationStopTimer;
-        private FlowLayoutPanel flowLayoutPanel1;
     }
 }
 

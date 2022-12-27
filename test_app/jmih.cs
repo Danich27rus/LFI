@@ -273,6 +273,10 @@ namespace test_app
                 connectionIndicator.BackColor = Color.Yellow;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.InvalOpExc, e1.ToString()).ToString(), "Код ошибки", _showTime));
             }
+            catch (System.NullReferenceException e2)
+            {
+
+            }
             //System.InvalidOperationException
             //System.InvalidOperationException: "Операция не разрешается на неподключенных сокетах."
         }
