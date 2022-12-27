@@ -30,10 +30,13 @@ namespace test_app
 
         #region Переменные в среде жмыха 
 
+        private Rectangle OriginalRectangle1;
+        private Rectangle OriginalRectangle2;
+        private Rectangle OriginalRectangle3;
+        private Size OriginalFormSize;
+
         private static byte[] _dataResponse;
-        //private static byte _errorCode;
         private bool _showTime;
-        private bool _teleindicationFlag = false;
         private int _phase; //Фаза А - 1, Фаза Б - 2, Фаза С - 3
 
 
@@ -58,8 +61,35 @@ namespace test_app
             connectionIndicator.BackColor = Color.White;
             _showTime = false;
             _phase = 0;
+            OriginalFormSize = this.Size;//new Rectangle(this.Location.X, this.Location.Y, this.Size.Width, this.Size.Height);
+            OriginalRectangle1 = new Rectangle(groupBox1.Location.X, groupBox1.Location.Y, groupBox1.Width, groupBox1.Height);
+            OriginalRectangle2 = new Rectangle(groupBox2.Location.X, groupBox2.Location.Y, groupBox2.Width, groupBox2.Height);
+            OriginalRectangle3 = new Rectangle(groupBox3.Location.X, groupBox3.Location.Y, groupBox3.Width, groupBox3.Height);
+
             inputDataGrid_Setup();
             telemetryDataGrid_Setup();
+        }
+
+        private void resizeControl(Rectangle r, Control c)
+        {
+            float xRatio = (float)(this.Width) / (float)(OriginalFormSize.Width);
+            float yRatio = (float)(this.Height) / (float)(OriginalFormSize.Height);
+
+            int newX = (int)(r.X * xRatio);
+            int newY = (int)(r.Y * yRatio);
+
+            int newWidth = (int)(r.Width * xRatio);
+            int newHeight = (int)(r.Height * yRatio);
+
+            c.Location = new Point(newX, newY);
+            c.Size = new Size(newWidth, newHeight);
+        }
+
+        private void Jmih_Resize(object sender, EventArgs e)
+        {
+            resizeControl(OriginalRectangle1, groupBox1);
+            resizeControl(OriginalRectangle2, groupBox2);
+            resizeControl(OriginalRectangle3, groupBox3);
         }
 
         //---------------Таймер для телеизмерений-----------------------

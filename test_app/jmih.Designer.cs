@@ -32,7 +32,7 @@ namespace test_app
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Jmih));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.send_button = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -74,6 +74,7 @@ namespace test_app
             // 
             // send_button
             // 
+            this.send_button.AutoSize = true;
             this.send_button.Location = new System.Drawing.Point(12, 42);
             this.send_button.Margin = new System.Windows.Forms.Padding(2);
             this.send_button.Name = "send_button";
@@ -93,6 +94,7 @@ namespace test_app
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(748, 89);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
@@ -104,7 +106,7 @@ namespace test_app
             // connection_log
             // 
             this.connection_log.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.connection_log.Location = new System.Drawing.Point(12, 112);
+            this.connection_log.Location = new System.Drawing.Point(12, 88);
             this.connection_log.Margin = new System.Windows.Forms.Padding(2);
             this.connection_log.Multiline = true;
             this.connection_log.Name = "connection_log";
@@ -126,6 +128,7 @@ namespace test_app
             // 
             // connectionIndicator
             // 
+            this.connectionIndicator.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.connectionIndicator.AutoSize = true;
             this.connectionIndicator.BackColor = System.Drawing.Color.Lime;
             this.connectionIndicator.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -139,16 +142,18 @@ namespace test_app
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.groupBox1.AutoSize = true;
             this.groupBox1.Controls.Add(this.serviceConsoleHelpButton);
             this.groupBox1.Controls.Add(this.time_check_box_1);
             this.groupBox1.Controls.Add(this.send_button);
-            this.groupBox1.Controls.Add(this.textBox2);
             this.groupBox1.Controls.Add(this.connection_log);
+            this.groupBox1.Controls.Add(this.textBox2);
             this.groupBox1.Location = new System.Drawing.Point(556, 137);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox1.Size = new System.Drawing.Size(364, 600);
+            this.groupBox1.Size = new System.Drawing.Size(364, 605);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Сервисная консоль";
@@ -167,22 +172,25 @@ namespace test_app
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.groupBox2.AutoSize = true;
             this.groupBox2.Controls.Add(this.closeConnectionButton);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.baseBlockServerConstants);
             this.groupBox2.Controls.Add(this.TCP_CONNECTION);
             this.groupBox2.Controls.Add(this.connectionIndicator);
-            this.groupBox2.Location = new System.Drawing.Point(11, 11);
+            this.groupBox2.Location = new System.Drawing.Point(9, 0);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox2.Size = new System.Drawing.Size(911, 113);
+            this.groupBox2.Size = new System.Drawing.Size(911, 133);
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Соединение";
             // 
             // closeConnectionButton
             // 
+            this.closeConnectionButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.closeConnectionButton.Location = new System.Drawing.Point(751, 43);
             this.closeConnectionButton.Margin = new System.Windows.Forms.Padding(2);
             this.closeConnectionButton.Name = "closeConnectionButton";
@@ -227,6 +235,7 @@ namespace test_app
             // 
             // TCP_CONNECTION
             // 
+            this.TCP_CONNECTION.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.TCP_CONNECTION.Location = new System.Drawing.Point(751, 20);
             this.TCP_CONNECTION.Margin = new System.Windows.Forms.Padding(2);
             this.TCP_CONNECTION.Name = "TCP_CONNECTION";
@@ -238,6 +247,8 @@ namespace test_app
             // 
             // groupBox3
             // 
+            this.groupBox3.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.groupBox3.AutoSize = true;
             this.groupBox3.Controls.Add(this.WriteSCADAParameterButton);
             this.groupBox3.Controls.Add(this.SCADA_TextBox);
             this.groupBox3.Controls.Add(this.ReadSCADAParameterButton);
@@ -253,7 +264,7 @@ namespace test_app
             this.groupBox3.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox3.Size = new System.Drawing.Size(531, 600);
+            this.groupBox3.Size = new System.Drawing.Size(536, 605);
             this.groupBox3.TabIndex = 9;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Значения в памяти индикатора";
@@ -382,14 +393,14 @@ namespace test_app
             this.ACurrent,
             this.BCurrent,
             this.CCurrent});
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.baseBlockTelemetryDataGrid.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.baseBlockTelemetryDataGrid.DefaultCellStyle = dataGridViewCellStyle6;
             this.baseBlockTelemetryDataGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(160)))), ((int)(((byte)(160)))), ((int)(((byte)(160)))));
             this.baseBlockTelemetryDataGrid.Location = new System.Drawing.Point(16, 20);
             this.baseBlockTelemetryDataGrid.Margin = new System.Windows.Forms.Padding(2);
@@ -443,7 +454,8 @@ namespace test_app
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(930, 748);
+            this.AutoSize = true;
+            this.ClientSize = new System.Drawing.Size(929, 751);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
@@ -451,6 +463,7 @@ namespace test_app
             this.Name = "Jmih";
             this.Text = "jmih";
             this.Load += new System.EventHandler(this.jmih_Load);
+            this.Resize += new System.EventHandler(this.Jmih_Resize);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -460,6 +473,7 @@ namespace test_app
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.baseBlockTelemetryDataGrid)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
