@@ -32,7 +32,7 @@ namespace test_app
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Jmih));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
             this.send_button = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -65,11 +65,13 @@ namespace test_app
             this.CCurrent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ProgressBarTimer = new System.Windows.Forms.Timer(this.components);
             this.TeleindicationStopTimer = new System.Windows.Forms.Timer(this.components);
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.baseBlockServerConstants)).BeginInit();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.baseBlockTelemetryDataGrid)).BeginInit();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // send_button
@@ -106,12 +108,12 @@ namespace test_app
             // connection_log
             // 
             this.connection_log.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.connection_log.Location = new System.Drawing.Point(12, 88);
+            this.connection_log.Location = new System.Drawing.Point(12, 127);
             this.connection_log.Margin = new System.Windows.Forms.Padding(2);
             this.connection_log.Multiline = true;
             this.connection_log.Name = "connection_log";
             this.connection_log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.connection_log.Size = new System.Drawing.Size(336, 473);
+            this.connection_log.Size = new System.Drawing.Size(336, 511);
             this.connection_log.TabIndex = 4;
             // 
             // time_check_box_1
@@ -153,7 +155,7 @@ namespace test_app
             this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox1.Size = new System.Drawing.Size(364, 605);
+            this.groupBox1.Size = new System.Drawing.Size(364, 656);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Сервисная консоль";
@@ -191,10 +193,10 @@ namespace test_app
             // closeConnectionButton
             // 
             this.closeConnectionButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.closeConnectionButton.Location = new System.Drawing.Point(751, 43);
+            this.closeConnectionButton.Location = new System.Drawing.Point(751, 47);
             this.closeConnectionButton.Margin = new System.Windows.Forms.Padding(2);
             this.closeConnectionButton.Name = "closeConnectionButton";
-            this.closeConnectionButton.Size = new System.Drawing.Size(146, 19);
+            this.closeConnectionButton.Size = new System.Drawing.Size(150, 22);
             this.closeConnectionButton.TabIndex = 6;
             this.closeConnectionButton.Text = "Завершение соединения";
             this.closeConnectionButton.UseVisualStyleBackColor = true;
@@ -239,7 +241,7 @@ namespace test_app
             this.TCP_CONNECTION.Location = new System.Drawing.Point(751, 20);
             this.TCP_CONNECTION.Margin = new System.Windows.Forms.Padding(2);
             this.TCP_CONNECTION.Name = "TCP_CONNECTION";
-            this.TCP_CONNECTION.Size = new System.Drawing.Size(146, 19);
+            this.TCP_CONNECTION.Size = new System.Drawing.Size(150, 23);
             this.TCP_CONNECTION.TabIndex = 0;
             this.TCP_CONNECTION.Text = "Установка соединения";
             this.TCP_CONNECTION.UseVisualStyleBackColor = true;
@@ -249,10 +251,6 @@ namespace test_app
             // 
             this.groupBox3.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.groupBox3.AutoSize = true;
-            this.groupBox3.Controls.Add(this.WriteSCADAParameterButton);
-            this.groupBox3.Controls.Add(this.SCADA_TextBox);
-            this.groupBox3.Controls.Add(this.ReadSCADAParameterButton);
-            this.groupBox3.Controls.Add(this.baseBlockUploadTimeLabel);
             this.groupBox3.Controls.Add(this.progressBarReceive);
             this.groupBox3.Controls.Add(this.writeIndicatorParametersButton);
             this.groupBox3.Controls.Add(this.readIndicatorParametersButton);
@@ -260,18 +258,18 @@ namespace test_app
             this.groupBox3.Controls.Add(this.phaseBcheckBox);
             this.groupBox3.Controls.Add(this.phaseAcheckBox);
             this.groupBox3.Controls.Add(this.baseBlockTelemetryDataGrid);
-            this.groupBox3.Location = new System.Drawing.Point(11, 137);
+            this.groupBox3.Location = new System.Drawing.Point(11, 244);
             this.groupBox3.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox3.Size = new System.Drawing.Size(536, 605);
+            this.groupBox3.Size = new System.Drawing.Size(536, 549);
             this.groupBox3.TabIndex = 9;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Значения в памяти индикатора";
             // 
             // WriteSCADAParameterButton
             // 
-            this.WriteSCADAParameterButton.Location = new System.Drawing.Point(262, 502);
+            this.WriteSCADAParameterButton.Location = new System.Drawing.Point(276, 64);
             this.WriteSCADAParameterButton.Name = "WriteSCADAParameterButton";
             this.WriteSCADAParameterButton.Size = new System.Drawing.Size(238, 23);
             this.WriteSCADAParameterButton.TabIndex = 10;
@@ -281,7 +279,7 @@ namespace test_app
             // 
             // SCADA_TextBox
             // 
-            this.SCADA_TextBox.Location = new System.Drawing.Point(16, 476);
+            this.SCADA_TextBox.Location = new System.Drawing.Point(16, 37);
             this.SCADA_TextBox.Name = "SCADA_TextBox";
             this.SCADA_TextBox.Size = new System.Drawing.Size(169, 20);
             this.SCADA_TextBox.TabIndex = 9;
@@ -290,7 +288,7 @@ namespace test_app
             // 
             // ReadSCADAParameterButton
             // 
-            this.ReadSCADAParameterButton.Location = new System.Drawing.Point(262, 473);
+            this.ReadSCADAParameterButton.Location = new System.Drawing.Point(276, 35);
             this.ReadSCADAParameterButton.Name = "ReadSCADAParameterButton";
             this.ReadSCADAParameterButton.Size = new System.Drawing.Size(238, 23);
             this.ReadSCADAParameterButton.TabIndex = 8;
@@ -301,7 +299,7 @@ namespace test_app
             // baseBlockUploadTimeLabel
             // 
             this.baseBlockUploadTimeLabel.AutoSize = true;
-            this.baseBlockUploadTimeLabel.Location = new System.Drawing.Point(13, 460);
+            this.baseBlockUploadTimeLabel.Location = new System.Drawing.Point(13, 22);
             this.baseBlockUploadTimeLabel.Name = "baseBlockUploadTimeLabel";
             this.baseBlockUploadTimeLabel.Size = new System.Drawing.Size(172, 13);
             this.baseBlockUploadTimeLabel.TabIndex = 7;
@@ -309,7 +307,7 @@ namespace test_app
             // 
             // progressBarReceive
             // 
-            this.progressBarReceive.Location = new System.Drawing.Point(16, 567);
+            this.progressBarReceive.Location = new System.Drawing.Point(14, 509);
             this.progressBarReceive.Margin = new System.Windows.Forms.Padding(2);
             this.progressBarReceive.Maximum = 1000;
             this.progressBarReceive.Minimum = 1;
@@ -322,7 +320,7 @@ namespace test_app
             // 
             // writeIndicatorParametersButton
             // 
-            this.writeIndicatorParametersButton.Location = new System.Drawing.Point(262, 566);
+            this.writeIndicatorParametersButton.Location = new System.Drawing.Point(276, 509);
             this.writeIndicatorParametersButton.Margin = new System.Windows.Forms.Padding(2);
             this.writeIndicatorParametersButton.Name = "writeIndicatorParametersButton";
             this.writeIndicatorParametersButton.Size = new System.Drawing.Size(238, 22);
@@ -333,7 +331,7 @@ namespace test_app
             // 
             // readIndicatorParametersButton
             // 
-            this.readIndicatorParametersButton.Location = new System.Drawing.Point(262, 538);
+            this.readIndicatorParametersButton.Location = new System.Drawing.Point(276, 480);
             this.readIndicatorParametersButton.Margin = new System.Windows.Forms.Padding(2);
             this.readIndicatorParametersButton.Name = "readIndicatorParametersButton";
             this.readIndicatorParametersButton.Size = new System.Drawing.Size(238, 23);
@@ -345,7 +343,7 @@ namespace test_app
             // phaseCcheckBox
             // 
             this.phaseCcheckBox.AutoSize = true;
-            this.phaseCcheckBox.Location = new System.Drawing.Point(180, 544);
+            this.phaseCcheckBox.Location = new System.Drawing.Point(178, 486);
             this.phaseCcheckBox.Margin = new System.Windows.Forms.Padding(2);
             this.phaseCcheckBox.Name = "phaseCcheckBox";
             this.phaseCcheckBox.Size = new System.Drawing.Size(65, 17);
@@ -359,7 +357,7 @@ namespace test_app
             this.phaseBcheckBox.AutoSize = true;
             this.phaseBcheckBox.BackColor = System.Drawing.SystemColors.Control;
             this.phaseBcheckBox.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.phaseBcheckBox.Location = new System.Drawing.Point(98, 544);
+            this.phaseBcheckBox.Location = new System.Drawing.Point(96, 486);
             this.phaseBcheckBox.Margin = new System.Windows.Forms.Padding(2);
             this.phaseBcheckBox.Name = "phaseBcheckBox";
             this.phaseBcheckBox.Size = new System.Drawing.Size(65, 17);
@@ -371,7 +369,7 @@ namespace test_app
             // phaseAcheckBox
             // 
             this.phaseAcheckBox.AutoSize = true;
-            this.phaseAcheckBox.Location = new System.Drawing.Point(16, 544);
+            this.phaseAcheckBox.Location = new System.Drawing.Point(14, 486);
             this.phaseAcheckBox.Margin = new System.Windows.Forms.Padding(2);
             this.phaseAcheckBox.Name = "phaseAcheckBox";
             this.phaseAcheckBox.Size = new System.Drawing.Size(65, 17);
@@ -393,14 +391,14 @@ namespace test_app
             this.ACurrent,
             this.BCurrent,
             this.CCurrent});
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.baseBlockTelemetryDataGrid.DefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle9.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle9.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.baseBlockTelemetryDataGrid.DefaultCellStyle = dataGridViewCellStyle9;
             this.baseBlockTelemetryDataGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(160)))), ((int)(((byte)(160)))), ((int)(((byte)(160)))));
             this.baseBlockTelemetryDataGrid.Location = new System.Drawing.Point(16, 20);
             this.baseBlockTelemetryDataGrid.Margin = new System.Windows.Forms.Padding(2);
@@ -450,12 +448,27 @@ namespace test_app
             this.TeleindicationStopTimer.Interval = 30000;
             this.TeleindicationStopTimer.Tick += new System.EventHandler(this.StopTimer);
             // 
+            // groupBox4
+            // 
+            this.groupBox4.AutoSize = true;
+            this.groupBox4.Controls.Add(this.ReadSCADAParameterButton);
+            this.groupBox4.Controls.Add(this.baseBlockUploadTimeLabel);
+            this.groupBox4.Controls.Add(this.WriteSCADAParameterButton);
+            this.groupBox4.Controls.Add(this.SCADA_TextBox);
+            this.groupBox4.Location = new System.Drawing.Point(11, 137);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(536, 106);
+            this.groupBox4.TabIndex = 11;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Значения в памяти базового блока";
+            // 
             // Jmih
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(929, 751);
+            this.ClientSize = new System.Drawing.Size(929, 804);
+            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
@@ -472,6 +485,8 @@ namespace test_app
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.baseBlockTelemetryDataGrid)).EndInit();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -511,6 +526,7 @@ namespace test_app
         private Button WriteSCADAParameterButton;
         private Timer ProgressBarTimer;
         private Timer TeleindicationStopTimer;
+        private GroupBox groupBox4;
     }
 }
 

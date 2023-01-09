@@ -292,6 +292,11 @@ namespace test_app
         private void closeConnectionButton_Click(object sender, EventArgs e)
         {
             //@TODO Вывести в отдельную ассинхронную задачу
+            if (BaseBlockStream == null)
+            {
+                MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                return;
+            }
             try
             {
                 BaseBlockSender.GetStream().Close();
@@ -302,10 +307,6 @@ namespace test_app
             {
                 connectionIndicator.BackColor = Color.Yellow;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.InvalOpExc, e1.ToString()).ToString(), "Код ошибки", _showTime));
-            }
-            catch (System.NullReferenceException e2)
-            {
-
             }
             //System.InvalidOperationException
             //System.InvalidOperationException: "Операция не разрешается на неподключенных сокетах."
@@ -593,6 +594,7 @@ namespace test_app
             _dataResponse = new byte[256];
             try
             {
+                ProgressBarTimer.Start();
                 await BaseBlockStream.WriteAsync(readGeneralParams, 0, readGeneralParams.Length);
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
@@ -667,6 +669,8 @@ namespace test_app
             try
             {
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
             }
             catch (System.IO.IOException e2)
             {
@@ -684,6 +688,7 @@ namespace test_app
             _dataResponse = new byte[256];
             try
             {
+                ProgressBarTimer.Start();
                 await BaseBlockStream.WriteAsync(readCurrentData, 0, readCurrentData.Length);
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
@@ -750,6 +755,8 @@ namespace test_app
             try
             {
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
             }
             catch (System.IO.IOException e2)
             {
@@ -766,6 +773,7 @@ namespace test_app
             _dataResponse = new byte[256];
             try
             {
+                ProgressBarTimer.Start();
                 await BaseBlockStream.WriteAsync(readGroundData, 0, readGroundData.Length);
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
@@ -823,6 +831,8 @@ namespace test_app
             try
             {
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
             }
             catch (System.IO.IOException e2)
             {
@@ -941,6 +951,11 @@ namespace test_app
         //В момент перезаписи все жирные подписи становятся снова обычными
         private async void writeIndicatorParametersButton_Click(object sender, EventArgs e)
         {
+            if (BaseBlockStream == null)
+            {
+                MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                return;
+            }
             DisableButtons();
             //68 40 1C 00 4E 00 7D 01 0D 00 00 00 00 00 00 2A 00 05 2F
             //00 30 00 02 50 00 | 01 30 00 01 06 | 02 30 00 02 2C 01
