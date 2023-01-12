@@ -32,7 +32,7 @@ namespace test_app
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Jmih));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.send_button = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -48,10 +48,6 @@ namespace test_app
             this.inputConstants = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TCP_CONNECTION = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.WriteSCADAParameterButton = new System.Windows.Forms.Button();
-            this.SCADA_TextBox = new System.Windows.Forms.TextBox();
-            this.ReadSCADAParameterButton = new System.Windows.Forms.Button();
-            this.baseBlockUploadTimeLabel = new System.Windows.Forms.Label();
             this.progressBarReceive = new System.Windows.Forms.ProgressBar();
             this.writeIndicatorParametersButton = new System.Windows.Forms.Button();
             this.readIndicatorParametersButton = new System.Windows.Forms.Button();
@@ -63,6 +59,10 @@ namespace test_app
             this.ACurrent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.BCurrent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CCurrent = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.WriteSCADAParameterButton = new System.Windows.Forms.Button();
+            this.SCADA_TextBox = new System.Windows.Forms.TextBox();
+            this.ReadSCADAParameterButton = new System.Windows.Forms.Button();
+            this.baseBlockUploadTimeLabel = new System.Windows.Forms.Label();
             this.ProgressBarTimer = new System.Windows.Forms.Timer(this.components);
             this.TeleindicationStopTimer = new System.Windows.Forms.Timer(this.components);
             this.groupBox4 = new System.Windows.Forms.GroupBox();
@@ -267,44 +267,6 @@ namespace test_app
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Значения в памяти индикатора";
             // 
-            // WriteSCADAParameterButton
-            // 
-            this.WriteSCADAParameterButton.Location = new System.Drawing.Point(276, 64);
-            this.WriteSCADAParameterButton.Name = "WriteSCADAParameterButton";
-            this.WriteSCADAParameterButton.Size = new System.Drawing.Size(238, 23);
-            this.WriteSCADAParameterButton.TabIndex = 10;
-            this.WriteSCADAParameterButton.Text = "Записать данные в базовый блок";
-            this.WriteSCADAParameterButton.UseVisualStyleBackColor = true;
-            this.WriteSCADAParameterButton.Click += new System.EventHandler(this.WriteSCADAParameterButton_Click);
-            // 
-            // SCADA_TextBox
-            // 
-            this.SCADA_TextBox.Location = new System.Drawing.Point(16, 37);
-            this.SCADA_TextBox.Name = "SCADA_TextBox";
-            this.SCADA_TextBox.Size = new System.Drawing.Size(169, 20);
-            this.SCADA_TextBox.TabIndex = 9;
-            this.SCADA_TextBox.TextChanged += new System.EventHandler(this.SCADA_TextBox_TextChanged);
-            this.SCADA_TextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.SCADA_TextBox_KeyPress);
-            // 
-            // ReadSCADAParameterButton
-            // 
-            this.ReadSCADAParameterButton.Location = new System.Drawing.Point(276, 35);
-            this.ReadSCADAParameterButton.Name = "ReadSCADAParameterButton";
-            this.ReadSCADAParameterButton.Size = new System.Drawing.Size(238, 23);
-            this.ReadSCADAParameterButton.TabIndex = 8;
-            this.ReadSCADAParameterButton.Text = "Прочитать данные с базового блока";
-            this.ReadSCADAParameterButton.UseVisualStyleBackColor = true;
-            this.ReadSCADAParameterButton.Click += new System.EventHandler(this.ReadSCADAParameterButton_Click);
-            // 
-            // baseBlockUploadTimeLabel
-            // 
-            this.baseBlockUploadTimeLabel.AutoSize = true;
-            this.baseBlockUploadTimeLabel.Location = new System.Drawing.Point(13, 22);
-            this.baseBlockUploadTimeLabel.Name = "baseBlockUploadTimeLabel";
-            this.baseBlockUploadTimeLabel.Size = new System.Drawing.Size(172, 13);
-            this.baseBlockUploadTimeLabel.TabIndex = 7;
-            this.baseBlockUploadTimeLabel.Text = "Время отправки телеизмерений";
-            // 
             // progressBarReceive
             // 
             this.progressBarReceive.Location = new System.Drawing.Point(14, 509);
@@ -391,14 +353,14 @@ namespace test_app
             this.ACurrent,
             this.BCurrent,
             this.CCurrent});
-            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle9.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle9.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.baseBlockTelemetryDataGrid.DefaultCellStyle = dataGridViewCellStyle9;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.baseBlockTelemetryDataGrid.DefaultCellStyle = dataGridViewCellStyle1;
             this.baseBlockTelemetryDataGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(160)))), ((int)(((byte)(160)))), ((int)(((byte)(160)))));
             this.baseBlockTelemetryDataGrid.Location = new System.Drawing.Point(16, 20);
             this.baseBlockTelemetryDataGrid.Margin = new System.Windows.Forms.Padding(2);
@@ -438,6 +400,44 @@ namespace test_app
             this.CCurrent.MinimumWidth = 6;
             this.CCurrent.Name = "CCurrent";
             // 
+            // WriteSCADAParameterButton
+            // 
+            this.WriteSCADAParameterButton.Location = new System.Drawing.Point(276, 64);
+            this.WriteSCADAParameterButton.Name = "WriteSCADAParameterButton";
+            this.WriteSCADAParameterButton.Size = new System.Drawing.Size(238, 23);
+            this.WriteSCADAParameterButton.TabIndex = 10;
+            this.WriteSCADAParameterButton.Text = "Записать данные в базовый блок";
+            this.WriteSCADAParameterButton.UseVisualStyleBackColor = true;
+            this.WriteSCADAParameterButton.Click += new System.EventHandler(this.WriteSCADAParameterButton_Click);
+            // 
+            // SCADA_TextBox
+            // 
+            this.SCADA_TextBox.Location = new System.Drawing.Point(16, 37);
+            this.SCADA_TextBox.Name = "SCADA_TextBox";
+            this.SCADA_TextBox.Size = new System.Drawing.Size(169, 20);
+            this.SCADA_TextBox.TabIndex = 9;
+            this.SCADA_TextBox.TextChanged += new System.EventHandler(this.SCADA_TextBox_TextChanged);
+            this.SCADA_TextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.SCADA_TextBox_KeyPress);
+            // 
+            // ReadSCADAParameterButton
+            // 
+            this.ReadSCADAParameterButton.Location = new System.Drawing.Point(276, 35);
+            this.ReadSCADAParameterButton.Name = "ReadSCADAParameterButton";
+            this.ReadSCADAParameterButton.Size = new System.Drawing.Size(238, 23);
+            this.ReadSCADAParameterButton.TabIndex = 8;
+            this.ReadSCADAParameterButton.Text = "Прочитать данные с базового блока";
+            this.ReadSCADAParameterButton.UseVisualStyleBackColor = true;
+            this.ReadSCADAParameterButton.Click += new System.EventHandler(this.ReadSCADAParameterButton_Click);
+            // 
+            // baseBlockUploadTimeLabel
+            // 
+            this.baseBlockUploadTimeLabel.AutoSize = true;
+            this.baseBlockUploadTimeLabel.Location = new System.Drawing.Point(13, 22);
+            this.baseBlockUploadTimeLabel.Name = "baseBlockUploadTimeLabel";
+            this.baseBlockUploadTimeLabel.Size = new System.Drawing.Size(172, 13);
+            this.baseBlockUploadTimeLabel.TabIndex = 7;
+            this.baseBlockUploadTimeLabel.Text = "Время отправки телеизмерений";
+            // 
             // ProgressBarTimer
             // 
             this.ProgressBarTimer.Interval = 1000;
@@ -472,6 +472,7 @@ namespace test_app
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Jmih";
             this.Text = "jmih";

@@ -343,6 +343,14 @@ namespace test_app
                         for (var i = 0; i <= 3; ++i)
                         {
                             strIpValidated += strCurData;
+                            if (strIp[i] == null)
+                            {
+                                MessageBox.Show("IP адресс написан неверно", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                                baseBlockServerConstants.EndEdit();
+                                baseBlockServerConstants.CurrentCell.Value = "";
+                                //dataGridView1.CurrentCell = dataGridView1[dataGridView1.CurrentCell.ColumnIndex, dataGridView1.CurrentCell.RowIndex];//неработаюшая попытка вернуть курсор при неправильном вводе
+                                return;
+                            }
                             if ((Convert.ToInt32(strIp[i]) > 255 || (Convert.ToInt32(strIp[i]) < 0)))
                             {
                                 MessageBox.Show("Все числа должны быть в диапазоне от 0 до 255", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
@@ -582,7 +590,7 @@ namespace test_app
                 return;
             }
 
-            BaseBlockStream.ReadTimeout = 25000; //10 секунд тайм аут
+            BaseBlockStream.ReadTimeout = 25000; //25 секунд тайм аут
             DisableButtons();
             //this.baseBlockTelemetryDataGrid.DefaultCellStyle.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Regular);
             //--------------------RunParam--------------------------
@@ -600,6 +608,8 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
@@ -614,6 +624,8 @@ namespace test_app
 
             if (sizeStr < 20)
             {
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", _showTime));
                 EnableButtons();
                 return;
@@ -674,6 +686,8 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
@@ -694,6 +708,8 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
@@ -707,6 +723,8 @@ namespace test_app
 
             if (sizeStr < 30)
             {
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", _showTime));
                 EnableButtons();
                 return;
@@ -721,6 +739,8 @@ namespace test_app
 
             if (_dataResponse[1] > 0x66)
             {
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", _showTime));
                 EnableButtons();
                 return;
@@ -760,6 +780,8 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
@@ -779,6 +801,8 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
@@ -792,6 +816,8 @@ namespace test_app
 
             if (sizeStr < 20)
             {
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", _showTime));
                 EnableButtons();
                 return;
@@ -799,6 +825,8 @@ namespace test_app
 
             if (_dataResponse[1] > 0x66)
             {
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", _showTime));
                 EnableButtons();
                 return;
@@ -836,6 +864,8 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
@@ -984,7 +1014,7 @@ namespace test_app
               { 0x68, 0x1C, 0x02, 0x00, 0x00, 0x00, 0x7D, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2C, 0x00, 0x04, 0x0B,
                 0x00, 0x32, 0x00, 0x01, 0x1E,
                 0x01, 0x32, 0x00, 0x02, 0x0A, 0x00 };
-
+            ProgressBarTimer.Start();
             defaultGeneralPackage[17] += (byte)_phase;
             defaultCurrentPackage[17] += (byte)_phase;
             defaultGroundPackage[17] += (byte)_phase;
@@ -1042,9 +1072,13 @@ namespace test_app
             try
             {
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
             }
             catch (System.IO.IOException e2)
             {
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
@@ -1052,6 +1086,7 @@ namespace test_app
             ReadCONFIRM(0x04, 1);
             //---------------------------------------------------------
             //----------------CurrentPackage--------------------------
+            ProgressBarTimer.Start();
             for (int i = 19; i < defaultCurrentPackage.Length; ++i)
             {
                 if (defaultCurrentPackage[i] == 0x31 && defaultCurrentPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
@@ -1105,9 +1140,13 @@ namespace test_app
             try
             {
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
             }
             catch (System.IO.IOException e2)
             {
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
@@ -1115,6 +1154,7 @@ namespace test_app
             ReadCONFIRM(0x04, 1);
             //---------------------------------------------------------
             //-----------------GroundPackage---------------------------
+            ProgressBarTimer.Start();
             for (int i = 19; i < defaultGroundPackage.Length; ++i)
             {
                 if (defaultGroundPackage[i] == 0x31 && defaultGroundPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
@@ -1168,9 +1208,13 @@ namespace test_app
             try
             {
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
             }
             catch (System.IO.IOException e2)
             {
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
