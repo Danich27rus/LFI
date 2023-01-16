@@ -294,12 +294,22 @@ namespace test_app
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.ScktExc, ex.ToString()).ToString(), "Код ошибки", _showTime));
             }
+            byte[] BlockInit = { 0x68, 0x04, 0x07, 0x00, 0x02, 0x00 };
+            _dataResponse = new byte[256];
+            await BaseBlockStream.WriteAsync(BlockInit, 0, BlockInit.Length);
+            await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
         }
 
         //--------------Кнопка "Очищение лога"-----------------------------
         private void ClearLogButton_Click(object sender, EventArgs e)
         {
             connection_log.Clear();
+        }
+
+        private void DataGridClearButton_Click(object sender, EventArgs e)
+        {
+            baseBlockTelemetryDataGrid.Rows.Clear();
+            baseBlockTelemetryDataGrid.Refresh();
         }
 
         //--------------Кнопка "Завершение соедиения"----------------------
@@ -593,7 +603,7 @@ namespace test_app
         //Второе - CurrentParam
         private async void readIndicatorParametersButton_Click(object sender, EventArgs e)
         {
-            string[] IndicatorStatus = new string[] {"Получение данных от индикатора фазы А.", "Получение данных от индикатора фазы B.", "Получение данных от индикатора фазы C.", "Ожидание подтверждения."};
+            string[] IndicatorStatus = new string[] {"Получение общих параметров индикатора.", "Получение настроек межфазного замыкания.", "Получение настроек замыкания на землю.", "Ожидание подтверждения."};
 
             if (BaseBlockStream == null)
             {
@@ -700,11 +710,14 @@ namespace test_app
 
             //CONFIRM--------------------------------------------------
             _dataResponse = new byte[256];
+            //@TODO: ББ вовзращает 5 строк при чтении в первый раз, зачем то ещё и RunParam и какието левые данные
+            //надо будет исправить потом + на WPF уже писать с учётом такого нюанса
             try
             {
                 IndicatorStatusLabel.Text = IndicatorStatus[3];
-                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
                 ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1000;
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
                 progressBarReceive.Value = 1;
             }
             catch (System.IO.IOException e2)
@@ -716,7 +729,21 @@ namespace test_app
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
             }
-            ReadCONFIRM(0x04, 1);
+            if (_dataResponse[1] == 0x04)
+            {
+                ReadCONFIRM(0x04, 1);
+            }
+            else
+            {
+                ReadTeleindication();               //Костыль для фикса 5 строк
+                ReadCONFIRM(0x12, 1);
+                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                //ReadCONFIRM(0x04, 1);
+            }
             //------------------------------------------------------
 
             //-------------------CurrentParam-----------------------
@@ -803,8 +830,9 @@ namespace test_app
             try
             {
                 IndicatorStatusLabel.Text = IndicatorStatus[3];
-                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
                 ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1000;
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
                 progressBarReceive.Value = 1;
             }
             catch (System.IO.IOException e2)
@@ -893,8 +921,9 @@ namespace test_app
             try
             {
                 IndicatorStatusLabel.Text = IndicatorStatus[3];
-                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
                 ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1000;
+                await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
                 progressBarReceive.Value = 1;
             }
             catch (System.IO.IOException e2)
@@ -909,6 +938,9 @@ namespace test_app
             ReadCONFIRM(0x04, 1);
             IndicatorStatusLabel.Text = "";
             EnableButtons();
+            ReadTeleindication();
+            await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            //ReadCONFIRM(0x04, 1);
         }
 
         //-------------Чтение рабочих параметров ББ---------------------------- 
