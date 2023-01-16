@@ -13,6 +13,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.IO.Ports;
+using System.Security.Cryptography.X509Certificates;
 
 //***************   Автор: Даниил Григорьев (Captain_Kirk54)    *******************
 //***   ПО преддназначено для чтения данных с базового блока ИКЗ и записи на       **
@@ -53,6 +54,10 @@ namespace test_app
         public Jmih()
         {
             InitializeComponent();
+            SuspendLayout();
+
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         //Стартовая инициализация после запуска приложения
@@ -61,16 +66,16 @@ namespace test_app
             connectionIndicator.BackColor = Color.White;
             _showTime = false;
             _phase = 0;
-            OriginalFormSize = this.Size;//new Rectangle(this.Location.X, this.Location.Y, this.Size.Width, this.Size.Height);
-            OriginalRectangle1 = new Rectangle(groupBox1.Location.X, groupBox1.Location.Y, groupBox1.Width, groupBox1.Height);
-            OriginalRectangle2 = new Rectangle(groupBox2.Location.X, groupBox2.Location.Y, groupBox2.Width, groupBox2.Height);
-            OriginalRectangle3 = new Rectangle(groupBox3.Location.X, groupBox3.Location.Y, groupBox3.Width, groupBox3.Height);
+            //OriginalFormSize = this.Size;//new Rectangle(this.Location.X, this.Location.Y, this.Size.Width, this.Size.Height);
+            //OriginalRectangle1 = new Rectangle(groupBox1.Location.X, groupBox1.Location.Y, groupBox1.Width, groupBox1.Height);
+            //OriginalRectangle2 = new Rectangle(groupBox2.Location.X, groupBox2.Location.Y, groupBox2.Width, groupBox2.Height);
+            //OriginalRectangle3 = new Rectangle(groupBox3.Location.X, groupBox3.Location.Y, groupBox3.Width, groupBox3.Height);
 
             inputDataGrid_Setup();
             telemetryDataGrid_Setup();
         }
 
-        private void resizeControl(Rectangle r, Control c)
+        private void ResizeControl(Rectangle r, Control c)
         {
             float xRatio = (float)(this.Width) / (float)(OriginalFormSize.Width);
             float yRatio = (float)(this.Height) / (float)(OriginalFormSize.Height);
@@ -87,9 +92,9 @@ namespace test_app
 
         private void Jmih_Resize(object sender, EventArgs e)
         {
-            resizeControl(OriginalRectangle1, groupBox1);
-            resizeControl(OriginalRectangle2, groupBox2);
-            resizeControl(OriginalRectangle3, groupBox3);
+            //resizeControl(OriginalRectangle1, groupBox1);
+            //resizeControl(OriginalRectangle2, groupBox2);
+            //resizeControl(OriginalRectangle3, groupBox3);
         }
 
         //---------------Таймер для телеизмерений-----------------------
@@ -166,14 +171,14 @@ namespace test_app
             {
                 baseBlockTelemetryDataGrid.Rows[0].Cells[i].Style.BackColor = ColorTranslator.FromHtml("#A0A0A0");
             }
-            baseBlockTelemetryDataGrid.Rows.Add("Величина электрического поля");
-            baseBlockTelemetryDataGrid.Rows.Add("Минимальное значение тока в линии");
-            baseBlockTelemetryDataGrid.Rows.Add("Интервал отправки телеизмерений №1");
-            baseBlockTelemetryDataGrid.Rows.Add("Интервал отправки телеизмерений №2");
-            baseBlockTelemetryDataGrid.Rows.Add("Период отключения датчиков");
-            baseBlockTelemetryDataGrid.Rows.Add("Порог значения тока для отправки телеизмерений");
-            baseBlockTelemetryDataGrid.Rows.Add("Абсолютное значение изменения тока");
-            baseBlockTelemetryDataGrid.Rows.Add("относительное значение изменения тока (в %)");
+            baseBlockTelemetryDataGrid.Rows.Add("Величина электрического поля (в В/м)");
+            baseBlockTelemetryDataGrid.Rows.Add("Минимальное значение тока в линии (в А)");
+            baseBlockTelemetryDataGrid.Rows.Add("Интервал отправки телеизмерений №1 (в с)");
+            baseBlockTelemetryDataGrid.Rows.Add("Интервал отправки телеизмерений №2 (в с)");
+            baseBlockTelemetryDataGrid.Rows.Add("Период отключения датчиков (в мин)");
+            baseBlockTelemetryDataGrid.Rows.Add("Порог значения тока для отправки телеизмерений (в А)");
+            baseBlockTelemetryDataGrid.Rows.Add("Относительное значение изменения тока (в %)");
+            baseBlockTelemetryDataGrid.Rows.Add("Абсолютное значение изменения тока (в А)");
 
             baseBlockTelemetryDataGrid.Rows.Add("Параметры определения межфазного замыкания");
             baseBlockTelemetryDataGrid.Rows[9].Cells[0].Style.BackColor = Color.Gray;
@@ -181,9 +186,9 @@ namespace test_app
             {
                 baseBlockTelemetryDataGrid.Rows[9].Cells[i].Style.BackColor = ColorTranslator.FromHtml("#A0A0A0");
             }
-            baseBlockTelemetryDataGrid.Rows.Add("Время перезап. индик. после КЗ на линии");
-            baseBlockTelemetryDataGrid.Rows.Add("Время перезап. индик. после КЗ на линии после перезап.");
-            baseBlockTelemetryDataGrid.Rows.Add("Минимальное значение тока КЗ на линии");
+            baseBlockTelemetryDataGrid.Rows.Add("Время перезап. индик. после КЗ на линии (в с)");
+            baseBlockTelemetryDataGrid.Rows.Add("Время перезап. индик. после КЗ на линии после перезап. (в с)");
+            baseBlockTelemetryDataGrid.Rows.Add("Минимальное значение тока КЗ на линии (в А)");
             baseBlockTelemetryDataGrid.Rows.Add("Параметры определения замыкания на землю");
             baseBlockTelemetryDataGrid.Rows[13].Cells[0].Style.BackColor = Color.Gray;
             for (var i = 0; i < 4; ++i)
@@ -191,7 +196,7 @@ namespace test_app
                 baseBlockTelemetryDataGrid.Rows[13].Cells[i].Style.BackColor = ColorTranslator.FromHtml("#A0A0A0");
             }
             baseBlockTelemetryDataGrid.Rows.Add("Падение напряжения в линии (в %)");
-            baseBlockTelemetryDataGrid.Rows.Add("Время засечки падения напряжения");
+            baseBlockTelemetryDataGrid.Rows.Add("Время засечки падения напряжения (в с)");
             baseBlockTelemetryDataGrid.ClearSelection();
 
             baseBlockTelemetryDataGrid.AllowUserToAddRows = false;
@@ -231,6 +236,7 @@ namespace test_app
             {
                 return;
             }
+
             try
             {
                 byte[] dataSend = AdditionalFunctions.StringToByteArray(textBox2.Text);
@@ -244,11 +250,13 @@ namespace test_app
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
             }
+
             string[] str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
             int sizeStr = Convert.ToInt16(str[1], 16);
             Array.Resize(ref _dataResponse, sizeStr + 2);
 
-            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Ответ", _showTime));
+            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(
+                string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "Ответ", _showTime));
         }
 
         //-----------Кнопка "Установка соединения"---------------
@@ -286,6 +294,12 @@ namespace test_app
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.ScktExc, ex.ToString()).ToString(), "Код ошибки", _showTime));
             }
+        }
+
+        //--------------Кнопка "Очищение лога"-----------------------------
+        private void ClearLogButton_Click(object sender, EventArgs e)
+        {
+            connection_log.Clear();
         }
 
         //--------------Кнопка "Завершение соедиения"----------------------
@@ -343,7 +357,7 @@ namespace test_app
                         for (var i = 0; i <= 3; ++i)
                         {
                             strIpValidated += strCurData;
-                            if (strIp[i] == null)
+                            if (strIp[i] == "")
                             {
                                 MessageBox.Show("IP адресс написан неверно", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                                 baseBlockServerConstants.EndEdit();
@@ -462,8 +476,8 @@ namespace test_app
             if (Convert.ToInt64(SCADA_TextBox.Text) > 65535)
             {
                 MessageBox.Show("Значение не должно быть больше 65535", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
-                SCADA_TextBox.Text = "65535";
-                return;
+                SCADA_TextBox.Text = "65535"; 
+                //return;
                 //e.Handled = true;
             }
         }
@@ -579,6 +593,8 @@ namespace test_app
         //Второе - CurrentParam
         private async void readIndicatorParametersButton_Click(object sender, EventArgs e)
         {
+            string[] IndicatorStatus = new string[] {"Получение данных от индикатора фазы А.", "Получение данных от индикатора фазы B.", "Получение данных от индикатора фазы C.", "Ожидание подтверждения."};
+
             if (BaseBlockStream == null)
             {
                 MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
@@ -604,12 +620,14 @@ namespace test_app
             {
                 ProgressBarTimer.Start();
                 await BaseBlockStream.WriteAsync(readGeneralParams, 0, readGeneralParams.Length);
+                IndicatorStatusLabel.Text = IndicatorStatus[0];
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
             catch (System.IO.IOException e2)
             {
                 ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
+                IndicatorStatusLabel.Text = "";
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
@@ -626,6 +644,7 @@ namespace test_app
             {
                 ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
+                IndicatorStatusLabel.Text = "";
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", _showTime));
                 EnableButtons();
                 return;
@@ -647,6 +666,9 @@ namespace test_app
 
             if (_dataResponse[1] > 0x66)
             {
+                ProgressBarTimer.Stop();
+                progressBarReceive.Value = 1;
+                IndicatorStatusLabel.Text = "";
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", _showTime));
                 EnableButtons();
                 return;
@@ -680,6 +702,7 @@ namespace test_app
             _dataResponse = new byte[256];
             try
             {
+                IndicatorStatusLabel.Text = IndicatorStatus[3];
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
                 ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
@@ -688,6 +711,7 @@ namespace test_app
             {
                 ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
+                IndicatorStatusLabel.Text = "";
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
@@ -704,12 +728,14 @@ namespace test_app
             {
                 ProgressBarTimer.Start();
                 await BaseBlockStream.WriteAsync(readCurrentData, 0, readCurrentData.Length);
+                IndicatorStatusLabel.Text = IndicatorStatus[1];
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
             catch (System.IO.IOException e2)
             {
                 ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
+                IndicatorStatusLabel.Text = "";
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
@@ -725,6 +751,7 @@ namespace test_app
             {
                 ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
+                IndicatorStatusLabel.Text = "";
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", _showTime));
                 EnableButtons();
                 return;
@@ -741,6 +768,7 @@ namespace test_app
             {
                 ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
+                IndicatorStatusLabel.Text = "";
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", _showTime));
                 EnableButtons();
                 return;
@@ -774,6 +802,7 @@ namespace test_app
             _dataResponse = new byte[256];
             try
             {
+                IndicatorStatusLabel.Text = IndicatorStatus[3];
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
                 ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
@@ -782,6 +811,7 @@ namespace test_app
             {
                 ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
+                IndicatorStatusLabel.Text = "";
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
@@ -797,12 +827,14 @@ namespace test_app
             {
                 ProgressBarTimer.Start();
                 await BaseBlockStream.WriteAsync(readGroundData, 0, readGroundData.Length);
+                IndicatorStatusLabel.Text = IndicatorStatus[2];
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
             catch (System.IO.IOException e2)
             {
                 ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
+                IndicatorStatusLabel.Text = "";
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
@@ -818,6 +850,7 @@ namespace test_app
             {
                 ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
+                IndicatorStatusLabel.Text = "";
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", _showTime));
                 EnableButtons();
                 return;
@@ -827,6 +860,7 @@ namespace test_app
             {
                 ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
+                IndicatorStatusLabel.Text = "";
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", _showTime));
                 EnableButtons();
                 return;
@@ -858,6 +892,7 @@ namespace test_app
             _dataResponse = new byte[256];
             try
             {
+                IndicatorStatusLabel.Text = IndicatorStatus[3];
                 await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
                 ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
@@ -866,11 +901,13 @@ namespace test_app
             {
                 ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
+                IndicatorStatusLabel.Text = "";
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
             }
             ReadCONFIRM(0x04, 1);
+            IndicatorStatusLabel.Text = "";
             EnableButtons();
         }
 
