@@ -308,7 +308,13 @@ namespace test_app
 
         private void DataGridClearButton_Click(object sender, EventArgs e)
         {
-            baseBlockTelemetryDataGrid.Rows.Clear();
+            for (int i = 1; i < baseBlockTelemetryDataGrid.Columns.Count; i++)
+            {
+                for (int j = 1; j < baseBlockTelemetryDataGrid.Rows.Count; j++)
+                {
+                    baseBlockTelemetryDataGrid.Rows[j].Cells[i].Value = null;
+                }
+            }
             baseBlockTelemetryDataGrid.Refresh();
         }
 
@@ -590,10 +596,10 @@ namespace test_app
             byte[] stop = { 0x68, 0x04, 0x13, 0x00, 0x02, 0x00 };
             byte[] test = { 0x68, 0x04, 0x43, 0x00, 0x00, 0x00 };
 
-            byte[] TeleindicationData = new byte[4096];
-            BaseBlockStream.WriteAsync(stop, 0, stop.Length);
+            byte[] TeleindicationData = new byte[9];
+            BaseBlockStream.Write(stop, 0, stop.Length);
             Thread.Sleep(1000);
-            BaseBlockStream.ReadAsync(TeleindicationData, 0, TeleindicationData.Length);
+            BaseBlockStream.Read(TeleindicationData, 0, TeleindicationData.Length);
             TeleindicationStopTimer.Start();
             //TeleindicationStopTimer.
         }
@@ -735,8 +741,14 @@ namespace test_app
             }
             else
             {
-                ReadTeleindication();               //Костыль для фикса 5 строк
+                //ReadTeleindication();               //Костыль для фикса 5 строк
+                byte[] stop = { 0x68, 0x04, 0x13, 0x00, 0x02, 0x00 };
+                byte[] TeleindicationData = new byte[8192];
+                BaseBlockStream.Write(stop, 0, stop.Length);
+                Thread.Sleep(1000);
+                BaseBlockStream.Read(TeleindicationData, 0, TeleindicationData.Length);
                 ReadCONFIRM(0x12, 1);
+                //Thread.Sleep(5000);
                 //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
                 //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
                 //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
@@ -874,7 +886,7 @@ namespace test_app
 
             Array.Resize(ref _dataResponse, sizeStr + 2);
 
-            if (sizeStr < 20)
+            if (sizeStr < 30)
             {
                 ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
@@ -938,8 +950,8 @@ namespace test_app
             ReadCONFIRM(0x04, 1);
             IndicatorStatusLabel.Text = "";
             EnableButtons();
-            ReadTeleindication();
-            await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+            //ReadTeleindication();
+            //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             //ReadCONFIRM(0x04, 1);
         }
 
