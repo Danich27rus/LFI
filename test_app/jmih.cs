@@ -596,7 +596,7 @@ namespace test_app
             byte[] stop = { 0x68, 0x04, 0x13, 0x00, 0x02, 0x00 };
             byte[] test = { 0x68, 0x04, 0x43, 0x00, 0x00, 0x00 };
 
-            byte[] TeleindicationData = new byte[9];
+            byte[] TeleindicationData = new byte[8192];
             BaseBlockStream.Write(stop, 0, stop.Length);
             Thread.Sleep(1000);
             BaseBlockStream.Read(TeleindicationData, 0, TeleindicationData.Length);
@@ -742,12 +742,12 @@ namespace test_app
             else
             {
                 //ReadTeleindication();               //Костыль для фикса 5 строк
+                ReadCONFIRM(0x12, 1);
                 byte[] stop = { 0x68, 0x04, 0x13, 0x00, 0x02, 0x00 };
                 byte[] TeleindicationData = new byte[8192];
                 BaseBlockStream.Write(stop, 0, stop.Length);
-                Thread.Sleep(1000);
+                Thread.Sleep(1500);
                 BaseBlockStream.Read(TeleindicationData, 0, TeleindicationData.Length);
-                ReadCONFIRM(0x12, 1);
                 //Thread.Sleep(5000);
                 //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
                 //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
@@ -856,7 +856,27 @@ namespace test_app
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
             }
-            ReadCONFIRM(0x04, 1);
+            if (_dataResponse[1] == 0x04)
+            {
+                ReadCONFIRM(0x04, 1);
+            }
+            else
+            {
+                byte[] stop = { 0x68, 0x04, 0x13, 0x00, 0x02, 0x00 };
+                byte[] TeleindicationData = new byte[8192];
+                BaseBlockStream.Write(stop, 0, stop.Length);
+                Thread.Sleep(1500);
+                BaseBlockStream.Read(TeleindicationData, 0, TeleindicationData.Length);
+                //ReadTeleindication();               //Костыль для фикса 5 строк
+                ReadCONFIRM(0x12, 1);
+                //Thread.Sleep(5000);
+                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
+                //ReadCONFIRM(0x04, 1);
+            }
             //---------------------------------------------------------
             //---------------------GroundParam-------------------------
             byte[] readGroundData = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2C, 0x00, 0x04, 0x00 };
@@ -949,6 +969,13 @@ namespace test_app
             }
             ReadCONFIRM(0x04, 1);
             IndicatorStatusLabel.Text = "";
+
+            byte[] stop_1 = { 0x68, 0x04, 0x13, 0x00, 0x02, 0x00 };
+            byte[] TeleindicationData_1 = new byte[8192];
+            BaseBlockStream.Write(stop_1, 0, stop_1.Length);
+            Thread.Sleep(1500);
+            BaseBlockStream.Read(TeleindicationData_1, 0, TeleindicationData_1.Length);
+
             EnableButtons();
             //ReadTeleindication();
             //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
