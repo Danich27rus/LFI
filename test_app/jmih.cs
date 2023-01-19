@@ -1,19 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.Sockets;
 using System.Net;
-using System.IO;
-using System.Net.Http;
 using System.Threading;
-using System.IO.Ports;
-using System.Security.Cryptography.X509Certificates;
 
 //***************   Автор: Даниил Григорьев (Captain_Kirk54)    *******************
 //***   ПО преддназначено для чтения данных с базового блока ИКЗ и записи на       **
