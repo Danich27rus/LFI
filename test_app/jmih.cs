@@ -28,6 +28,7 @@ namespace test_app
 
         //@TODO: Добавить комментарии к каждой переменной
         private static byte[] _dataResponse;
+        private int test;
         private bool _showTime;
         private int _phase; //Фаза А - 1, Фаза Б - 2, Фаза С - 3
 
