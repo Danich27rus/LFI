@@ -5,13 +5,13 @@ using System.Net.Sockets;
 using System.Net;
 using System.Threading;
 
-//***************   Автор: Даниил Григорьев (Captain_Kirk54)    *******************
+//***************   Автор: Даниил Григорьев (Captain_Kirk54)    *********************
 //***   ПО преддназначено для чтения данных с базового блока ИКЗ и записи на       **
 //***   него своих значений для дальнейшей эксплуатации оборудования. Общение      **
 //***   проходит по МЭК-104. Сначала идёт запрос по TCP на чтение данных.          **
 //***   После этого в ответе приходят ДВА пакета - WRITE_RESPONSE и SHOW_          **
 //***   S_FRAME. Запись происходит путём отправки запроса с значениями.            **
-
+//***********************************************************************************
 
 
 namespace test_app
@@ -26,9 +26,8 @@ namespace test_app
         private Rectangle OriginalRectangle3;
         private Size OriginalFormSize;
 
-        //@TODO: Добавить комментарии к каждой переменной
+        //TODO: Добавить комментарии к каждой переменной
         private static byte[] _dataResponse;
-        private int test;
         private bool _showTime;
         private int _phase; //Фаза А - 1, Фаза Б - 2, Фаза С - 3
 
@@ -52,14 +51,14 @@ namespace test_app
             PerformLayout();
         }
 
-        //@TODO: Добавить комментарий к каждому методу по типу:
-        /// <summary>
+        /// Сводка:
+        /// Стартовая инициализация после запуска приложения
+        /// Настраивает таблицу с телеизмерениями и таблицу 
+        /// с вводными данными для подключения к серверу
         /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        //
-        //Стартовая инициализация после запуска приложения
+        /// Параметры:
+        /// На входе: стандартные параметры C# ввиде отправителя 
+        /// и аргументов события
         private void jmih_Load(object sender, EventArgs e)
         {
             connectionIndicator.BackColor = Color.White;
@@ -97,6 +96,14 @@ namespace test_app
         }
 
         //---------------Таймер для телеизмерений-----------------------
+        /// Сводка:
+        /// Таймер для телеизмерений
+        /// Необходим для остановки потока телеизмерений 
+        /// при первом считывании с базового блока
+        /// 
+        /// Параметры:
+        /// На входе: стандартные параметры C# ввиде отправителя 
+        /// и аргументов события
         private async void StopTimer(object sender, EventArgs e)
         {
             //if (_teleindicationFlag)
@@ -115,6 +122,13 @@ namespace test_app
         }
 
         //----------------Индикатор выполнения--------------------------
+        /// Сводка:
+        ///     Индикатор выполнения
+        ///     Изменяет элемент формы ProgressBar, постепенно заполняя его
+        /// 
+        /// Параметры:
+        ///     На входе: стандартные параметры C# ввиде отправителя 
+        ///     и аргументов события
         private void IncreaseProgressBar(object sender, EventArgs e)
         {
             progressBarReceive.PerformStep();
@@ -125,6 +139,12 @@ namespace test_app
         }
 
         //--------------Включение и отколючение кнопопк-----------
+        /// Сводка:
+        ///     Включение и отключение кнопок
+        ///     Выключает кнопки при передаче данных через TCP,
+        ///     чтобы пользователь не смог повредить информацию во время передачи/ <summary>
+        ///     приёма
+        /// 
         private void DisableButtons()
         {
             TCP_CONNECTION.Enabled = false;
@@ -148,6 +168,11 @@ namespace test_app
         }
 
         //-----------Настройка таблицы с IP/Port------------
+        /// Сводка:
+        ///     Задаёт некоторые параметры для таблицы
+        ///     в группе "Соединение": устанавливает вид
+        ///     требуемых данных в первйо колонке и делает их только для чтения
+        /// 
         private void inputDataGrid_Setup()
         {
             baseBlockServerConstants.Rows.Add("IP Адрес");
@@ -162,6 +187,13 @@ namespace test_app
         }
 
         //---------Настройка таблицы с телеизмерениями----------
+        /// Сводка:
+        ///     Задаёт названия парметров в таблице
+        ///     значений, получаемых от базового блока.
+        ///     Все значения разделены на 3 фазы, поэтому в приложении
+        ///     есть фаза A,B и C. Поля с названиями секций параметров
+        ///     закрашиваются серым
+        /// 
         private void telemetryDataGrid_Setup()
         {
             baseBlockTelemetryDataGrid.Rows.Add("Общие параметры индикатора");
@@ -218,6 +250,11 @@ namespace test_app
         }
 
         //---Добавление метки времени к сообщению в консоли--
+        /// Сводка:
+        ///     При включении этого чекбокса, у всех сообщений, полученных
+        ///     после включения автоматически добавляется время отправки и
+        ///     получения информации.
+        /// 
         private void time_check_box_1_CheckedChanged(object sender, EventArgs e)
         {
             _showTime = false;
@@ -228,6 +265,17 @@ namespace test_app
         }
 
         //----------Кнопка "Отправка" для данных------------
+        /// Сводка:
+        ///     По нажатию кнопки данные, ввеёные в строке отправляются
+        ///     по TCP на роутер и происходит проброс по RS-232.
+        ///     Данные отправляются ТОЛЬКО В HEX И С ПРОБЕЛАМИ!
+        ///     Например: 68 04 03 00 00 00
+        ///     При любом другом формате отправки возникнет ошибка
+        ///     ввода/вывода, из-за неправильного парсинга строки
+        ///     
+        /// Параметры:
+        ///     На входе: стандартные параметры C# ввиде отправителя 
+        ///     и аргументов события      
         private async void send_button_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(textBox2.Text)) return;
@@ -255,6 +303,11 @@ namespace test_app
         }
 
         //-----------Кнопка "Установка соединения"---------------
+        /// Сводка:
+        ///     По нажатию этой кнопки и введённых значений в таблице
+        ///     IP/Port, мы 
+        ///     после включения автоматически добавляется время отправки и
+        ///     получения информации.
         private async void TCP_CONNECTION_Click(object sender, EventArgs e)
         {
             if (baseBlockServerConstants.Rows[0].Cells[1].Value == null ||
@@ -268,7 +321,7 @@ namespace test_app
             connection_log.AppendText(AdditionalFunctions.TextBoxPrint(baseBlockServerConstants.Rows[1].Cells[1].Value.ToString(), "Порт", _showTime));
 
             BaseBlockSender = new TcpClient();
-            //@TODO: Сделать через using/await (красиво)
+            //TODO: Сделать через using/await (красиво)
                 /*using (var BaseBlockSender = new TcpClient())
                 {
 
@@ -320,7 +373,7 @@ namespace test_app
         //--------------Кнопка "Завершение соедиения"----------------------
         private void closeConnectionButton_Click(object sender, EventArgs e)
         {
-            //@TODO Вывести в отдельную ассинхронную задачу
+            //TODO Вывести в отдельную ассинхронную задачу
             if (BaseBlockStream == null)
             {
                 MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
@@ -603,7 +656,7 @@ namespace test_app
             //TeleindicationStopTimer.
         }
 
-        //@TODO: Разбить на отдельные методы
+        //TODO: Разбить на отдельные методы
         //---------Чтение параметров индикатора RunParam и CurrentParam-------------
         //Первое читается - RunParam     
         //Второе - CurrentParam
@@ -674,7 +727,7 @@ namespace test_app
             //30 00 01 05 0D 30 00 01 02 0E 30 00 01 02)                    - Доп параметры
             //То что в скобках - пока обрабатывать не нужно
 
-            //@TODO: Возможен баг если длина пакета с данными не постоянно, и часть массива
+            //TODO: Возможен баг если длина пакета с данными не постоянно, и часть массива
             //"скушается" из-за того, что оборвалась запись где-то посередине массива
 
             //Чтение идёт с 0x3000 до 0x300E в RunParam, данные нужны с 0x3000 по 0x3007
@@ -693,7 +746,7 @@ namespace test_app
             for (var i = 19; i < _dataResponse[18]; ++i)
             {
                 if (_dataResponse[i] == 0x30 && _dataResponse[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
-                                                                             //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно                                                                               //в первой половине 0x30
+                                                                             //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно                                                                               //в первой половине 0x30
                 {
                     if (_dataResponse[i + 2] == 0x01)
                     {
@@ -716,7 +769,7 @@ namespace test_app
 
             //CONFIRM--------------------------------------------------
             _dataResponse = new byte[256];
-            //@TODO: ББ вовзращает 5 строк при чтении в первый раз, зачем то ещё и RunParam и какието левые данные
+            //TODO: ББ вовзращает 5 строк при чтении в первый раз, зачем то ещё и RunParam и какието левые данные
             //надо будет исправить потом + на WPF уже писать с учётом такого нюанса
             try
             {
@@ -816,7 +869,7 @@ namespace test_app
             for (var i = 19; i < _dataResponse[18]; ++i)
             {
                 if (_dataResponse[i] == 0x31 && _dataResponse[i - 1] < 0x03) //&& dataResponse[i + 2] > 0x00)
-                                                                             //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
+                                                                             //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
                                                                              //в первой половине 0x31
                 {
                     if (_dataResponse[i + 2] == 0x01)
@@ -928,7 +981,7 @@ namespace test_app
             for (int i = 19; i < _dataResponse[18]; ++i)
             {
                 if (_dataResponse[i] == 0x32 && _dataResponse[i - 1] < 0x02) //&& dataResponse[i + 2] > 0x00)
-                                                                             //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
+                                                                             //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
                                                                              //в первой половине 0x31
                 {
                     if (_dataResponse[i + 2] == 0x01)
@@ -1026,11 +1079,11 @@ namespace test_app
                 EnableButtons();
                 return;
             }
-            //@TODO: Возвращаемый ответ больше 256, это нужно учитывать если потом придётся работать с областью 8B FF
+            //TODO: Возвращаемый ответ больше 256, это нужно учитывать если потом придётся работать с областью 8B FF
             for (var i = 19; i < _dataResponse[18]; ++i)
             {
                 if (_dataResponse[i] == 0x00 && _dataResponse[i - 1] == 0x15) //&& dataResponse[i + 2] > 0x00)
-                                                                              //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
+                                                                              //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
                                                                               //в первой половине 0x31
                 {
                     //_isUserInput = false;
@@ -1130,7 +1183,7 @@ namespace test_app
             for (var i = 19; i < defaultGeneralPackage.Length; ++i)
             {
                 if (defaultGeneralPackage[i] == 0x30 && defaultGeneralPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
-                                                                                             //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
+                                                                                             //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
                                                                                              //в первой половине 0x30
                 {
                     if (defaultGeneralPackage[i + 2] == 0x01)
@@ -1168,7 +1221,7 @@ namespace test_app
                         defaultGeneralPackage[i + 4] = (byte)(storage >> 8);
                         //defaultRunPackage[i + 5] = 0xFF; UNUSED
                         //defaultRunPackage[i + 6] = 0xFF; UNSUED
-                        //@TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535
+                        //TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535
                         //что является по факту диапазоном в 2 байта - 0xFF. Надо уточнять у китайцев
                     }
                 }
@@ -1198,7 +1251,7 @@ namespace test_app
             for (int i = 19; i < defaultCurrentPackage.Length; ++i)
             {
                 if (defaultCurrentPackage[i] == 0x31 && defaultCurrentPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
-                                                                                             //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
+                                                                                             //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
                                                                                              //в первой половине 0x31
                 {
                     if (defaultCurrentPackage[i + 2] == 0x01)
@@ -1236,7 +1289,7 @@ namespace test_app
                         defaultCurrentPackage[i + 4] = (byte)(storage >> 8);
                         //defaultRunPackage[i + 5] = 0xFF; UNUSED
                         //defaultRunPackage[i + 6] = 0xFF; UNSUED
-                        //@TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535
+                        //TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535
                         //что является по факту диапазоном в 2 байта - 0xFF. Надо уточнять у китайцев
                     }
                 }
@@ -1266,7 +1319,7 @@ namespace test_app
             for (int i = 19; i < defaultGroundPackage.Length; ++i)
             {
                 if (defaultGroundPackage[i] == 0x31 && defaultGroundPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
-                                                                                           //@TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
+                                                                                           //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
                                                                                            //в первой половине 0x32
                 {
                     if (defaultGroundPackage[i + 2] == 0x01)
@@ -1304,7 +1357,7 @@ namespace test_app
                         defaultGroundPackage[i + 4] = (byte)(storage >> 8);
                         //defaultRunPackage[i + 5] = 0xFF; UNUSED
                         //defaultRunPackage[i + 6] = 0xFF; UNSUED
-                        //@TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535
+                        //TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535
                         //что является по факту диапазоном в 2 байта - 0xFFFF. Надо уточнять у китайцев
                     }
                 }
