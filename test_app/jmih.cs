@@ -55,10 +55,6 @@ namespace test_app
         /// Стартовая инициализация после запуска приложения
         /// Настраивает таблицу с телеизмерениями и таблицу 
         /// с вводными данными для подключения к серверу
-        /// 
-        /// Параметры:
-        /// На входе: стандартные параметры C# ввиде отправителя 
-        /// и аргументов события
         private void jmih_Load(object sender, EventArgs e)
         {
             connectionIndicator.BackColor = Color.White;
@@ -102,13 +98,13 @@ namespace test_app
         /// при первом считывании с базового блока
         /// 
         /// Параметры:
-        /// На входе: стандартные параметры C# ввиде отправителя 
+        /// Стандартные параметры C# ввиде отправителя 
         /// и аргументов события
         private async void StopTimer(object sender, EventArgs e)
         {
             //if (_teleindicationFlag)
             //{
-                //return;
+            //return;
             //}
 
             byte[] data = new byte[512];
@@ -127,7 +123,7 @@ namespace test_app
         ///     Изменяет элемент формы ProgressBar, постепенно заполняя его
         /// 
         /// Параметры:
-        ///     На входе: стандартные параметры C# ввиде отправителя 
+        ///     Стандартные параметры C# ввиде отправителя 
         ///     и аргументов события
         private void IncreaseProgressBar(object sender, EventArgs e)
         {
@@ -220,6 +216,7 @@ namespace test_app
             baseBlockTelemetryDataGrid.Rows.Add("Время перезап. индик. после КЗ на линии (в с)");
             baseBlockTelemetryDataGrid.Rows.Add("Время перезап. индик. после КЗ на линии после перезап. (в с)");
             baseBlockTelemetryDataGrid.Rows.Add("Минимальное значение тока КЗ на линии (в А)");
+
             baseBlockTelemetryDataGrid.Rows.Add("Параметры определения замыкания на землю");
             baseBlockTelemetryDataGrid.Rows[13].Cells[0].Style.BackColor = Color.Gray;
             for (var i = 0; i < 4; ++i)
@@ -274,7 +271,7 @@ namespace test_app
         ///     ввода/вывода, из-за неправильного парсинга строки
         ///     
         /// Параметры:
-        ///     На входе: стандартные параметры C# ввиде отправителя 
+        ///     Стандартные параметры C# ввиде отправителя 
         ///     и аргументов события      
         private async void send_button_Click(object sender, EventArgs e)
         {
@@ -309,7 +306,7 @@ namespace test_app
         ///     Если данная операция не была завершена, то приложение выдаст ошибку
         ///     
         /// Параметры:
-        ///     На входе: стандартные параметры C# ввиде отправителя 
+        ///     Стандартные параметры C# ввиде отправителя 
         ///     и аргументов события         
         private async void TCP_CONNECTION_Click(object sender, EventArgs e)
         {
@@ -325,10 +322,10 @@ namespace test_app
 
             BaseBlockSender = new TcpClient();
             //TODO: Сделать через using/await (красиво)
-                /*using (var BaseBlockSender = new TcpClient())
-                {
+            /*using (var BaseBlockSender = new TcpClient())
+            {
 
-                }*/
+            }*/
             BaseBlockIp = IPAddress.Parse(baseBlockServerConstants.Rows[0].Cells[1].Value.ToString());
             try
             {
@@ -361,7 +358,7 @@ namespace test_app
         ///     весь текст из служебной консоли
         ///     
         /// Параметры:
-        ///     На входе: стандартные параметры C# ввиде отправителя 
+        ///     Стандартные параметры C# ввиде отправителя 
         ///     и аргументов события 
         private void ClearLogButton_Click(object sender, EventArgs e)
         {
@@ -374,7 +371,7 @@ namespace test_app
         ///     вся информация в таблице "Значения в памяти индикатора"
         ///     
         /// Параметры:
-        ///     На входе: стандартные параметры C# ввиде отправителя 
+        ///     Стандартные параметры C# ввиде отправителя 
         ///     и аргументов события 
         private void DataGridClearButton_Click(object sender, EventArgs e)
         {
@@ -395,7 +392,7 @@ namespace test_app
         ///     "Соединение не установлено"
         ///     
         /// Параметры:
-        ///     На входе: стандартные параметры C# ввиде отправителя 
+        ///     Стандартные параметры C# ввиде отправителя 
         ///     и аргументов события 
         private void closeConnectionButton_Click(object sender, EventArgs e)
         {
@@ -430,10 +427,8 @@ namespace test_app
         ///     Если соединения не было, то появится специально окно с надписью
         ///     "Соединение не установлено"
         ///     
-        /// Данные:
-        ///     
         /// Параметры:
-        ///     На входе: стандартные параметры C# ввиде отправителя 
+        ///     Стандартные параметры C# ввиде отправителя 
         ///     и аргументов события 
         private void baseBlockServerConstants_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
         {
@@ -511,9 +506,15 @@ namespace test_app
         }
 
         //---------------Проверка на изменение ячейки в таблице телеизмерений------------
-        //Если значение будет изменено - шрифт станет жирным
-        //Если значение записывается в первый раз - шрифт будет нормальным
-        //Если значение перезаписывается компьютером - шрифт будет нормальным
+        /// Сводка:
+        ///     В таблице телеизмерений происходит валидация данных, и сравнения со старыми данными
+        ///     Если значение будет изменено пользователем
+        ///     вне зависимости было ли в ячейке что-то или нет - шрифт станет жирным
+        ///     Если значение перезаписывается компьютером - шрифт будет нормальным
+        ///     
+        /// Параметры:
+        ///     Стандартные параметры C# ввиде отправителя 
+        ///     и аргументов события 
         private void baseBlockTelemetryDataGrid_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
         {
             string save = null;
@@ -557,6 +558,14 @@ namespace test_app
 
         }
 
+        //---------------Поле около кнопки "Прочитать данные с базвого блока"------------
+        /// Сводка:
+        ///     Проверка ввода со стороны пользователя, чтобы нельзя было ввести 
+        ///     буквы, спецсимволы и число с плавающей точкой
+        ///     
+        /// Параметры:
+        ///     Стандартные параметры C# ввиде отправителя 
+        ///     и аргументов события 
         private void SCADA_TextBox_KeyPress(object sender, KeyPressEventArgs e)
         {
             SCADA_TextBox.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Bold);
@@ -571,6 +580,13 @@ namespace test_app
             //}
         }
 
+        //---------------Поле около кнопки "Прочитать данные с базвого блока"------------
+        /// Сводка:
+        ///     Проверка введённого числа, чтобы было не больше 65535 (ограничение на ББ у блока памяти - 2 байта) 
+        ///     
+        /// Параметры:
+        ///     Стандартные параметры C# ввиде отправителя 
+        ///     и аргументов события 
         private void SCADA_TextBox_TextChanged(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(SCADA_TextBox.Text))
@@ -580,27 +596,20 @@ namespace test_app
             if (Convert.ToInt64(SCADA_TextBox.Text) > 65535)
             {
                 MessageBox.Show("Значение не должно быть больше 65535", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Question);
-                SCADA_TextBox.Text = "65535"; 
+                SCADA_TextBox.Text = "65535";
                 //return;
                 //e.Handled = true;
             }
         }
-
-        /*private void SCADA_TextBox_Validating(object sender, CancelEventArgs e)
-        {
-            if (string.IsNullOrEmpty(SCADA_TextBox.Text))
-            {
-                return;
-            }
-            if ()
-            {
-                _currentSCADAValue = SCADA_TextBox.Text;
-            }
-            //_currentSCADAValue = SCADA_TextBox.Text;
-        }*/
-
         #endregion
 
+        //-------------------------Кнопка с вопросительным знаком------------------------
+        /// Сводка:
+        ///     Вывод небольшой справки в MessageBox 
+        ///     
+        /// Параметры:
+        ///     Стандартные параметры C# ввиде отправителя 
+        ///     и аргументов события 
         private void serviceConsoleHelpButton_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Данная сервисная консоль предназначена для вывода информации в raw-виде" +
@@ -608,7 +617,13 @@ namespace test_app
                 "работает протокол МЭК-104", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
         }
 
-        //------Обработка нажатий на разные checkBoxы с фазами
+        //-----------------Обработка нажатий на разные checkBoxы с фазами----------------
+        /// Сводка:
+        ///     Выбор фазы (индикатора) в программе в блоке "значения в памяти идикатора"
+        ///     
+        /// Параметры:
+        ///     Стандартные параметры C# ввиде отправителя 
+        ///     и аргументов события 
         private void phaseAcheckBox_CheckedChanged(object sender, EventArgs e)
         {
             //phase = 0;
@@ -646,6 +661,26 @@ namespace test_app
 
 
         //----------Ответ CONFIRM от ББ при запросе на чтение параметров------------
+        /// Сводка:
+        ///     При каждом запрос информации с инидкаторов, будь то это телеизмерения
+        ///     или настройки, всегда вместе с конечными данными приходит тестовый
+        ///     кадр подтверждения с форматом
+        ///     68 04 83 00 XX 00, где XX - шаг команды, передаваемый в запросе.
+        ///     Данная функция обрабатывает это, и если CONFIRM пакет накладывается на
+        ///     другое сообщение, то CONFIRM выводится отдельным сообщением, соединённым
+        ///     из нескольких массивов.
+        ///     
+        /// Параметры: 
+        ///     CheckLength:
+        ///         Значение длины сообщения
+        ///         
+        ///     position:
+        ///         Позиция в массиве
+        ///         
+        ///     OptionalSavePlace:
+        ///         (Опционально) Место куда будет сохранятся массив с подтверждением,
+        ///         если известно, что CONFIRM будет находится в двух разных массивах данных
+
         private void ReadCONFIRM(byte CheckLength, byte position, byte[] OptionalSavePlace = null)
         {
             if (_dataResponse != null || _dataResponse.Length != 0)
@@ -679,7 +714,14 @@ namespace test_app
             }
         }
 
-        private void ReadTeleindication(byte[] OptionalSavePlace = null)
+        //----------------------Обработка телеизмерений-----------------------------
+        /// Сводка:
+        ///     Обработка получения телеизмерений после отправки первого запроса на ББ
+        ///     
+        /// Параметры:
+        ///     Стандартные параметры C# ввиде отправителя 
+        ///     и аргументов события 
+        private void ReadTeleindication()
         {
             byte[] stop = { 0x68, 0x04, 0x13, 0x00, 0x02, 0x00 };
             byte[] test = { 0x68, 0x04, 0x43, 0x00, 0x00, 0x00 };
@@ -694,11 +736,23 @@ namespace test_app
 
         //TODO: Разбить на отдельные методы
         //---------Чтение параметров индикатора RunParam и CurrentParam-------------
-        //Первое читается - RunParam     
-        //Второе - CurrentParam
+        /// Сводка:
+        ///     Чтение данных с индикаторов. На ББ отправляется запрос в формате
+        ///     68 11 1A 00 4C 00 7A 01 0D 00 00 00 00 00 00 2A 00 04 00
+        ///     где: 
+        ///     2A - тип параметров, который мы хотим прочитать
+        ///     04 - фаза, с которой мы хотим прочитать нужные нам параметры
+        ///     
+        ///     Первым читается RunParam - общие параметры индикатора (2A)
+        ///     Вторым читается CurrentParam - параметры определения межфазного замыкания (2B)
+        ///     Третьим: GroundParam - параметры определения замыкания на землю (2C)
+        ///     
+        /// Параметры:
+        ///     Стандартные параметры C# ввиде отправителя 
+        ///     и аргументов события 
         private async void readIndicatorParametersButton_Click(object sender, EventArgs e)
         {
-            string[] IndicatorStatus = new string[] {"Получение общих параметров индикатора.", "Получение настроек межфазного замыкания.", "Получение настроек замыкания на землю.", "Ожидание подтверждения."};
+            string[] IndicatorStatus = new string[] { "Получение общих параметров индикатора.", "Получение настроек межфазного замыкания.", "Получение настроек замыкания на землю.", "Ожидание подтверждения." };
 
             if (BaseBlockStream == null)
             {
@@ -763,8 +817,7 @@ namespace test_app
             //30 00 01 05 0D 30 00 01 02 0E 30 00 01 02)                    - Доп параметры
             //То что в скобках - пока обрабатывать не нужно
 
-            //TODO: Возможен баг если длина пакета с данными не постоянно, и часть массива
-            //"скушается" из-за того, что оборвалась запись где-то посередине массива
+            //TODO: Возможен баг если длина пакета с данными не постоянна, и часть массива "скушается" из-за того, что оборвалась запись где-то посередине массива
 
             //Чтение идёт с 0x3000 до 0x300E в RunParam, данные нужны с 0x3000 по 0x3007
             //            с 0x3100 до 0x3102 в CurrentParam
@@ -805,8 +858,7 @@ namespace test_app
 
             //CONFIRM--------------------------------------------------
             _dataResponse = new byte[256];
-            //TODO: ББ вовзращает 5 строк при чтении в первый раз, зачем то ещё и RunParam и какието левые данные
-            //надо будет исправить потом + на WPF уже писать с учётом такого нюанса
+            //TODO: ББ вовзращает 5 строк при чтении в первый раз, зачем то ещё и RunParam и какието левые данные. Надо будет исправить потом + на WPF уже писать с учётом такого нюанса
             try
             {
                 IndicatorStatusLabel.Text = IndicatorStatus[3];
@@ -1393,8 +1445,7 @@ namespace test_app
                         defaultGroundPackage[i + 4] = (byte)(storage >> 8);
                         //defaultRunPackage[i + 5] = 0xFF; UNUSED
                         //defaultRunPackage[i + 6] = 0xFF; UNSUED
-                        //TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535
-                        //что является по факту диапазоном в 2 байта - 0xFFFF. Надо уточнять у китайцев
+                        //TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535, что является по факту диапазоном в 2 байта - 0xFFFF. Надо уточнять у китайцев
                     }
                 }
             }
@@ -1419,6 +1470,20 @@ namespace test_app
             ReadCONFIRM(0x04, 1);
             EnableButtons();
             //---------------------------------------------------------
+        }
+
+        /// <summary>
+        /// Сводка:
+        ///     Запись данных из таблицы в массив для передачи на ББ
+        ///    
+        /// Параметры:
+        ///     
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private byte[] DataGridToDefaultPackage(byte[] defaultPackage, int index)
+        {
+            return defaultPackage;
         }
 
         private async void WriteSCADAParameterButton_Click(object sender, EventArgs e)
