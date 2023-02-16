@@ -52,9 +52,9 @@ namespace test_app
         }
 
         /// Сводка:
-        /// Стартовая инициализация после запуска приложения
-        /// Настраивает таблицу с телеизмерениями и таблицу 
-        /// с вводными данными для подключения к серверу
+        ///     Стартовая инициализация после запуска приложения
+        ///     Настраивает таблицу с телеизмерениями и таблицу 
+        ///     с вводными данными для подключения к серверу
         private void jmih_Load(object sender, EventArgs e)
         {
             connectionIndicator.BackColor = Color.White;
@@ -93,13 +93,13 @@ namespace test_app
 
         //---------------Таймер для телеизмерений-----------------------
         /// Сводка:
-        /// Таймер для телеизмерений
-        /// Необходим для остановки потока телеизмерений 
-        /// при первом считывании с базового блока
+        ///     Таймер для телеизмерений
+        ///     Необходим для остановки потока телеизмерений 
+        ///     при первом считывании с базового блока
         /// 
         /// Параметры:
-        /// Стандартные параметры C# ввиде отправителя 
-        /// и аргументов события
+        ///     Стандартные параметры C# ввиде отправителя 
+        ///     и аргументов события
         private async void StopTimer(object sender, EventArgs e)
         {
             //if (_teleindicationFlag)
@@ -345,6 +345,7 @@ namespace test_app
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
                 connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.ScktExc, ex.ToString()).ToString(), "Код ошибки", _showTime));
+                return;
             }
             byte[] BlockInit = { 0x68, 0x04, 0x07, 0x00, 0x02, 0x00 };
             _dataResponse = new byte[256];
@@ -831,31 +832,7 @@ namespace test_app
                 EnableButtons();
                 return;
             }
-
-            for (var i = 19; i < _dataResponse[18]; ++i)
-            {
-                if (_dataResponse[i] == 0x30 && _dataResponse[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
-                                                                             //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно                                                                               //в первой половине 0x30
-                {
-                    if (_dataResponse[i + 2] == 0x01)
-                    {
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 1].Cells[_phase].Value = Convert.ToInt16(_dataResponse[i + 3]);
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 1].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                    }
-                    if (_dataResponse[i + 2] == 0x02)
-                    {
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 1].Cells[_phase].Value = _dataResponse[i + 4] << 8 | _dataResponse[i + 3];
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 1].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                    }
-                    if (_dataResponse[i + 2] == 0x04) //В проге используется всё равно FF FF, может китайцы опять переиграли
-                    {
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 1].Cells[_phase].Value = _dataResponse[i + 4] << 8 | _dataResponse[i + 3];
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 1].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                    }
-                }
-            }
-
-
+            WriteInDataGrid(_dataResponse, 0x30, 0x08, 1);
             //CONFIRM--------------------------------------------------
             _dataResponse = new byte[256];
             //TODO: ББ вовзращает 5 строк при чтении в первый раз, зачем то ещё и RunParam и какието левые данные. Надо будет исправить потом + на WPF уже писать с учётом такого нюанса
@@ -954,29 +931,7 @@ namespace test_app
                 return;
             }
 
-            for (var i = 19; i < _dataResponse[18]; ++i)
-            {
-                if (_dataResponse[i] == 0x31 && _dataResponse[i - 1] < 0x03) //&& dataResponse[i + 2] > 0x00)
-                                                                             //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
-                                                                             //в первой половине 0x31
-                {
-                    if (_dataResponse[i + 2] == 0x01)
-                    {
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 10].Cells[_phase].Value = Convert.ToInt16(_dataResponse[i + 3]);
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 10].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                    }
-                    if (_dataResponse[i + 2] == 0x02)
-                    {
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 10].Cells[_phase].Value = _dataResponse[i + 4] << 8 | _dataResponse[i + 3];
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 10].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                    }
-                    if (_dataResponse[i + 2] == 0x04) //В проге используется всё равно FF FF, может китайцы опять переиграли
-                    {
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 10].Cells[_phase].Value = _dataResponse[i + 4] << 8 | _dataResponse[i + 3];
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 10].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                    }
-                }
-            }
+            WriteInDataGrid(_dataResponse, 0x31, 0x03, 10);
             //baseBlockTelemetryDataGrid.RowHeadersDefaultCellStyle.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Regular);
             //CONFIRM--------------------------------------------------
             _dataResponse = new byte[256];
@@ -1066,29 +1021,7 @@ namespace test_app
                 EnableButtons();
                 return;
             }
-            for (int i = 19; i < _dataResponse[18]; ++i)
-            {
-                if (_dataResponse[i] == 0x32 && _dataResponse[i - 1] < 0x02) //&& dataResponse[i + 2] > 0x00)
-                                                                             //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
-                                                                             //в первой половине 0x31
-                {
-                    if (_dataResponse[i + 2] == 0x01)
-                    {
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 14].Cells[_phase].Value = Convert.ToInt16(_dataResponse[i + 3]);
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 14].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                    }
-                    if (_dataResponse[i + 2] == 0x02)
-                    {
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 14].Cells[_phase].Value = _dataResponse[i + 4] << 8 | _dataResponse[i + 3];
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 14].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                    }
-                    if (_dataResponse[i + 2] == 0x04) //В проге используется всё равно FF FF, может китайцы опять переиграли
-                    {
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 14].Cells[_phase].Value = _dataResponse[i + 4] << 8 | _dataResponse[i + 3];
-                        baseBlockTelemetryDataGrid.Rows[_dataResponse[i - 1] + 14].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                    }
-                }
-            }
+            WriteInDataGrid(_dataResponse, 0x32, 0x02, 14);
             //CONFIRM--------------------------------------------------
             _dataResponse = new byte[256];
             try
@@ -1123,7 +1056,35 @@ namespace test_app
             //ReadCONFIRM(0x04, 1);
         }
 
-        //-------------Чтение рабочих параметров ББ---------------------------- 
+        //--------------------Запись параметров в DataGrid--------------------
+        private void WriteInDataGrid(byte[] Response, byte DestinationAddress, byte Length, Int16 DataGridShift)
+        {
+            for (int i = 19; i < Response[18]; ++i)
+            {
+                if (Response[i] == DestinationAddress && Response[i - 1] < Length) //&& dataResponse[i + 2] > 0x00)
+                                                                             //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
+                                                                             //в первой половине 0x31
+                {
+                    if (Response[i + 2] == 0x01)
+                    {
+                        baseBlockTelemetryDataGrid.Rows[Response[i - 1] + DataGridShift].Cells[_phase].Value = Convert.ToInt16(Response[i + 3]);
+                        baseBlockTelemetryDataGrid.Rows[Response[i - 1] + DataGridShift].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                    }
+                    if (Response[i + 2] == 0x02)
+                    {
+                        baseBlockTelemetryDataGrid.Rows[Response[i - 1] + DataGridShift].Cells[_phase].Value = Response[i + 4] << 8 | Response[i + 3];
+                        baseBlockTelemetryDataGrid.Rows[Response[i - 1] + DataGridShift].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                    }
+                    if (Response[i + 2] == 0x04) //В проге используется всё равно FF FF, может китайцы опять переиграли
+                    {
+                        baseBlockTelemetryDataGrid.Rows[Response[i - 1] + DataGridShift].Cells[_phase].Value = Response[i + 4] << 8 | Response[i + 3];
+                        baseBlockTelemetryDataGrid.Rows[Response[i - 1] + DataGridShift].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                    }
+                }
+            }
+        }
+
+        //--------------------Чтение рабочих параметров ББ-------------------- 
         private async void ReadSCADAParameterButton_Click(object sender, EventArgs e)
         {
             TeleindicationStopTimer.Stop();
