@@ -736,7 +736,7 @@ namespace test_app
         }
 
         //TODO: Разбить на отдельные методы
-        //---------Чтение параметров индикатора RunParam и CurrentParam-------------
+        //---------Чтение параметров индикатора RunParam, CurrentParam и GroundParam-------------
         /// Сводка:
         ///     Чтение данных с индикаторов. На ББ отправляется запрос в формате
         ///     68 11 1A 00 4C 00 7A 01 0D 00 00 00 00 00 00 2A 00 04 00
@@ -1201,7 +1201,6 @@ namespace test_app
             //00 30 00 02 50 00 | 01 30 00 01 06 | 02 30 00 02 2C 01
             //03 30 00 04 84 03 00 00 | 04 30 00 02 78 00 | 05 30 00 01 14
             //06 30 00 01 0A | 07 30 00 02 0A 00
-            short storage;
 
             byte[] defaultGeneralPackage =
               { 0x68, 0x40, 0x1C, 0x00, 0x4E, 0x00, 0x7D, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2A, 0x00, 0x04, 0x2F,
@@ -1229,7 +1228,12 @@ namespace test_app
             defaultCurrentPackage[17] += (byte)_phase;
             defaultGroundPackage[17] += (byte)_phase;
             //--------------------GeneralPackage--------------------------
-            for (var i = 19; i < defaultGeneralPackage.Length; ++i)
+            DataGridToDefaultPackage(ref defaultGeneralPackage, 0x30, 1, _phase);
+            if (defaultGeneralPackage == null)
+            {
+                return;
+            }
+            /*for (var i = 19; i < defaultGeneralPackage.Length; ++i)
             {
                 if (defaultGeneralPackage[i] == 0x30 && defaultGeneralPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
                                                                                              //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
@@ -1274,7 +1278,7 @@ namespace test_app
                         //что является по факту диапазоном в 2 байта - 0xFF. Надо уточнять у китайцев
                     }
                 }
-            }
+            }*/
 
             await BaseBlockStream.WriteAsync(defaultGeneralPackage, 0, defaultGeneralPackage.Length);
             //CONFIRM--------------------------------------------------
@@ -1297,7 +1301,12 @@ namespace test_app
             //---------------------------------------------------------
             //----------------CurrentPackage--------------------------
             ProgressBarTimer.Start();
-            for (int i = 19; i < defaultCurrentPackage.Length; ++i)
+            DataGridToDefaultPackage(ref defaultCurrentPackage, 0x31, 10, _phase);
+            if (defaultCurrentPackage == null)
+            {
+                return;
+            }
+            /*for (int i = 19; i < defaultCurrentPackage.Length; ++i)
             {
                 if (defaultCurrentPackage[i] == 0x31 && defaultCurrentPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
                                                                                              //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
@@ -1342,7 +1351,7 @@ namespace test_app
                         //что является по факту диапазоном в 2 байта - 0xFF. Надо уточнять у китайцев
                     }
                 }
-            }
+            }*/
             await BaseBlockStream.WriteAsync(defaultCurrentPackage, 0, defaultCurrentPackage.Length);
 
             //CONFIRM--------------------------------------------------
@@ -1365,9 +1374,14 @@ namespace test_app
             //---------------------------------------------------------
             //-----------------GroundPackage---------------------------
             ProgressBarTimer.Start();
-            for (int i = 19; i < defaultGroundPackage.Length; ++i)
+            DataGridToDefaultPackage(ref defaultGroundPackage, 0x32, 14, _phase);
+            if (defaultGroundPackage == null)
             {
-                if (defaultGroundPackage[i] == 0x31 && defaultGroundPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
+                return;
+            }
+            /*for (int i = 19; i < defaultGroundPackage.Length; ++i)
+            {
+                if (defaultGroundPackage[i] == 0x32 && defaultGroundPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
                                                                                            //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
                                                                                            //в первой половине 0x32
                 {
@@ -1409,7 +1423,7 @@ namespace test_app
                         //TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535, что является по факту диапазоном в 2 байта - 0xFFFF. Надо уточнять у китайцев
                     }
                 }
-            }
+            }*/
             await BaseBlockStream.WriteAsync(defaultGroundPackage, 0, defaultGroundPackage.Length);
 
             //CONFIRM--------------------------------------------------
@@ -1442,9 +1456,56 @@ namespace test_app
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private byte[] DataGridToDefaultPackage(byte[] defaultPackage, int index)
+        private void DataGridToDefaultPackage(ref byte[] defaultPackage, byte DestinationAdress, int Index, int Phase)
         {
-            return defaultPackage;
+            short storage;
+            for (int i = 19; i < defaultPackage.Length; ++i)
+            {
+                if (defaultPackage[i] == DestinationAdress && defaultPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
+                                                                                           //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
+                                                                                           //в первой половине 0x30/0x31/0x32
+                {
+                    if (defaultPackage[i + 2] == 0x01)
+                    {
+                        if (baseBlockTelemetryDataGrid.Rows[defaultPackage[i - 1] + Index].Cells[Phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultPackage[i - 1] + Index].Cells[Phase].Value.ToString() == "")
+                        {
+                            defaultPackage = null;
+                        }
+                        baseBlockTelemetryDataGrid.Rows[defaultPackage[i - 1] + Index].Cells[Phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        defaultPackage[i + 3] = Convert.ToByte(baseBlockTelemetryDataGrid.Rows[defaultPackage[i - 1] + Index].Cells[Phase].Value);
+                    }
+                    if (defaultPackage[i + 2] == 0x02)
+                    {
+                        if (baseBlockTelemetryDataGrid.Rows[defaultPackage[i - 1] + Index].Cells[Phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultPackage[i - 1] + Index].Cells[Phase].Value.ToString() == "")
+                        {
+                            defaultPackage = null;
+                        }
+                        baseBlockTelemetryDataGrid.Rows[defaultPackage[i - 1] + Index].Cells[Phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultPackage[i - 1] + Index].Cells[Phase].Value);
+                        defaultPackage[i + 3] = (byte)(storage & 0x00FF);
+                        defaultPackage[i + 4] = (byte)(storage >> 8);
+                    }
+                    if (defaultPackage[i + 2] == 0x04)
+                    {
+                        if (baseBlockTelemetryDataGrid.Rows[defaultPackage[i - 1] + Index].Cells[Phase] == null ||
+                            baseBlockTelemetryDataGrid.Rows[defaultPackage[i - 1] + Index].Cells[Phase].Value.ToString() == "")
+                        {
+                            defaultPackage = null;
+                        }
+                        baseBlockTelemetryDataGrid.Rows[defaultPackage[i - 1] + Index].Cells[Phase].Style.Font = new Font("Microsoft Sans Serif", 8);
+                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultPackage[i - 1] + Index].Cells[Phase].Value);
+                        defaultPackage[i + 3] = (byte)(storage & 0x00FF);
+                        defaultPackage[i + 4] = (byte)(storage >> 8);
+                        //defaultRunPackage[i + 5] = 0xFF; UNUSED
+                        //defaultRunPackage[i + 6] = 0xFF; UNSUED
+                        //TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535, что является по факту диапазоном в 2 байта - 0xFFFF. Надо уточнять у китайцев
+                    }
+                }
+            }
+            int k = 0;
+            //return defaultPackage;
         }
 
         private async void WriteSCADAParameterButton_Click(object sender, EventArgs e)
