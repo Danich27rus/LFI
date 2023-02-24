@@ -27,13 +27,13 @@ namespace test_app
         private Size OriginalFormSize;
 
         //TODO: Добавить комментарии к каждой переменной
-        private static byte[] _dataResponse;
-        private bool _showTime;
+        private static byte[] _dataResponse; //массив, в котром записывается ответ с ББ/Индикаторов
+        private bool _showTime; //Переменная, отвечающая за отображение времени в логе
         private int _phase; //Фаза А - 1, Фаза Б - 2, Фаза С - 3
 
 
-        public string[] str;
-        public int sizeStr;
+        public string[] str; //строка для хранения не отформатированного приёма
+        public int sizeStr; //размер строки с неотформатированным приёмом
 
         protected CancellationTokenSource TokenSource = new CancellationTokenSource();
         protected TcpClient BaseBlockSender;
@@ -91,6 +91,25 @@ namespace test_app
             //resizeControl(OriginalRectangle3, groupBox3);
         }
 
+        private void Jmih_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (BaseBlockStream == null || !BaseBlockStream.CanRead)
+            {
+                return;
+            }
+            try
+            {
+                BaseBlockSender.GetStream().Close();
+                BaseBlockSender.Close();
+                connectionIndicator.BackColor = Color.White;
+            }
+            catch (System.InvalidOperationException e1)
+            {
+                connectionIndicator.BackColor = Color.Yellow;
+                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.InvalOpExc, e1.ToString()).ToString(), "Код ошибки", _showTime));
+            }
+        }
+
         //---------------Таймер для телеизмерений-----------------------
         /// Сводка:
         ///     Таймер для телеизмерений
@@ -102,18 +121,8 @@ namespace test_app
         ///     и аргументов события
         private async void StopTimer(object sender, EventArgs e)
         {
-            //if (_teleindicationFlag)
-            //{
-            //return;
-            //}
-
             byte[] data = new byte[512];
-            //byte[] stop = { 0x68, 0x04, 0x13, 0x00, 0x02, 0x00 };
-
-            //await BaseBlockStream.WriteAsync(stop, 0, stop.Length);
             await BaseBlockStream.ReadAsync(data, 0, data.Length);
-
-            //_teleindicationFlag = true;
             TeleindicationStopTimer.Stop();
         }
 
@@ -321,7 +330,8 @@ namespace test_app
             connection_log.AppendText(AdditionalFunctions.TextBoxPrint(baseBlockServerConstants.Rows[1].Cells[1].Value.ToString(), "Порт", _showTime));
 
             BaseBlockSender = new TcpClient();
-            //TODO: Сделать через using/await (красиво)
+            //using var BaseBlockSender = new TcpClient();
+            //TODO: Сделать через await using (красиво)
             /*using (var BaseBlockSender = new TcpClient())
             {
 
@@ -340,11 +350,7 @@ namespace test_app
             }
             catch (SocketException ex)
             {
-                progressBarReceive.Value = 1;
-                ProgressBarTimer.Stop();
-                EnableButtons();
-                connectionIndicator.BackColor = Color.Red;
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.ScktExc, ex.ToString()).ToString(), "Код ошибки", _showTime));
+                ExceptionHandler(ex, errorCodes.ScktExc);
                 return;
             }
             byte[] BlockInit = { 0x68, 0x04, 0x07, 0x00, 0x02, 0x00 };
@@ -376,9 +382,9 @@ namespace test_app
         ///     и аргументов события 
         private void DataGridClearButton_Click(object sender, EventArgs e)
         {
-            for (int i = 1; i < baseBlockTelemetryDataGrid.Columns.Count; i++)
+            for (int i = 1; i < baseBlockTelemetryDataGrid.Columns.Count; ++i)
             {
-                for (int j = 1; j < baseBlockTelemetryDataGrid.Rows.Count; j++)
+                for (int j = 1; j < baseBlockTelemetryDataGrid.Rows.Count; ++j)
                 {
                     baseBlockTelemetryDataGrid.Rows[j].Cells[i].Value = null;
                 }
@@ -397,7 +403,7 @@ namespace test_app
         ///     и аргументов события 
         private void closeConnectionButton_Click(object sender, EventArgs e)
         {
-            //TODO Вывести в отдельную ассинхронную задачу
+            //TODO: Вывести в отдельную ассинхронную задачу
             if (BaseBlockStream == null)
             {
                 MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
@@ -611,6 +617,7 @@ namespace test_app
         /// Параметры:
         ///     Стандартные параметры C# ввиде отправителя 
         ///     и аргументов события 
+        //TODO: переписать справку
         private void serviceConsoleHelpButton_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Данная сервисная консоль предназначена для вывода информации в raw-виде" +
@@ -681,7 +688,6 @@ namespace test_app
         ///     OptionalSavePlace:
         ///         (Опционально) Место куда будет сохранятся массив с подтверждением,
         ///         если известно, что CONFIRM будет находится в двух разных массивах данных
-
         private void ReadCONFIRM(byte CheckLength, byte position, byte[] OptionalSavePlace = null)
         {
             if (_dataResponse != null || _dataResponse.Length != 0)
@@ -725,17 +731,13 @@ namespace test_app
         private void ReadTeleindication()
         {
             byte[] stop = { 0x68, 0x04, 0x13, 0x00, 0x02, 0x00 };
-            byte[] test = { 0x68, 0x04, 0x43, 0x00, 0x00, 0x00 };
-
             byte[] TeleindicationData = new byte[8192];
             BaseBlockStream.Write(stop, 0, stop.Length);
             Thread.Sleep(1000);
             BaseBlockStream.Read(TeleindicationData, 0, TeleindicationData.Length);
             TeleindicationStopTimer.Start();
-            //TeleindicationStopTimer.
         }
 
-        //TODO: Разбить на отдельные методы
         //---------Чтение параметров индикатора RunParam, CurrentParam и GroundParam-------------
         /// Сводка:
         ///     Чтение данных с индикаторов. На ББ отправляется запрос в формате
@@ -755,7 +757,7 @@ namespace test_app
         {
             string[] IndicatorStatus = new string[] { "Получение общих параметров индикатора.", "Получение настроек межфазного замыкания.", "Получение настроек замыкания на землю.", "Ожидание подтверждения." };
 
-            if (BaseBlockStream == null)
+            if (BaseBlockStream == null || !BaseBlockStream.CanRead)
             {
                 MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                 return;
@@ -785,12 +787,7 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
-                ProgressBarTimer.Stop();
-                progressBarReceive.Value = 1;
-                IndicatorStatusLabel.Text = "";
-                EnableButtons();
-                connectionIndicator.BackColor = Color.Red;
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
+                ExceptionHandler(e2, errorCodes.IOExc);
             }
 
             //Конвертация полученных данных в битовый массив и разделение по ячейкам
@@ -802,11 +799,7 @@ namespace test_app
 
             if (sizeStr < 20)
             {
-                ProgressBarTimer.Stop();
-                progressBarReceive.Value = 1;
-                IndicatorStatusLabel.Text = "";
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", _showTime));
-                EnableButtons();
+                DataResponseHandler("ББ не смог получить данные с индикаторов");
                 return;
             }
 
@@ -817,19 +810,12 @@ namespace test_app
             //09 30 00 02 F0 0A 0A 30 00 01 06 0B 30 00 02 F4 01 0C
             //30 00 01 05 0D 30 00 01 02 0E 30 00 01 02)                    - Доп параметры
             //То что в скобках - пока обрабатывать не нужно
-
             //TODO: Возможен баг если длина пакета с данными не постоянна, и часть массива "скушается" из-за того, что оборвалась запись где-то посередине массива
-
             //Чтение идёт с 0x3000 до 0x300E в RunParam, данные нужны с 0x3000 по 0x3007
             //            с 0x3100 до 0x3102 в CurrentParam
-
             if (_dataResponse[1] > 0x66)
             {
-                ProgressBarTimer.Stop();
-                progressBarReceive.Value = 1;
-                IndicatorStatusLabel.Text = "";
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", _showTime));
-                EnableButtons();
+                DataResponseHandler("ББ вернул не те данные, попробуйте снова отправить запрос на чтение");
                 return;
             }
             WriteInDataGrid(_dataResponse, 0x30, 0x08, 1);
@@ -846,12 +832,7 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
-                ProgressBarTimer.Stop();
-                progressBarReceive.Value = 1;
-                IndicatorStatusLabel.Text = "";
-                EnableButtons();
-                connectionIndicator.BackColor = Color.Red;
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
+                ExceptionHandler(e2, errorCodes.IOExc);
             }
             if (_dataResponse[1] == 0x04)
             {
@@ -866,19 +847,10 @@ namespace test_app
                 BaseBlockStream.Write(stop, 0, stop.Length);
                 Thread.Sleep(1500);
                 BaseBlockStream.Read(TeleindicationData, 0, TeleindicationData.Length);
-                //Thread.Sleep(5000);
-                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-                //ReadCONFIRM(0x04, 1);
             }
             //------------------------------------------------------
-
             //-------------------CurrentParam-----------------------
             byte[] readCurrentData = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2B, 0x00, 0x04, 0x00 };
-            //68 11 1A 00 4C 00 7A 01 0D 00 00 00 00 00 00 2B 00 05 00
             readCurrentData[17] += (byte)_phase;
             _dataResponse = new byte[256];
             try
@@ -890,12 +862,7 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
-                ProgressBarTimer.Stop();
-                progressBarReceive.Value = 1;
-                IndicatorStatusLabel.Text = "";
-                EnableButtons();
-                connectionIndicator.BackColor = Color.Red;
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
+                ExceptionHandler(e2, errorCodes.IOExc);
             }
 
             str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
@@ -906,11 +873,7 @@ namespace test_app
 
             if (sizeStr < 30)
             {
-                ProgressBarTimer.Stop();
-                progressBarReceive.Value = 1;
-                IndicatorStatusLabel.Text = "";
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", _showTime));
-                EnableButtons();
+                DataResponseHandler("ББ не смог получить данные с индикаторов");
                 return;
             }
 
@@ -919,20 +882,12 @@ namespace test_app
             //(03 31 00 02 00 00 | 04 31 00 02 0A | 00 05 31 00 02 0A 00
             //06 31 00 04 30 75 00 00 | 07 31 00 02 B8 0B | 08 31 00 02 14 00
             //09 31 00 02 A0 00)                                                - доп параметры
-
-
             if (_dataResponse[1] > 0x66)
             {
-                ProgressBarTimer.Stop();
-                progressBarReceive.Value = 1;
-                IndicatorStatusLabel.Text = "";
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", _showTime));
-                EnableButtons();
+                DataResponseHandler("ББ вернул не те данные, попробуйте снова отправить запрос на чтение");
                 return;
             }
-
             WriteInDataGrid(_dataResponse, 0x31, 0x03, 10);
-            //baseBlockTelemetryDataGrid.RowHeadersDefaultCellStyle.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Regular);
             //CONFIRM--------------------------------------------------
             _dataResponse = new byte[256];
             try
@@ -945,12 +900,7 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
-                ProgressBarTimer.Stop();
-                progressBarReceive.Value = 1;
-                IndicatorStatusLabel.Text = "";
-                EnableButtons();
-                connectionIndicator.BackColor = Color.Red;
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
+                ExceptionHandler(e2, errorCodes.IOExc);
             }
             if (_dataResponse[1] == 0x04)
             {
@@ -965,18 +915,10 @@ namespace test_app
                 BaseBlockStream.Read(TeleindicationData, 0, TeleindicationData.Length);
                 //ReadTeleindication();               //Костыль для фикса 5 строк
                 ReadCONFIRM(0x12, 1);
-                //Thread.Sleep(5000);
-                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
-                //ReadCONFIRM(0x04, 1);
             }
             //---------------------------------------------------------
             //---------------------GroundParam-------------------------
             byte[] readGroundData = { 0x68, 0x11, 0x1A, 0x00, 0x4C, 0x00, 0x7A, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2C, 0x00, 0x04, 0x00 };
-            //68 11 1A 00 4C 00 7A 01 0D 00 00 00 00 00 00 2C 00 0X 00
             readGroundData[17] += (byte)_phase;
             _dataResponse = new byte[256];
             try
@@ -988,14 +930,9 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
-                ProgressBarTimer.Stop();
-                progressBarReceive.Value = 1;
-                IndicatorStatusLabel.Text = "";
-                EnableButtons();
-                connectionIndicator.BackColor = Color.Red;
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
+                ExceptionHandler(e2, errorCodes.IOExc);
             }
-
+            
             str = BitConverter.ToString(_dataResponse, 0, _dataResponse.Length).Split('-');
 
             sizeStr = Convert.ToInt16(str[1], 16);
@@ -1004,21 +941,13 @@ namespace test_app
 
             if (sizeStr < 30)
             {
-                ProgressBarTimer.Stop();
-                progressBarReceive.Value = 1;
-                IndicatorStatusLabel.Text = "";
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ не смог получить данные с индикаторов", _showTime));
-                EnableButtons();
+                DataResponseHandler("ББ не смог получить данные с индикаторов");
                 return;
             }
 
             if (_dataResponse[1] > 0x66)
             {
-                ProgressBarTimer.Stop();
-                progressBarReceive.Value = 1;
-                IndicatorStatusLabel.Text = "";
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ББ вернул не те данные, попробуйте снова отправить запрос на чтение", _showTime));
-                EnableButtons();
+                DataResponseHandler("ББ вернул не те данные, попробуйте снова отправить запрос на чтение");
                 return;
             }
             WriteInDataGrid(_dataResponse, 0x32, 0x02, 14);
@@ -1034,12 +963,7 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
-                ProgressBarTimer.Stop();
-                progressBarReceive.Value = 1;
-                IndicatorStatusLabel.Text = "";
-                EnableButtons();
-                connectionIndicator.BackColor = Color.Red;
-                connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString()).ToString(), "Код ошибки", _showTime));
+                ExceptionHandler(e2, errorCodes.IOExc);
             }
             ReadCONFIRM(0x04, 1);
             IndicatorStatusLabel.Text = "";
@@ -1057,13 +981,37 @@ namespace test_app
         }
 
         //--------------------Запись параметров в DataGrid--------------------
+        /// Сводка:
+        ///     Запись параметров, пришедших от индикатора в таблицу.    
+        ///     
+        /// Параметры: 
+        ///     Response:
+        ///         Массив полученных данных
+        ///         
+        ///     DestinationAddress:
+        ///         Адрес параметров, которые пришли в ответе.
+        ///         В зависимости от этого адреса можно понять, из
+        ///         какой категории данные
+        ///         
+        ///         0х30 - данные по общим параметрам
+        ///         0х31 - данные по межфазному замыканию
+        ///         0х32 - данные по замыканию на землю
+        ///         
+        ///     Length:
+        ///         Максимально кол-во данных, которое нужно считать
+        ///         Т.к. в массиве будут ещё дополнительные данные, считывание ограничивается
+        ///         только основными значениями в памяти (Например для общих параметров это
+        ///         0х3008)
+        ///         
+        ///     DataGridShift:
+        ///         Сдвиг для записи в правильное место таблицы
+        ///
         private void WriteInDataGrid(byte[] Response, byte DestinationAddress, byte Length, Int16 DataGridShift)
         {
             for (int i = 19; i < Response[18]; ++i)
             {
                 if (Response[i] == DestinationAddress && Response[i - 1] < Length) //&& dataResponse[i + 2] > 0x00)
-                                                                             //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
-                                                                             //в первой половине 0x31
+                                                                             //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно в первой половине 0x30/0x31/0x32
                 {
                     if (Response[i + 2] == 0x01)
                     {
@@ -1084,7 +1032,56 @@ namespace test_app
             }
         }
 
-        //--------------------Чтение рабочих параметров ББ-------------------- 
+        //-------------Обработчик ошибки при разрыве соединения---------------
+        /// Сводка:
+        ///     Обработчик системных ошибок в больших функциях чтения/записи.    
+        ///     
+        /// Параметры: 
+        ///     e:
+        ///         Представление ошибки, нужно для вывода текста
+        ///
+        ///     Code:
+        ///         Код ошибки, по нему повзвращается значение в TextBox
+        ///
+        private void ExceptionHandler(Exception e, errorCodes Code)
+        {
+            ProgressBarTimer.Stop();
+            progressBarReceive.Value = 1;
+            IndicatorStatusLabel.Text = "";
+            EnableButtons();
+            connectionIndicator.BackColor = Color.Red;
+            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(AdditionalFunctions.ErrorExceptionHandler(Code, e.ToString()).ToString(), "Код ошибки", _showTime));
+        }
+
+        //----------------Обработчик неверных данных с ББ---------------------
+        /// Сводка:
+        ///     Обработчик неверного массива данных от ББ (если длина не совпадает с условием).    
+        ///     
+        /// Параметры: 
+        ///     ErrorText:
+        ///         Текст ошибки.
+        ///
+        private void DataResponseHandler(string ErrorText)
+        {
+            ProgressBarTimer.Stop();
+            progressBarReceive.Value = 1;
+            IndicatorStatusLabel.Text = "";
+            connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), ErrorText, _showTime));
+            EnableButtons();
+        }
+
+        //------------------Чтение рабочих параметров ББ----------------------
+        /// Сводка:
+        ///     Чтение данных с ББ. На ББ отправляется запрос в формате
+        ///     68 11 1A 00 4C 00 7A 01 0D 00 02 00 00 00 00 01 00 02 00
+        ///     где: 
+        ///     01 - хотим получить данные с ББ
+        ///     02 - какие парметры нам нужны (в данном случае параметры работы)
+        ///         
+        ///     
+        /// Параметры:
+        ///     Стандартные параметры C# ввиде отправителя 
+        ///     и аргументов события 
         private async void ReadSCADAParameterButton_Click(object sender, EventArgs e)
         {
             TeleindicationStopTimer.Stop();
@@ -1141,7 +1138,6 @@ namespace test_app
                     //_currentSCADAValue = SCADA_TextBox.Text;
                 }
             }
-            //connection_log.AppendText(AdditionalFunctions.TextBoxPrint(string.Join("", BitConverter.ToString(_dataResponse).Replace("-", " ")), "ОК: ", _showTime));
             //CONFIRM--------------------------------------------------
             _dataResponse = new byte[256];
             try
@@ -1172,13 +1168,9 @@ namespace test_app
             }
             else
             {
-                byte[] ok = new byte[1024];
                 ReadTeleindication();
                 TeleindicationStopTimer.Start();
-                //await BaseBlockStream.ReadAsync(ok, 0, ok.Length);
-                //await BaseBlockStream.ReadAsync(_dataResponse, 0, _dataResponse.Length);
             }
-
             //---------------------------------------------------------
             BaseBlockStream.Flush();
             EnableButtons();
@@ -1188,19 +1180,28 @@ namespace test_app
 
         #region Функции, отвечающие за запись данных на индикаторы и память ББ
         //--------------------Запись данных на индикаторы------------------
+        /// Сводка:
+        ///     Запсиь данных на индикаторы. На ББ отправляется запрос в формате
+        ///     68 XX 1C 00 4E 00 7D 01 0D 00 00 00 00 00 00 2A 00 04 XX ...
+        ///     где: 
+        ///     2A - тип параметров, который мы хотим записать
+        ///     04 - фаза, на котороую мы хотим записать нужные нам параметры
+        ///         
+        ///     
+        /// Параметры:
+        ///     Стандартные параметры C# ввиде отправителя 
+        ///     и аргументов события
+
         //В момент перезаписи все жирные подписи становятся снова обычными
         private async void writeIndicatorParametersButton_Click(object sender, EventArgs e)
         {
+            string[] IndicatorStatus = new string[] { "Запись общих параметров индикатора.", "Запись настроек межфазного замыкания.", "Запись настроек замыкания на землю.", "Ожидание подтверждения." };
             if (BaseBlockStream == null)
             {
                 MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                 return;
             }
             DisableButtons();
-            //68 40 1C 00 4E 00 7D 01 0D 00 00 00 00 00 00 2A 00 05 2F
-            //00 30 00 02 50 00 | 01 30 00 01 06 | 02 30 00 02 2C 01
-            //03 30 00 04 84 03 00 00 | 04 30 00 02 78 00 | 05 30 00 01 14
-            //06 30 00 01 0A | 07 30 00 02 0A 00
 
             byte[] defaultGeneralPackage =
               { 0x68, 0x40, 0x1C, 0x00, 0x4E, 0x00, 0x7D, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2A, 0x00, 0x04, 0x2F,
@@ -1229,57 +1230,11 @@ namespace test_app
             defaultGroundPackage[17] += (byte)_phase;
             //--------------------GeneralPackage--------------------------
             DataGridToDefaultPackage(ref defaultGeneralPackage, 0x30, 1, _phase);
+            IndicatorStatusLabel.Text = IndicatorStatus[0];
             if (defaultGeneralPackage == null)
             {
                 return;
             }
-            /*for (var i = 19; i < defaultGeneralPackage.Length; ++i)
-            {
-                if (defaultGeneralPackage[i] == 0x30 && defaultGeneralPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
-                                                                                             //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
-                                                                                             //в первой половине 0x30
-                {
-                    if (defaultGeneralPackage[i + 2] == 0x01)
-                    {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Value.ToString() == "")
-                        {
-                            return;
-                        }
-                        baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        defaultGeneralPackage[i + 3] = Convert.ToByte(baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Value);
-                    }
-                    if (defaultGeneralPackage[i + 2] == 0x02)
-                    {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Value.ToString() == "")
-                        {
-                            return;
-                        }
-                        baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Value);
-                        defaultGeneralPackage[i + 3] = (byte)(storage & 0x00FF);
-                        defaultGeneralPackage[i + 4] = (byte)(storage >> 8);
-                    }
-                    if (defaultGeneralPackage[i + 2] == 0x04)
-                    {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Value.ToString() == "")
-                        {
-                            return;
-                        }
-                        baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGeneralPackage[i - 1] + 1].Cells[_phase].Value);
-                        defaultGeneralPackage[i + 3] = (byte)(storage & 0x00FF);
-                        defaultGeneralPackage[i + 4] = (byte)(storage >> 8);
-                        //defaultRunPackage[i + 5] = 0xFF; UNUSED
-                        //defaultRunPackage[i + 6] = 0xFF; UNSUED
-                        //TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535
-                        //что является по факту диапазоном в 2 байта - 0xFF. Надо уточнять у китайцев
-                    }
-                }
-            }*/
-
             await BaseBlockStream.WriteAsync(defaultGeneralPackage, 0, defaultGeneralPackage.Length);
             //CONFIRM--------------------------------------------------
             _dataResponse = new byte[256];
@@ -1291,69 +1246,24 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
-                ProgressBarTimer.Stop();
+                ExceptionHandler(e2, errorCodes.IOExc);
+                /*ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
-                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
+                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());*/
             }
             ReadCONFIRM(0x04, 1);
             //---------------------------------------------------------
             //----------------CurrentPackage--------------------------
             ProgressBarTimer.Start();
             DataGridToDefaultPackage(ref defaultCurrentPackage, 0x31, 10, _phase);
+            IndicatorStatusLabel.Text = IndicatorStatus[1];
             if (defaultCurrentPackage == null)
             {
                 return;
             }
-            /*for (int i = 19; i < defaultCurrentPackage.Length; ++i)
-            {
-                if (defaultCurrentPackage[i] == 0x31 && defaultCurrentPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
-                                                                                             //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
-                                                                                             //в первой половине 0x31
-                {
-                    if (defaultCurrentPackage[i + 2] == 0x01)
-                    {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Value.ToString() == "")
-                        {
-                            return;
-                        }
-                        baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        defaultCurrentPackage[i + 3] = Convert.ToByte(baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Value);
-                    }
-                    if (defaultCurrentPackage[i + 2] == 0x02)
-                    {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Value.ToString() == "")
-                        {
-                            return;
-                        }
-                        baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Value);
-                        defaultCurrentPackage[i + 3] = (byte)(storage & 0x00FF);
-                        defaultCurrentPackage[i + 4] = (byte)(storage >> 8);
-                    }
-                    if (defaultCurrentPackage[i + 2] == 0x04)
-                    {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Value.ToString() == "")
-                        {
-                            return;
-                        }
-                        baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultCurrentPackage[i - 1] + 10].Cells[_phase].Value);
-                        defaultCurrentPackage[i + 3] = (byte)(storage & 0x00FF);
-                        defaultCurrentPackage[i + 4] = (byte)(storage >> 8);
-                        //defaultRunPackage[i + 5] = 0xFF; UNUSED
-                        //defaultRunPackage[i + 6] = 0xFF; UNSUED
-                        //TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535
-                        //что является по факту диапазоном в 2 байта - 0xFF. Надо уточнять у китайцев
-                    }
-                }
-            }*/
             await BaseBlockStream.WriteAsync(defaultCurrentPackage, 0, defaultCurrentPackage.Length);
-
             //CONFIRM--------------------------------------------------
             _dataResponse = new byte[256];
             try
@@ -1364,68 +1274,24 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
-                ProgressBarTimer.Stop();
+                ExceptionHandler(e2, errorCodes.IOExc);
+                /*ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
-                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
+                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());*/
             }
             ReadCONFIRM(0x04, 1);
             //---------------------------------------------------------
             //-----------------GroundPackage---------------------------
             ProgressBarTimer.Start();
             DataGridToDefaultPackage(ref defaultGroundPackage, 0x32, 14, _phase);
+            IndicatorStatusLabel.Text = IndicatorStatus[2];
             if (defaultGroundPackage == null)
             {
                 return;
             }
-            /*for (int i = 19; i < defaultGroundPackage.Length; ++i)
-            {
-                if (defaultGroundPackage[i] == 0x32 && defaultGroundPackage[i - 1] < 0x08) //&& dataResponse[i + 2] > 0x00)
-                                                                                           //TODO: На данный момент здесь возможен баг, если значение в памяти будет равно
-                                                                                           //в первой половине 0x32
-                {
-                    if (defaultGroundPackage[i + 2] == 0x01)
-                    {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Value.ToString() == "")
-                        {
-                            return;
-                        }
-                        baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        defaultGroundPackage[i + 3] = Convert.ToByte(baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 10].Cells[_phase].Value);
-                    }
-                    if (defaultGroundPackage[i + 2] == 0x02)
-                    {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Value.ToString() == "")
-                        {
-                            return;
-                        }
-                        baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Value);
-                        defaultGroundPackage[i + 3] = (byte)(storage & 0x00FF);
-                        defaultGroundPackage[i + 4] = (byte)(storage >> 8);
-                    }
-                    if (defaultGroundPackage[i + 2] == 0x04)
-                    {
-                        if (baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase] == null ||
-                            baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Value.ToString() == "")
-                        {
-                            return;
-                        }
-                        baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Style.Font = new Font("Microsoft Sans Serif", 8);
-                        storage = Convert.ToInt16(baseBlockTelemetryDataGrid.Rows[defaultGroundPackage[i - 1] + 14].Cells[_phase].Value);
-                        defaultGroundPackage[i + 3] = (byte)(storage & 0x00FF);
-                        defaultGroundPackage[i + 4] = (byte)(storage >> 8);
-                        //defaultRunPackage[i + 5] = 0xFF; UNUSED
-                        //defaultRunPackage[i + 6] = 0xFF; UNSUED
-                        //TODO: В проге китайцев написано что диапазон у чисел в 4 байта с 0 до 65535, что является по факту диапазоном в 2 байта - 0xFFFF. Надо уточнять у китайцев
-                    }
-                }
-            }*/
             await BaseBlockStream.WriteAsync(defaultGroundPackage, 0, defaultGroundPackage.Length);
-
             //CONFIRM--------------------------------------------------
             _dataResponse = new byte[256];
             try
@@ -1436,26 +1302,42 @@ namespace test_app
             }
             catch (System.IO.IOException e2)
             {
-                ProgressBarTimer.Stop();
+                ExceptionHandler(e2, errorCodes.IOExc);
+                /*ProgressBarTimer.Stop();
                 progressBarReceive.Value = 1;
                 EnableButtons();
                 connectionIndicator.BackColor = Color.Red;
-                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());
+                AdditionalFunctions.ErrorExceptionHandler(errorCodes.IOExc, e2.ToString());*/
             }
             ReadCONFIRM(0x04, 1);
             EnableButtons();
             //---------------------------------------------------------
         }
 
-        /// <summary>
+        //--------------------Запись данных в массив------------------
         /// Сводка:
         ///     Запись данных из таблицы в массив для передачи на ББ
         ///    
         /// Параметры:
+        ///     defaultPackage:
+        ///         Массив данных, записываемы из таблицы в ББ 
+        ///         
+        ///     DestinationAdress:
+        ///         Адрес параметров, которые запишутся в пакет данных.
+        ///         В зависимости от этого адреса можно понять, из
+        ///         какой категории данные
+        ///         
+        ///         0х30 - данные по общим параметрам
+        ///         0х31 - данные по межфазному замыканию
+        ///         0х32 - данные по замыканию на землю 
         ///     
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        ///     Index:
+        ///         Сдвиг по таблице, в зависимости от параметра которой считывается.
+        ///         Чтобы не считать общие параметры, сдвиг задаётся на 10 пунктов и т.д.
+        ///         
+        ///     Phase:
+        ///         Фаза (A, B или C), на которой будет записан массив данных в индикатор
+        ///
         private void DataGridToDefaultPackage(ref byte[] defaultPackage, byte DestinationAdress, int Index, int Phase)
         {
             short storage;
@@ -1504,15 +1386,19 @@ namespace test_app
                     }
                 }
             }
-            int k = 0;
-            //return defaultPackage;
         }
 
+        /// Сводка:
+        ///     Запись данных из TextBox на ББ
+        ///    
+        /// Параметры:
+        ///     Стандартные параметры C# ввиде отправителя 
+        ///     и аргументов события
         private async void WriteSCADAParameterButton_Click(object sender, EventArgs e)
         {
-            if (BaseBlockStream == null)
+            if (BaseBlockStream == null || !BaseBlockStream.CanRead)
             {
-                MessageBox.Show("Соединенине не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                MessageBox.Show("Соединение не установлено", "Справка", MessageBoxButtons.OK, MessageBoxIcon.Question);
                 return;
             }
             if (string.IsNullOrEmpty(SCADA_TextBox.Text))
@@ -1564,9 +1450,6 @@ namespace test_app
                 0x20, 0xFF, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00,
                 0x21, 0xFF, 0x00, 0x01, 0x00
             };
-
-            //defaultWritePackage[3] += (byte)test;
-            //defaultWritePackage[4] += (byte)test;
             defaultWritePackage[72] = (byte)(Convert.ToInt16(SCADA_TextBox.Text) >> 8);
             defaultWritePackage[71] = (byte)(Convert.ToInt16(SCADA_TextBox.Text) & 0xFF);
 
@@ -1591,7 +1474,7 @@ namespace test_app
             BaseBlockStream.Flush();
             EnableButtons();
         }
-
         #endregion
+
     }
 }
